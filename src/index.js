@@ -1,13 +1,12 @@
-import {
-	SELECTOR_LIST,
-	ATTRIBUTE_SELECTOR,
-	ID_SELECTOR,
-	CLASS_SELECTOR,
-	TYPE_SELECTOR,
-	PSEUDO_ELEMENT_SELECTOR,
-	PSEUDO_CLASS_SELECTOR,
-	COMPLEX_SELECTOR
-} from './types';
+/* AST Types */
+const SELECTOR_LIST = 'SelectorList';
+const ATTRIBUTE_SELECTOR = 'AttributeSelector';
+const ID_SELECTOR = 'IdSelector';
+const CLASS_SELECTOR = 'ClassSelector';
+const TYPE_SELECTOR = 'TypeSelector';
+const PSEUDO_ELEMENT_SELECTOR = 'PseudoElementSelector';
+const PSEUDO_CLASS_SELECTOR = 'PseudoClassSelector';
+const COMPLEX_SELECTOR = 'ComplexSelector';
 
 const IDENT = /[^\x00-\x7F]|[a-zA-Z_]/;
 const HASH_IDENT = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
@@ -277,7 +276,7 @@ export const parse = selector => {
 						if (LOGICAL_PSEUDO_CLASSES.has(value)) {
 							$curr.selectors = [];
 						} else {
-							$curr.content = '';
+							$curr.argument = '';
 						}
 					} else {
 						if (LOGICAL_PSEUDO_CLASSES.has(value)) {
