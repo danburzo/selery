@@ -91,8 +91,8 @@ A compound selector is a combination of simple selectors, all of which impose co
 
 Represents a type selector, such as `article`.
 
-- `identifier` — can be `*` in the case of the universal selector;
-- `namespace` — an optional namespace.
+- `identifier` (String) — the element type to match; can be `*` in the case of the universal selector;
+- `namespace` (String) — the namespace, if provided with the `namespace|type` syntax; an empty string corresponds to the `|type` syntax.
 
 #### `IdSelector`
 
@@ -108,11 +108,12 @@ Represents a class selector, such as `.primary`.
 
 #### `AttributeSelector`
 
-Represents an attribute selector, such as `[href^="http"]`.
+Represents an [attribute selector](https://drafts.csswg.org/selectors/#attribute-selectors), such as `[href^="http"]`.
 
 - `identifier` (String) — the attribute to match;
 - `value` (String) — the value to match against;
-- `matcher` (String) — one of `=`, `^=`, `$=`, `*=`, `~=`, `|=`.
+- `matcher` (String) — one of `=`, `^=`, `$=`, `*=`, `~=`, `|=`;
+- `flag` (String) — either `s` or `i`, if any.
 
 #### `PseudoClassSelector`
 
