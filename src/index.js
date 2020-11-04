@@ -12,6 +12,27 @@ import {
 const IDENT = /[^\x00-\x7F]|[a-zA-Z_]/;
 const HASH_IDENT = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
 
+/*
+	Back in the day, these pseudo-elements could be expressed
+	with the pseudo-class syntax, e.g. `div:after` instead
+	of `div::after`. Make sure we handle these correctly.
+ */
+const LEGACY_PSEUDO_ELEMENTS = new Set([
+	'before',
+	'after',
+	'first-line',
+	'first-letter'
+]);
+
+/*
+	Out of all pseudo-classes, most of them have their own 
+	microsyntax, such as the An+B syntax for nth-child().
+
+	For logical combination pseudo-classes, 
+	their argument must be parsed as a list of selectors.
+ */
+const LOGICAL_PSEUDO_CLASSES = new Set(['has', 'is', 'where', 'not']);
+
 const node = (attrs, parent) => {
 	Object.defineProperty(attrs, 'parent', {
 		enumerable: false,
@@ -164,10 +185,16 @@ export const parse = selector => {
 		}
 
 		if (ch === '(') {
+			if ($curr.type !== PSEUDO_CLASS_SELECTOR || !$curr.identifier) {
+				throw new Error('Unexpected "(" in the absence of a pseudo-class');
+			}
 			continue;
 		}
 
 		if (ch === ')') {
+			// if ($curr.type !== PSEUDO_CLASS_SELECTOR || !$curr.identifier) {
+			// 	throw new Error('Unexpected ( in the absence of a pseudo-class');
+			// }
 			continue;
 		}
 
@@ -190,8 +217,7 @@ export const parse = selector => {
 			} else {
 				$node = node(
 					{
-						type: PSEUDO_CLASS_SELECTOR,
-						selectors: []
+						type: PSEUDO_CLASS_SELECTOR
 					},
 					$curr
 				);
@@ -227,10 +253,9 @@ export const parse = selector => {
 				while (!eof() && peek().match(HASH_IDENT)) {
 					value += next();
 				}
-				if (
-					$curr.type === SELECTOR_LIST ||
-					$curr.type === PSEUDO_CLASS_SELECTOR
-				) {
+
+				// Add a type selector
+				if ($curr.type === SELECTOR_LIST) {
 					$node = node(
 						{
 							type: TYPE_SELECTOR,
@@ -242,6 +267,36 @@ export const parse = selector => {
 					$curr = $node;
 					continue;
 				}
+
+				if ($curr.type === PSEUDO_CLASS_SELECTOR) {
+					if (!$curr.identifier) {
+						if (LEGACY_PSEUDO_ELEMENTS.has(value)) {
+							$curr.type === PSEUDO_ELEMENT_SELECTOR;
+						}
+						$curr.identifier = value;
+						if (LOGICAL_PSEUDO_CLASSES.has(value)) {
+							$curr.selectors = [];
+						} else {
+							$curr.content = '';
+						}
+					} else {
+						if (LOGICAL_PSEUDO_CLASSES.has(value)) {
+							$node = node(
+								{
+									type: TYPE_SELECTOR,
+									identifier: value
+								},
+								$curr
+							);
+							$curr.selectors.push($node);
+							$curr = $node;
+						} else {
+							$curr.content += value;
+						}
+					}
+					continue;
+				}
+
 				$curr.identifier = value;
 				continue;
 			}
