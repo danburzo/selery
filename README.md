@@ -1,6 +1,6 @@
 # selery
 
-A CSS selector parser.
+A small, handwritten CSS selector parser. **Currently a work-in-progress.**
 
 ## Installation
 
@@ -21,6 +21,54 @@ parse('a[href=#]');
 #### `parse(selector)`
 
 ### CSS Selector AST
+
+```js
+SelectorList {
+	selectors: Array<ComplexSelector>
+}
+
+ComplexSelector {
+	combinator: String,
+	left: CompoundSelector,
+	right: CompoundSelector
+}
+
+CompoundSelector {
+	selectors: Array<Selector>
+}
+
+UniversalSelector extends Selector {
+	namespace: String
+}
+
+TypeSelector extends Selector {
+	identifier: String,
+	namespace: String
+}
+
+IdSelector extends Selector {
+	identifier: String
+}
+
+ClassSelector extends Selector {
+	identifier: String
+}
+
+AttributeSelector extends Selector {
+	identifier: String,
+	matcher: String,
+	value: String
+}
+
+PseudoClassSelector extends Selector {
+	identifier: String,
+	selectors: Array<ComplexSelector>
+}
+
+PseudoElementSelector {
+	identifier: String
+}
+```
 
 ## Goals
 
