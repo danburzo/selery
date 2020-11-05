@@ -1,15 +1,45 @@
 /* AST Types */
 const SELECTOR_LIST = 'SelectorList';
-const ATTRIBUTE_SELECTOR = 'AttributeSelector';
+
+const COMPLEX_SELECTOR = 'ComplexSelector';
+const COMPOUND_SELECTOR = 'CompundSelector';
+
+const TYPE_SELECTOR = 'TypeSelector';
 const ID_SELECTOR = 'IdSelector';
 const CLASS_SELECTOR = 'ClassSelector';
-const TYPE_SELECTOR = 'TypeSelector';
+const ATTRIBUTE_SELECTOR = 'AttributeSelector';
 const PSEUDO_ELEMENT_SELECTOR = 'PseudoElementSelector';
 const PSEUDO_CLASS_SELECTOR = 'PseudoClassSelector';
-const COMPLEX_SELECTOR = 'ComplexSelector';
 
-const IDENT = /[^\x00-\x7F]|[a-zA-Z_]/;
+const IDENT_START = /[^\x00-\x7F]|[a-zA-Z_]/;
 const HASH_IDENT = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
+
+const TOKENS = {
+	IDENT: 'ident',
+	FUNCTION: 'function',
+	AT_KEYWORD: 'at-keyword',
+	HASH: 'hash',
+	STRING: 'string',
+	BAD_STRING: 'bad-string',
+	URL: 'url',
+	BAD_URL: 'bad-url-token',
+	DELIM: 'delim',
+	NUMBER: 'number',
+	PERCENTAGE: 'percentage',
+	DIMENSION: 'dimension',
+	WHITESPACE: 'whitespace',
+	CDO: 'CDO',
+	CDC: 'CDC',
+	COLON: 'colon',
+	SEMICOLON: 'semicolon',
+	COMMA: 'comma',
+	BRACKET_OPEN: '[',
+	BRACKET_CLOSE: ']',
+	PAREN_OPEN: '(',
+	PAREN_CLOSE: ')',
+	BRACE_OPEN: '{',
+	BRACE_CLOSE: '}'
+};
 
 /*
 	Back in the day, these pseudo-elements could be expressed
@@ -40,8 +70,189 @@ const node = (attrs, parent) => {
 	return attrs;
 };
 
+/*
+	Preprocess the selector according to:
+	https://drafts.csswg.org/css-syntax/#input-preprocessing
+ */
+const preprocess = str =>
+	str.replace(/\f|\r\n?/g, '\n').replace(/[\u0000\uD800-\uDFFF]/g, '\uFFFD');
+
+export const tokenize = str => {
+	let chars = preprocess(str).split('');
+	let tokens = [];
+
+	const next = () => chars.shift();
+	const peek = n => chars[n || 0];
+	const eof = () => !chars.length;
+
+	let ch, ref_ch, token;
+
+	/* 
+		TODO: treat newlines and hex digits
+	*/
+	const esc = () => {
+		let v = '';
+		if (eof()) {
+			throw new Error('Unexpected end of input, unterminated escape sequence');
+		} else {
+			// Consume escaped character
+			v += next();
+		}
+		return v;
+	};
+
+	while (!eof()) {
+		ch = next();
+
+		/* 
+			Consume comments
+		*/
+		if (ch === '/' && peek() === '*') {
+			next(); // consume *
+			while (!eof() && ((ch = next()) !== '*' || peek() !== '/')) {
+				if (ch === '\\') {
+					esc();
+				}
+			}
+			if (eof()) {
+				throw new Error('Unexpected end of input, unterminated comment');
+			}
+			next(); // consume /
+			continue;
+		}
+
+		/*
+			Consume whitespace
+		 */
+		if (ch.match(/[\n\t ]/)) {
+			while (!eof() && peek().match(/[\n\t ]/)) {
+				next();
+			}
+			tokens.push({
+				type: TOKENS.WHITESPACE
+			});
+			continue;
+		}
+
+		/* 
+			Consume strings
+		*/
+		if (ch === '"' || ch === "'") {
+			ref_ch = ch;
+			token = {
+				type: TOKENS.STRING,
+				value: ''
+			};
+			while (!eof() && (ch = next()) !== ref_ch && ch !== '\n') {
+				token.value += ch === '\\' ? esc() : ch;
+			}
+			if (ch === ref_ch) {
+				tokens.push(token);
+				continue;
+			}
+			if (ch === '\n') {
+				// TODO: spec says to return bad-string token here, relevant?
+				throw new Error('Unexpected newline character inside string');
+			}
+			if (eof()) {
+				throw new Error(
+					`Unexpected end of input, unterminated string ${token.value}`
+				);
+			}
+		}
+
+		if (ch === '#') {
+			// TODO
+		}
+
+		if (ch === '+') {
+			// TODO
+		}
+
+		if (ch === ',') {
+			tokens.push({
+				type: TOKENS.COMMA
+			});
+			continue;
+		}
+
+		if (ch === '-') {
+			// todo
+			continue;
+		}
+
+		if (ch === '.') {
+			// todo
+			continue;
+		}
+
+		if (ch === ':') {
+			tokens.push({
+				type: TOKENS.COLON
+			});
+			continue;
+		}
+
+		if (ch === ';') {
+			tokens.push({
+				type: TOKENS.SEMICOLON
+			});
+			continue;
+		}
+
+		if (ch === '(') {
+			tokens.push({
+				type: TOKENS.PAREN_OPEN
+			});
+			continue;
+		}
+
+		if (ch === ')') {
+			tokens.push({
+				type: TOKENS.PAREN_CLOSE
+			});
+			continue;
+		}
+
+		if (ch === '[') {
+			tokens.push({
+				type: TOKENS.BRACKET_OPEN
+			});
+			continue;
+		}
+
+		if (ch === ']') {
+			tokens.push({
+				type: TOKENS.BRACKET_CLOSE
+			});
+			continue;
+		}
+
+		if (ch === '{') {
+			tokens.push({
+				type: TOKENS.BRACE_OPEN
+			});
+			continue;
+		}
+
+		if (ch === '}') {
+			tokens.push({
+				type: TOKENS.BRACE_CLOSE
+			});
+			continue;
+		}
+
+		tokens.push({
+			type: TOKENS.DELIM,
+			value: ch
+		});
+	}
+
+	return tokens;
+};
+
 export const parse = selector => {
-	let chars = selector.split('');
+	let chars = filter(selector).split('');
 	let res = '';
 
 	let $root = node({
@@ -65,6 +276,42 @@ export const parse = selector => {
 		if (ch.match(/\s/)) {
 			while (!eof() && peek().match(/\s/)) {
 				next();
+			}
+
+			if ($curr.type === COMPOUND_SELECTOR) {
+				// convert to complex selector
+				let n = node(
+					{
+						type: COMPLEX_SELECTOR,
+						left: $curr,
+						combinator: ' '
+					},
+					$curr.parent
+				);
+
+				if (
+					$curr.parent.type === SELECTOR_LIST ||
+					$curr.parent.type === PSEUDO_CLASS_SELECTOR
+				) {
+					$curr.parent.selectors = $curr.parent.selectors.map(s =>
+						s === $curr ? n : s
+					);
+					continue;
+				}
+
+				if ($curr.parent.type === COMPLEX_SELECTOR) {
+					$curr.parent.right = n;
+				}
+			}
+
+			if (
+				$curr.type === TYPE_SELECTOR ||
+				$curr.type === CLASS_SELECTOR ||
+				$curr.type === ID_SELECTOR ||
+				$curr.type === PSEUDO_ELEMENT_SELECTOR
+			) {
+				$curr.type = COMPLEX_SELECTOR;
+				$curr.left = node({ ...$curr }, $curr);
 			}
 			/*
 				Mark whitespace as descendant combinator,
@@ -242,18 +489,29 @@ export const parse = selector => {
 		}
 
 		/* 
+			Identifiers
+			-----------
 			TODO: not sure this captures the entire 
 			railroad diagram for <ident-token> 
 			in the [css-syntax-3] spec.
 		*/
 		if (ch.match(HASH_IDENT)) {
-			if ($curr.type === ID_SELECTOR || ch === '-' || ch.match(IDENT)) {
+			if ($curr.type === ID_SELECTOR || ch === '-' || ch.match(IDENT_START)) {
 				value = ch;
 				while (!eof() && peek().match(HASH_IDENT)) {
 					value += next();
 				}
 
-				// Add a type selector
+				if (
+					$curr.type === ID_SELECTOR ||
+					$curr.type === CLASS_SELECTOR ||
+					$curr.type === PSEUDO_ELEMENT_SELECTOR ||
+					$curr.type === ATTRIBUTE_SELECTOR
+				) {
+					$curr.identifier = value;
+					continue;
+				}
+
 				if ($curr.type === SELECTOR_LIST) {
 					$node = node(
 						{
@@ -264,6 +522,11 @@ export const parse = selector => {
 					);
 					$curr.selectors.push($node);
 					$curr = $node;
+					continue;
+				}
+
+				if ($curr.type === COMPLEX_SELECTOR) {
+					// todo
 					continue;
 				}
 
@@ -295,9 +558,7 @@ export const parse = selector => {
 					}
 					continue;
 				}
-
-				$curr.identifier = value;
-				continue;
+				throw new Error(`Unexpected identifier ${value}`);
 			}
 			throw new Error(`Unexpected character ${ch}`);
 		}
