@@ -282,6 +282,7 @@ export const tokenize = str => {
 			} else {
 				tokens.push({ type: TOKENS.DELIM, value: ch });
 			}
+			continue;
 		}
 
 		if (ch === '[') {
