@@ -49,3 +49,24 @@ tape('Strings', t => {
 	);
 	t.end();
 });
+
+tape('ID selectors', t => {
+	t.deepEqual(
+		tokenize('#hello'),
+		[{ type: 'hash', value: 'hello' }],
+		'simple ID selector'
+	);
+
+	t.deepEqual(
+		tokenize('#he\\#llo'),
+		[{ type: 'hash', value: 'he#llo' }],
+		'ID selector with escapes'
+	);
+
+	t.deepEqual(
+		tokenize('# hello')[0],
+		{ type: 'delim', value: '#' },
+		'malformed ID selector'
+	);
+	t.end();
+});

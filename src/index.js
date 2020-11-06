@@ -11,8 +11,8 @@ const ATTRIBUTE_SELECTOR = 'AttributeSelector';
 const PSEUDO_ELEMENT_SELECTOR = 'PseudoElementSelector';
 const PSEUDO_CLASS_SELECTOR = 'PseudoClassSelector';
 
-const IDENT_START = /[^\x00-\x7F]|[a-zA-Z_]/;
-const HASH_IDENT = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
+const IDENT_START_CP = /[^\x00-\x7F]|[a-zA-Z_]/;
+const IDENT_CP = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
 
 const TOKENS = {
 	IDENT: 'ident',
@@ -88,7 +88,9 @@ export const tokenize = str => {
 	let ch, ref_ch, token;
 
 	/* 
-		TODO: treat newlines and hex digits
+		Consume an escape sequence.
+
+		TODO: handle newlines and hex digits
 	*/
 	const esc = () => {
 		let v = '';
@@ -97,6 +99,18 @@ export const tokenize = str => {
 		} else {
 			// Consume escaped character
 			v += next();
+		}
+		return v;
+	};
+
+	/*
+		Consume an identifier.
+	 */
+	const ident = () => {
+		let v = '',
+			ch;
+		while (!eof() && (peek().match(IDENT_CP) || peek() === '\\')) {
+			v += (ch = next()) === '\\' ? esc() : ch;
 		}
 		return v;
 	};
@@ -128,9 +142,7 @@ export const tokenize = str => {
 			while (!eof() && peek().match(/[\n\t ]/)) {
 				next();
 			}
-			tokens.push({
-				type: TOKENS.WHITESPACE
-			});
+			tokens.push({ type: TOKENS.WHITESPACE });
 			continue;
 		}
 
@@ -162,7 +174,17 @@ export const tokenize = str => {
 		}
 
 		if (ch === '#') {
-			// TODO
+			if (!eof() && peek().match(IDENT_CP)) {
+				// TODO: or two code-points are valid escape
+				// TODO: flag id if next 3 cps are ident
+				tokens.push({
+					type: TOKENS.HASH,
+					value: ident()
+				});
+			} else {
+				tokens.push({ type: TOKENS.DELIM, value: ch });
+			}
+			continue;
 		}
 
 		if (ch === '+') {
@@ -170,9 +192,7 @@ export const tokenize = str => {
 		}
 
 		if (ch === ',') {
-			tokens.push({
-				type: TOKENS.COMMA
-			});
+			tokens.push({ type: TOKENS.COMMA });
 			continue;
 		}
 
@@ -187,65 +207,50 @@ export const tokenize = str => {
 		}
 
 		if (ch === ':') {
-			tokens.push({
-				type: TOKENS.COLON
-			});
+			tokens.push({ type: TOKENS.COLON });
 			continue;
 		}
 
 		if (ch === ';') {
-			tokens.push({
-				type: TOKENS.SEMICOLON
-			});
+			tokens.push({ type: TOKENS.SEMICOLON });
 			continue;
 		}
 
 		if (ch === '(') {
-			tokens.push({
-				type: TOKENS.PAREN_OPEN
-			});
+			tokens.push({ type: TOKENS.PAREN_OPEN });
 			continue;
 		}
 
 		if (ch === ')') {
-			tokens.push({
-				type: TOKENS.PAREN_CLOSE
-			});
+			tokens.push({ type: TOKENS.PAREN_CLOSE });
 			continue;
 		}
 
 		if (ch === '[') {
-			tokens.push({
-				type: TOKENS.BRACKET_OPEN
-			});
+			tokens.push({ type: TOKENS.BRACKET_OPEN });
 			continue;
 		}
 
 		if (ch === ']') {
-			tokens.push({
-				type: TOKENS.BRACKET_CLOSE
-			});
+			tokens.push({ type: TOKENS.BRACKET_CLOSE });
 			continue;
 		}
 
 		if (ch === '{') {
-			tokens.push({
-				type: TOKENS.BRACE_OPEN
-			});
+			tokens.push({ type: TOKENS.BRACE_OPEN });
 			continue;
 		}
 
 		if (ch === '}') {
-			tokens.push({
-				type: TOKENS.BRACE_CLOSE
-			});
+			tokens.push({ type: TOKENS.BRACE_CLOSE });
 			continue;
 		}
 
-		tokens.push({
-			type: TOKENS.DELIM,
-			value: ch
-		});
+		/*
+			Treat everything not already handled
+			as a delimiter.
+		 */
+		tokens.push({ type: TOKENS.DELIM, value: ch });
 	}
 
 	return tokens;
