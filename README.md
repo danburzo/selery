@@ -8,31 +8,45 @@ A small, handwritten CSS selector parser. **Currently a work-in-progress.**
 npm install selery
 ```
 
-## Usage
-
-```js
-let { parse } = require('selery');
-
-parse('a[href=#]');
-```
-
 ## API
 
-#### `parse(selector)`
+#### selery.**tokenize**(_selector_)
 
-Accepts a single string argument, `selector`, and returns the corresponding AST (abstract syntax tree).
+Takes a string _selector_ and returns an array of tokens.
 
-The function will throw an error in case it encounter syntax it believes is invalid, so it may be useful to run in a `try/catch` block:
+```js
+let { tokenize } = require('selery');
+
+tokenize('article a[href="#"]');
+```
+
+A token is a plain object having a `type` property whose value is one of: `ident`, `function`, `at-keyword`, `hash`, `string`, `delim`, `whitespace`, `colon`, `semicolon`, `comma`, `[`, `]`, `(`, `)`, `{`, or `}`. Some tokens also contain a `value` property, which holds extra information.
+
+For the sample code above, the resulting token array is:
+
+```js
+[
+	{ type: 'ident', value: 'article' },
+	{ type: 'whitespace' },
+	{ type: 'ident', value: 'a' },
+	{ type: '[' },
+	{ type: 'ident', value: 'href' },
+	{ type: 'delim', value: '=' },
+	{ type: 'string', value: '#' },
+	{ type: ']' }
+];
+```
+
+The function will throw an erorr if the selector supplied does not follow generally valid CSS syntax.
+
+#### selery.**parse**(_input_, _options_)
+
+Accepts an _input_ argument, which can be either an array of tokens obtained from the `tokenize()` function or, more conveniently, a string representing a selector. The latter is passed through `tokenize()` internally.
 
 ```js
 let { parse } = require('selery');
 
-try {
-	let tree = parse('div > span:nth-child(3)');
-	console.log('Valid selector', tree);
-} catch (err) {
-	console.error('Invalid selector', err);
-}
+let tree = parse('div > span:nth-child(3)');
 ```
 
 ## CSS Selector AST
@@ -137,4 +151,9 @@ Note: for legacy reasons, the `::before`, `::after`, `::first-line` and `::first
 - Pass relevant Web Platform Tests;
 - Allow lax selector parsing matching browsers' behavior.
 
-## Similar projects
+## See also
+
+- [qsx](https://github.com/danburzo/qsx) and [hred](https://github.com/danburzo.hred)
+- [parsel](https://github.com/LeaVerou/parsel)
+- [scalpel](https://github.com/gajus/scalpel)
+- [csstree](https://github.com/csstree/csstree)

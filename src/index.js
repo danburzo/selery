@@ -1,35 +1,14 @@
-/* AST Types */
-const SELECTOR_LIST = 'SelectorList';
-
-const COMPLEX_SELECTOR = 'ComplexSelector';
-const COMPOUND_SELECTOR = 'CompundSelector';
-
-const TYPE_SELECTOR = 'TypeSelector';
-const ID_SELECTOR = 'IdSelector';
-const CLASS_SELECTOR = 'ClassSelector';
-const ATTRIBUTE_SELECTOR = 'AttributeSelector';
-const PSEUDO_ELEMENT_SELECTOR = 'PseudoElementSelector';
-const PSEUDO_CLASS_SELECTOR = 'PseudoClassSelector';
-
 const IDENT_START_CP = /[^\x00-\x7F]|[a-zA-Z_]/;
 const IDENT_CP = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
 
-const TOKENS = {
+export const TOKENS = {
 	IDENT: 'ident',
 	FUNCTION: 'function',
 	AT_KEYWORD: 'at-keyword',
 	HASH: 'hash',
 	STRING: 'string',
-	BAD_STRING: 'bad-string',
-	URL: 'url',
-	BAD_URL: 'bad-url-token',
 	DELIM: 'delim',
-	NUMBER: 'number',
-	PERCENTAGE: 'percentage',
-	DIMENSION: 'dimension',
 	WHITESPACE: 'whitespace',
-	CDO: 'CDO',
-	CDC: 'CDC',
 	COLON: 'colon',
 	SEMICOLON: 'semicolon',
 	COMMA: 'comma',
@@ -39,35 +18,6 @@ const TOKENS = {
 	PAREN_CLOSE: ')',
 	BRACE_OPEN: '{',
 	BRACE_CLOSE: '}'
-};
-
-/*
-	Back in the day, these pseudo-elements could be expressed
-	with the pseudo-class syntax, e.g. `div:after` instead
-	of `div::after`. Make sure we handle these correctly.
- */
-const LEGACY_PSEUDO_ELEMENTS = new Set([
-	'before',
-	'after',
-	'first-line',
-	'first-letter'
-]);
-
-/*
-	Out of all pseudo-classes, most of them have their own 
-	microsyntax, such as the An+B syntax for nth-child().
-
-	For logical combination pseudo-classes, 
-	their argument must be parsed as a list of selectors.
- */
-const LOGICAL_PSEUDO_CLASSES = new Set(['has', 'is', 'where', 'not']);
-
-const node = (attrs, parent) => {
-	Object.defineProperty(attrs, 'parent', {
-		enumerable: false,
-		value: parent
-	});
-	return attrs;
 };
 
 /*
@@ -330,4 +280,16 @@ export const tokenize = str => {
 	}
 
 	return tokens;
+};
+
+export const parse = (arg, options = {}) => {
+	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
+
+	const next = () => tokens.shift();
+	const peek = () => tokens[0];
+	const eoi = () => !tokens.length;
+
+	let token;
+
+	while ((token = next())) {}
 };
