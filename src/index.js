@@ -82,8 +82,10 @@ export const tokenize = str => {
 	let tokens = [];
 
 	const next = () => chars.shift();
+	const reconsume = ch => chars.unshift(ch);
 	const peek = n => chars[n || 0];
 	const eof = () => !chars.length;
+	const size = () => chars.length;
 
 	let ch, ref_ch, token;
 
@@ -92,6 +94,7 @@ export const tokenize = str => {
 
 		TODO: handle newlines and hex digits
 	*/
+	const is_esc = () => size() > 1 && peek() === '\\' && peek(1) !== '\n';
 	const esc = () => {
 		let v = '';
 		if (eof()) {
@@ -104,6 +107,34 @@ export const tokenize = str => {
 	};
 
 	/*
+		Check if the stream starts with an identifier
+	 */
+
+	const is_ident = () => {
+		if (size() < 2) {
+			return false;
+		}
+		let ch = peek();
+		if (ch.match(IDENT_START_CP)) {
+			return true;
+		}
+		if (ch === '-') {
+			let ch1 = peek(1);
+			if (ch1.match(IDENT_CP) || ch1 === '-') {
+				return true;
+			}
+			if (ch1 === '\\') {
+				return !!esc();
+			}
+			return false;
+		}
+		if (ch === '\\') {
+			return !!esc();
+		}
+		return false;
+	};
+
+	/*
 		Consume an identifier.
 	 */
 	const ident = () => {
@@ -113,6 +144,18 @@ export const tokenize = str => {
 			v += (ch = next()) === '\\' ? esc() : ch;
 		}
 		return v;
+	};
+
+	/*
+		Consume an ident-like token.
+	 */
+	const identlike = () => {
+		let v = ident();
+		// TODO: handle URLs
+		return {
+			type: peek() === '(' ? TOKENS.FUNCTION : TOKENS.IDENT,
+			value: v
+		};
 	};
 
 	while (!eof()) {
@@ -173,46 +216,22 @@ export const tokenize = str => {
 			}
 		}
 
+		/* 
+			Consume IDs 
+		*/
 		if (ch === '#') {
-			if (!eof() && peek().match(IDENT_CP)) {
-				// TODO: or two code-points are valid escape
-				// TODO: flag id if next 3 cps are ident
-				tokens.push({
-					type: TOKENS.HASH,
-					value: ident()
-				});
+			if (!eof() && (peek().match(IDENT_CP) || is_esc())) {
+				token = {
+					type: TOKENS.HASH
+				};
+				if (is_ident()) {
+					token.id = true;
+				}
+				token.value = ident();
+				tokens.push(token);
 			} else {
 				tokens.push({ type: TOKENS.DELIM, value: ch });
 			}
-			continue;
-		}
-
-		if (ch === '+') {
-			// TODO
-		}
-
-		if (ch === ',') {
-			tokens.push({ type: TOKENS.COMMA });
-			continue;
-		}
-
-		if (ch === '-') {
-			// todo
-			continue;
-		}
-
-		if (ch === '.') {
-			// todo
-			continue;
-		}
-
-		if (ch === ':') {
-			tokens.push({ type: TOKENS.COLON });
-			continue;
-		}
-
-		if (ch === ';') {
-			tokens.push({ type: TOKENS.SEMICOLON });
 			continue;
 		}
 
@@ -226,9 +245,57 @@ export const tokenize = str => {
 			continue;
 		}
 
+		if (ch === ',') {
+			tokens.push({ type: TOKENS.COMMA });
+			continue;
+		}
+
+		if (ch === '-') {
+			if (is_ident()) {
+				reconsume(ch);
+				tokens.push({
+					type: TOKENS.IDENT,
+					value: ident()
+				});
+			} else {
+				tokens.push({ type: TOKENS.DELIM, value: ch });
+			}
+			continue;
+		}
+
+		if (ch === ':') {
+			tokens.push({ type: TOKENS.COLON });
+			continue;
+		}
+
+		if (ch === ';') {
+			tokens.push({ type: TOKENS.SEMICOLON });
+			continue;
+		}
+
+		if (ch === '@') {
+			if (is_ident()) {
+				tokens.push({
+					type: TOKENS.AT_KEYWORD,
+					value: ident()
+				});
+			} else {
+				tokens.push({ type: TOKENS.DELIM, value: ch });
+			}
+		}
+
 		if (ch === '[') {
 			tokens.push({ type: TOKENS.BRACKET_OPEN });
 			continue;
+		}
+
+		if (ch === '\\') {
+			if (!eof() && peek() !== '\n') {
+				reconsume(ch);
+				tokens.push(identlike());
+				continue;
+			}
+			throw new Error('Invalid escape');
 		}
 
 		if (ch === ']') {
@@ -243,6 +310,14 @@ export const tokenize = str => {
 
 		if (ch === '}') {
 			tokens.push({ type: TOKENS.BRACE_CLOSE });
+			continue;
+		}
+
+		// TODO: digits
+
+		if (ch.match(IDENT_START_CP)) {
+			reconsume(ch);
+			tokens.push(identlike());
 			continue;
 		}
 
