@@ -285,11 +285,82 @@ export const tokenize = str => {
 export const parse = (arg, options = {}) => {
 	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
 
+	const tree = [];
+
 	const next = () => tokens.shift();
 	const peek = () => tokens[0];
 	const eoi = () => !tokens.length;
 
 	let token;
 
-	while ((token = next())) {}
+	while (!eoi()) {
+		token = next();
+
+		// switch (token.type) {
+		// 		case TOKENS.IDENT:
+		// 			tree.push({
+		// 				type: 'TypeSelector',
+		// 				identifier: token.value
+		// 			});
+		// 			break;
+		// 		case TOKENS.FUNCTION:
+		// 			throw new Error(`Unexpected token ${token.value}`);
+		// 			break;
+		// 		case TOKENS.AT_KEYWORD:
+		// 			// TODO
+		// 			break;
+		// 		case TOKENS.HASH:
+		// 			tree.push({
+		// 				type: 'IdSelector',
+		// 				identifier: token.value
+		// 			});
+		// 			break;
+		// 		case TOKENS.STRING:
+		// 			throw new Error(`Unexpected token ${token.value}`);
+		// 			break;
+		// 		case TOKENS.DELIM:
+		// 			break;
+		// 		case TOKENS.WHITESPACE:
+		// 			break;
+		// 		case TOKENS.COLON:
+		// 			break;
+		// 		case TOKENS.SEMICOLON:
+		// 			break;
+		// 		case TOKENS.COMMA:
+		// 			break;
+		// 		case TOKENS.BRACKET_OPEN:
+		// 			break;
+		// 		case TOKENS.BRACKET_CLOSE:
+		// 			break;
+		// 		case TOKENS.PAREN_OPEN:
+		// 			break;
+		// 		case TOKENS.PAREN_CLOSE:
+		// 			break;
+		// 		case TOKENS.BRACE_OPEN:
+		// 			break;
+		// 		case TOKENS.BRACE_CLOSE:
+		// 			break;
+		// }
+	}
+};
+
+export const closest = (el, sel) => {
+	const ast = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+	let curr = el;
+	while (curr && !matches(curr, ast)) {
+		curr = curr.parentElement;
+	}
+	return curr;
+};
+
+export const matches = (el, sel) => {
+	const ast = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+};
+
+export const querySelector = (el, sel) => {
+	const ast = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+};
+
+export const querySelectorAll = (el, sel) => {
+	const ast = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
 };

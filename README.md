@@ -10,6 +10,8 @@ npm install selery
 
 ## API
 
+### Basic methods
+
 #### selery.**tokenize**(_selector_)
 
 Takes a string _selector_ and returns an array of tokens.
@@ -48,6 +50,26 @@ let { parse } = require('selery');
 
 let tree = parse('div > span:nth-child(3)');
 ```
+
+### DOM API shims
+
+Shims for selector-accepting DOM methods using simpler DOM primitives.
+
+#### selery.**matches**(_element_, _selector_)
+
+See the [Element.matches](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches) DOM method.
+
+#### selery.**closest**(_element_, _selector_)
+
+See the [Element.closest](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest) DOM method.
+
+#### selery.**querySelector**(_element_, _selector_)
+
+See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector) DOM method.
+
+#### selery.**querySelectorAll**(_element_, _selector_)
+
+See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method.
 
 ## CSS Selector AST
 
