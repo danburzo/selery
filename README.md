@@ -51,6 +51,10 @@ let { parse } = require('selery');
 let tree = parse('div > span:nth-child(3)');
 ```
 
+Available options:
+
+- _recursive_ (Boolean | Array) — whether to recursively parse the argument to some pseudo-classes and pseudo-elements. The default value is `true`. Pass in an array to add to the set of pseudo-things to recursively parse, beyond the default `[':is', ':where', ':not', '::slotted']`.
+
 ### DOM API shims
 
 Shims for selector-accepting DOM methods using simpler DOM primitives.
@@ -96,23 +100,23 @@ Longer sequences of selectors are represented with nested `ComplexSelector` elem
 	type: 'SelectorList',
 	selectors: [{
 		type: 'ComplexSelector',
-		combinator: '>',
 		left: {
-			type: 'TypeSelector',
-			identifier: 'article'
-		},
-		right: {
 			type: 'ComplexSelector',
-			combinator: ' ',
 			left: {
 				type: 'TypeSelector',
-				identifier: 'p'
+				identifier: 'article'
 			},
 			right: {
 				type: 'TypeSelector',
-				identifier: 'span'
-			}
-		}
+				identifier: 'p'
+			},
+			combinator: ' ',
+		},
+		right: {
+			type: 'TypeSelector',
+			identifier: 'span'
+		},
+		combinator: ' '
 	}]
 }
 ```
@@ -149,23 +153,20 @@ Represents an [attribute selector](https://drafts.csswg.org/selectors/#attribute
 - `identifier` (String) — the attribute to match;
 - `value` (String) — the value to match against;
 - `matcher` (String) — one of `=`, `^=`, `$=`, `*=`, `~=`, `|=`;
-- `flag` (String) — either `s` or `i`, if any.
+- `modifier` (String) — either `s` or `i`, if any.
 
-#### `PseudoClassSelector`
+#### `PseudoClassSelector` and `PseudoElementSelector`
 
-Represents a pseudo-class selector, such as `:is(a, b, c)`. The arguments to most pseudo-classes expressed as functions have their own microsyntax. Others, such as `:where()`, `:is()`, `:not()` and `:has()`, take a selector list as their argument.
+Represents a pseudo-class selector (such as `:visited` or `:is(a, b, c)`) or a pseudo-element (such as `::before` or `::slotted(span)`), respectively.
 
-- `identifier` (String) — the pseudo-class;
-- `argument` (String) — the argument to a pseudo-class expressed as function;
-- `selectors` (Array) — pseudo-classes accepting a list of selectors have this property instead of the `argument` string.
+Both types of nodes share a common structure:
 
-#### `PseudoElementSelector`
+- `identifier` (String) — the pseudo-class or pseudo-element;
+- `argument` (Array|Object) — the argument to the pseudo-class / pseudo-element;
 
-Represents a pseudo-element selector, such as `::before` or `::after`.
+In CSS, there is more than one way to interpret the argument passed to pseudo-classes and pseudo-elements which expressed with the function notation. Some pseudo-classes, such as '\*-child', use the `An+B` microsyntax, others accept a list of selectors.
 
-- `identifier` (String) — the pseudo-element.
-
-Note: for legacy reasons, the `::before`, `::after`, `::first-line` and `::first-letter` pseudo-elements can also be prefixed with a single `:` character.
+Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not`, and the pseudo-element `::slotted`, are parsed as a `SelectorList` when the `recursive` parsing option is enabled. In all other cases, the `argument` property of the node will contain the array of unparsed tokens.
 
 ## Goals
 

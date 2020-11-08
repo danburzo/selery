@@ -46,6 +46,34 @@ let tests = [
 		}
 	},
 	{
+		selector: 'article > p span',
+		result: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'ComplexSelector',
+					left: {
+						type: 'ComplexSelector',
+						left: {
+							type: 'TypeSelector',
+							identifier: 'article'
+						},
+						right: {
+							type: 'TypeSelector',
+							identifier: 'p'
+						},
+						combinator: ' '
+					},
+					right: {
+						type: 'TypeSelector',
+						identifier: 'span'
+					},
+					combinator: ' '
+				}
+			]
+		}
+	},
+	{
 		selector: 'div:is(.primary, #main)',
 		result: {
 			type: 'SelectorList',
@@ -82,10 +110,7 @@ let tests = [
 ];
 
 tape('Parsing', t => {
-	tests.forEach((it, idx) => {
-		if (idx === 2) {
-			console.log(parse(it.selector).selectors[0].selectors[1].argument);
-		}
+	tests.forEach(it => {
 		t.deepEqual(parse(it.selector), it.result, it.description || it.selector);
 	});
 	t.end();
