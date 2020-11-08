@@ -16,6 +16,19 @@ tape('walk', t => {
 					type: 'ClassSelector',
 					identifier: 'primary'
 				}
+			},
+			{
+				type: 'PseudoClassSelector',
+				identifier: 'nth-child',
+				argument: [{}]
+			},
+			{
+				type: 'PseudoClassSelector',
+				identifier: 'is',
+				argument: {
+					type: 'ClassSelector',
+					identifier: 'secondary'
+				}
 			}
 		]
 	};
@@ -25,6 +38,6 @@ tape('walk', t => {
 		out += node.identifier || '';
 	});
 
-	t.equal(out, 'divprimary');
+	t.equal(out, 'nth-childisdivprimarysecondary');
 	t.end();
 });

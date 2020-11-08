@@ -16,32 +16,300 @@ export const parse = (arg, options = {}) => {
 
 	let tok;
 
-	const ComplexSelectorList = () => {};
-	const ComplexSelector = () => {};
-	const CompoundSelector = () => {};
-	const RelativeSelector = () => {};
+	const delim = (t, ch) => t && t.type === TOKENS.DELIM && t.value === ch;
 
-	const TypeSelector = () => {};
-	const SubclassSelector = () => {};
+	const eoi = () => !tokens.length;
+	const next = () => {
+		tok = tokens.shift();
+	};
+	const peek = ch => tokens[ch || 0];
+
+	const WS = () => {
+		let ws = false;
+		while (tok && tok.type === TOKENS.WHITESPACE) {
+			ws = true;
+			next();
+		}
+		return ws;
+	};
+
+	const TypeSelector = () => {
+		let ns = NsPrefix();
+		if (tok.type === TOKENS.IDENT || delim('*')) {
+			let node = {
+				type: 'TypeSelector',
+				identifier: tok.value
+			};
+			if (ns !== undefined) {
+				node.namespace = ns;
+			}
+			next();
+			return node;
+		}
+		return undefined;
+	};
+
+	const NsPrefix = () => {
+		if (
+			!eoi() &&
+			tok &&
+			(tok.type === TOKENS.IDENT || delim(tok, '*')) &&
+			delim(peek(), '|')
+		) {
+			let ns = tok.value;
+			next();
+			next();
+			return ns;
+		}
+		return undefined;
+	};
+
+	const SubclassSelector = () => {
+		return (
+			IdSelector() ||
+			ClassSelector() ||
+			AttributeSelector() ||
+			PseudoClassSelector()
+		);
+	};
+
+	const IdSelector = () => {
+		if (tok && tok.type === TOKENS.HASH) {
+			let ret = {
+				type: 'IdSelector',
+				identifier: tok.value
+			};
+			next();
+			return ret;
+		}
+		return undefined;
+	};
+
+	const ClassSelector = () => {
+		if (!eoi() && delim(tok, '.') && peek().type === TOKENS.IDENT) {
+			let ret = {
+				type: 'ClassSelector',
+				identifier: tok.value
+			};
+			next();
+			return ret;
+		}
+		return undefined;
+	};
+
+	/*
+		'[' <wq-name> ']' |
+		'[' <wq-name> <attr-matcher> [<string>|<ident>] <attr-modifier>? ']'
+	 */
+	const AttributeSelector = () => {
+		if (tok && tok.type === TOKENS.BRACKET_OPEN) {
+			next(); // consume '['
+			WS();
+
+			let ns = NsPrefix();
+			if (tok.type !== TOKENS.IDENT) {
+				throw new Error('Invalid attribute name');
+			}
+			let node = {
+				type: 'AttributeSelector',
+				identifier: tok.value
+			};
+			next(); // consume attribute name
+			WS();
+			let matcher = AttrMatcher();
+			if (matcher) {
+				node.matcher = matcher;
+				WS();
+				if (tok.type === TOKENS.STRING || tok.type === TOKENS.IDENT) {
+					node.value = tok.value;
+					next();
+				} else {
+					throw new Error('Expected attribute value');
+				}
+				WS();
+				let mod = AttrModifier();
+				if (mod) {
+					node.modifier = mod;
+				}
+			}
+			if (tok.type === TOKENS.BRACKET_CLOSE) {
+				next();
+				return node;
+			}
+			throw new Error('Unclosed attribute selector');
+		}
+		return undefined;
+	};
+
+	const AttrMatcher = () => {
+		if (delim(tok, '=')) {
+			let ret = tok.value;
+			next();
+			return ret;
+		}
+		if (!eoi() && tok && tok.type === TOKENS.DELIM && delim(peek(), '=')) {
+			let ret = tok.value;
+			next();
+			return ret + tok.value;
+		}
+		return undefined;
+	};
+
+	const AttrModifier = () => {
+		if (delim(tok, 'i') || delim(tok, 's')) {
+			let ret = tok.value;
+			next();
+			return ret;
+		}
+		return undefined;
+	};
 
 	const PseudoElementSelector = () => {
-		has_potentially_recursive = true;
+		if (
+			tok &&
+			tok.type === TOKENS.COLON &&
+			!eoi() &&
+			peek().type === TOKENS.COLON
+		) {
+			next(); // consume first colon
+			let node = PseudoClassSelector();
+			node.type = 'PseudoElementSelector';
+			has_potentially_recursive = true;
+			return node;
+		}
+		return undefined;
 	};
+
 	const PseudoClassSelector = () => {
-		has_potentially_recursive = true;
+		if (!eoi() && tok && tok.type === TOKENS.COLON) {
+			if (peek().type === TOKENS.IDENT || peek().type === TOKENS.FUNCTION) {
+				next();
+				let node = {
+					type: 'PseudoClassSelector',
+					identifier: tok.value
+				};
+				if (tok.type === TOKENS.FUNCTION) {
+					node.argument = [];
+					let fn_depth = 1;
+					while (!eoi() && fn_depth) {
+						next();
+						if (tok.type === TOKENS.PAREN_CLOSE) {
+							fn_depth -= 1;
+						} else if (
+							tok.type === TOKENS.FUNCTION ||
+							tok.type === TOKENS.PAREN_OPEN
+						) {
+							fn_depth += 1;
+						}
+						if (fn_depth > 0) {
+							node.argument.push(tok);
+						}
+					}
+					if (eoi() && fn_depth) {
+						throw new Error('Parentheses mismatch');
+					}
+				}
+				has_potentially_recursive = true;
+				return node;
+			}
+		}
 	};
 
-	const Combinator = () => {};
+	/*
+		<compound> = [<type>? <subclass>* [<pseudo-el> <pseudo-class>*]*]!
+	 */
+	const CompoundSelector = () => {
+		WS();
+		let selectors = [];
+		let selector;
+		let has_pseudo = false;
 
-	const IdSelector = () => {};
-	const ClassSelector = () => {};
-	const AttributeSelector = () => {};
+		do {
+			selector =
+				(selectors.length === 0 && TypeSelector()) ||
+				(!has_pseudo && SubclassSelector()) ||
+				(PseudoElementSelector() && (has_pseudo = true)) ||
+				(PseudoClassSelector() && (has_pseudo = true));
+			if (selector) {
+				selectors.push(selector);
+			}
+		} while (selector);
 
-	const WqName = () => {};
-	const AttrMatcher = () => {};
-	const AttrModifier = () => {};
+		if (!selectors.length) {
+			throw new Error('Invalid compound selector');
+		}
+		if (selectors.length > 1) {
+			return {
+				type: 'CompoundSelector',
+				selectors
+			};
+		}
+		return selectors[0];
+	};
 
-	let ast = ComplexSelectorList();
+	const Combinator = () => {
+		if (!tok) {
+			return undefined;
+		}
+		let combinator = '';
+		while (tok.type === TOKENS.DELIM || tok.type === TOKENS.WHITESPACE) {
+			if (tok.type === TOKENS.DELIM && combinator !== ' ') {
+				combinator += tok.value;
+			} else if (tok.type === TOKENS.WHITESPACE && !combinator) {
+				combinator = ' ';
+			}
+			next();
+		}
+		return combinator;
+	};
+
+	const ComplexSelector = () => {
+		let node, sel;
+		while (!eoi()) {
+			sel = CompoundSelector();
+			if (sel) {
+				if (!node) {
+					node = {
+						type: 'ComplexSelector',
+						left: sel
+					};
+				} else if (!node.right) {
+					node.right = sel;
+					node = {
+						type: 'ComplexSelector',
+						left: node
+					};
+				}
+			}
+			node.combinator = Combinator();
+		}
+		if (!node.right) {
+			if (!node.combinator || node.combinator === ' ') {
+				return node.left;
+			} else {
+				throw new Error(
+					`Expected selector after combinator ${node.combinator}`
+				);
+			}
+		}
+		return node;
+	};
+
+	let ast = {
+		type: 'SelectorList',
+		selectors: []
+	};
+
+	while (!eoi()) {
+		next();
+		let sel = ComplexSelector();
+		if (sel) {
+			ast.selectors.push(sel);
+		}
+		if (!eoi() && tok.type !== TOKENS.COMMA) {
+			throw new Error(`Unexpected token ${token.type}`);
+		}
+	}
 
 	if (wants_recursive && has_potentially_recursive) {
 		walk(ast, {

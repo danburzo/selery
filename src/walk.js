@@ -23,6 +23,14 @@ export const walk = (ast, arg) => {
 					queue.push(node.right);
 				}
 				break;
+			case 'PseudoClassSelector':
+			case 'PseudoElementSelector':
+				if (
+					typeof node.argument === 'object' &&
+					!Array.isArray(node.argument)
+				) {
+					queue.push(node.argument);
+				}
 		}
 	}
 };
