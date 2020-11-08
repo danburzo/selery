@@ -108,8 +108,15 @@ export const tokenize = str => {
 	const identlike = () => {
 		let v = ident();
 		// TODO: handle URLs
+		if (peek() === '(') {
+			next();
+			return {
+				type: TOKENS.FUNCTION,
+				value: v
+			};
+		}
 		return {
-			type: peek() === '(' ? TOKENS.FUNCTION : TOKENS.IDENT,
+			type: TOKENS.IDENT,
 			value: v
 		};
 	};

@@ -6,8 +6,9 @@ const RECURSIVE_FNS = [':is', ':where', ':not', '::slotted'];
 export const parse = (arg, options = {}) => {
 	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
 
-	const wants_recursive = options.recursive;
-	const has_potentially_recursive = false;
+	const wants_recursive =
+		options.recursive === undefined ? true : options.recursive;
+	let has_potentially_recursive = false;
 	const recursive_fns = new Set(
 		Array.isArray(options.recursive)
 			? [...RECURSIVE_FNS, ...options.recursive]
@@ -35,7 +36,7 @@ export const parse = (arg, options = {}) => {
 
 	const TypeSelector = () => {
 		let ns = NsPrefix();
-		if (tok.type === TOKENS.IDENT || delim('*')) {
+		if (tok && (tok.type === TOKENS.IDENT || delim(tok, '*'))) {
 			let node = {
 				type: 'TypeSelector',
 				identifier: tok.value
@@ -87,6 +88,7 @@ export const parse = (arg, options = {}) => {
 
 	const ClassSelector = () => {
 		if (!eoi() && delim(tok, '.') && peek().type === TOKENS.IDENT) {
+			next();
 			let ret = {
 				type: 'ClassSelector',
 				identifier: tok.value
@@ -205,9 +207,10 @@ export const parse = (arg, options = {}) => {
 							node.argument.push(tok);
 						}
 					}
-					if (eoi() && fn_depth) {
+					if (!tok && fn_depth) {
 						throw new Error('Parentheses mismatch');
 					}
+					next(); // consume ')'
 				}
 				has_potentially_recursive = true;
 				return node;
@@ -223,20 +226,20 @@ export const parse = (arg, options = {}) => {
 		let selectors = [];
 		let selector;
 		let has_pseudo = false;
-
 		do {
+			// TODO enforce order & other restrictions
 			selector =
-				(selectors.length === 0 && TypeSelector()) ||
-				(!has_pseudo && SubclassSelector()) ||
-				(PseudoElementSelector() && (has_pseudo = true)) ||
-				(PseudoClassSelector() && (has_pseudo = true));
+				TypeSelector() ||
+				SubclassSelector() ||
+				PseudoElementSelector() ||
+				PseudoClassSelector();
 			if (selector) {
 				selectors.push(selector);
 			}
 		} while (selector);
 
 		if (!selectors.length) {
-			throw new Error('Invalid compound selector');
+			return undefined;
 		}
 		if (selectors.length > 1) {
 			return {
@@ -264,8 +267,8 @@ export const parse = (arg, options = {}) => {
 	};
 
 	const ComplexSelector = () => {
-		let node, sel;
-		while (!eoi()) {
+		let node, sel, cmb;
+		while (tok) {
 			sel = CompoundSelector();
 			if (sel) {
 				if (!node) {
@@ -281,9 +284,17 @@ export const parse = (arg, options = {}) => {
 					};
 				}
 			}
-			node.combinator = Combinator();
+			cmb = Combinator();
+			if (cmb) {
+				node.combinator = cmb;
+			}
+
+			// TODO: refactor into something less weird
+			if (!cmb && !sel) {
+				break;
+			}
 		}
-		if (!node.right) {
+		if (node && !node.right) {
 			if (!node.combinator || node.combinator === ' ') {
 				return node.left;
 			} else {
@@ -306,7 +317,7 @@ export const parse = (arg, options = {}) => {
 		if (sel) {
 			ast.selectors.push(sel);
 		}
-		if (!eoi() && tok.type !== TOKENS.COMMA) {
+		if (tok && tok.type !== TOKENS.COMMA) {
 			throw new Error(`Unexpected token ${token.type}`);
 		}
 	}
