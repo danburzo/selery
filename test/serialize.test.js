@@ -1,5 +1,5 @@
 import tape from 'tape';
-import { parse, serialize } from '../src/index';
+import { parse, serialize } from '../src/index.js';
 
 const tests = ['a span > article'];
 

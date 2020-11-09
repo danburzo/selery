@@ -1,5 +1,5 @@
 import tape from 'tape';
-import { parse } from '../src/index';
+import { parse } from '../src/index.js';
 
 let tests = [
 	{

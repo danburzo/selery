@@ -1,5 +1,5 @@
 import tape from 'tape';
-import { walk } from '../src/index';
+import { walk } from '../src/index.js';
 
 tape('walk', t => {
 	let ast = {

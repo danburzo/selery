@@ -146,6 +146,9 @@ export const parse = (arg, options = {}) => {
 				type: NodeTypes.AttributeSelector,
 				identifier: tok.value
 			};
+			if (ns !== undefined) {
+				node.namespace = ns;
+			}
 			next(); // consume attribute name
 			WS();
 			let matcher = AttrMatcher();
@@ -260,7 +263,6 @@ export const parse = (arg, options = {}) => {
 		WS();
 		let selectors = [];
 		let selector;
-		let has_pseudo = false;
 		do {
 			// TODO enforce order & other restrictions
 			selector =
@@ -350,7 +352,7 @@ export const parse = (arg, options = {}) => {
 			ast.selectors.push(sel);
 		}
 		if (tok && tok.type !== Tokens.Comma) {
-			throw new Error(`Unexpected token ${token.type}`);
+			throw new Error(`Unexpected token ${tok.type}`);
 		}
 	}
 

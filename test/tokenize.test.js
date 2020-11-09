@@ -1,5 +1,5 @@
 import tape from 'tape';
-import { tokenize } from '../src/index';
+import { tokenize } from '../src/index.js';
 
 tape('Comments', t => {
 	t.deepEqual(tokenize('/* A comment */'), []);
