@@ -12,6 +12,7 @@
 	],
 	"scripts": {
 		"test": "tape -r esm 'test/**/*.test.js'",
+		"lint": "eslint '{src,test}/**/*.js'",
 		"build": "npm run build:cjs && npm run build:es && npm run build:iife",
 		"build:cjs": "mkdir -p dist && esbuild --bundle --platform=node --outfile=dist/index.cjs.js src/index.js",
 		"build:es": "mkdir -p dist && esbuild --format=esm --outfile=dist/index.es.js --bundle src/index.js",
@@ -34,6 +35,7 @@
 	"homepage": "https://github.com/danburzo/selery#readme",
 	"devDependencies": {
 		"esbuild": "^0.8.5",
+		"eslint": "^7.13.0",
 		"esm": "^3.2.25",
 		"husky": "^4.3.0",
 		"jsdom": "^16.4.0",
