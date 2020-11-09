@@ -62,7 +62,7 @@ let tests = [
 							type: 'TypeSelector',
 							identifier: 'p'
 						},
-						combinator: ' '
+						combinator: '>'
 					},
 					right: {
 						type: 'TypeSelector',
@@ -106,12 +106,46 @@ let tests = [
 				}
 			]
 		}
+	},
+	{
+		selector: ':not(:where(#main))',
+		result: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'PseudoClassSelector',
+					identifier: 'not',
+					argument: {
+						type: 'SelectorList',
+						selectors: [
+							{
+								type: 'PseudoClassSelector',
+								identifier: 'where',
+								argument: {
+									type: 'SelectorList',
+									selectors: [
+										{
+											type: 'IdSelector',
+											identifier: 'main'
+										}
+									]
+								}
+							}
+						]
+					}
+				}
+			]
+		}
 	}
 ];
 
-tape('Parsing', t => {
-	tests.forEach(it => {
-		t.deepEqual(parse(it.selector), it.result, it.description || it.selector);
-	});
-	t.end();
-});
+tape(
+	'Parsing',
+	t => {
+		tests.forEach(it => {
+			t.deepEqual(parse(it.selector), it.result, it.description || it.selector);
+		});
+		t.end();
+	},
+	{ objectPrintDepth: 10 }
+);

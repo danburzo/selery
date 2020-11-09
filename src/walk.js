@@ -1,3 +1,5 @@
+import { NodeTypes } from './parse';
+
 export const walk = (ast, arg) => {
 	let queue = [ast];
 	let node;
@@ -9,13 +11,13 @@ export const walk = (ast, arg) => {
 			arg[node.type](node);
 		}
 		switch (node.type) {
-			case 'SelectorList':
-			case 'CompoundSelector':
+			case NodeTypes.SelectorList:
+			case NodeTypes.CompoundSelector:
 				if (node.selectors) {
 					queue = queue.concat(node.selectors);
 				}
 				break;
-			case 'ComplexSelector':
+			case NodeTypes.ComplexSelector:
 				if (node.left) {
 					queue.push(node.left);
 				}
@@ -23,8 +25,8 @@ export const walk = (ast, arg) => {
 					queue.push(node.right);
 				}
 				break;
-			case 'PseudoClassSelector':
-			case 'PseudoElementSelector':
+			case NodeTypes.PseudoClassSelector:
+			case NodeTypes.PseudoElementSelector:
 				if (
 					typeof node.argument === 'object' &&
 					!Array.isArray(node.argument)

@@ -1,23 +1,23 @@
-const IDENT_START_CP = /[^\x00-\x7F]|[a-zA-Z_]/;
-const IDENT_CP = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
+const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
+const IdentCodePoint = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
 
-export const TOKENS = {
-	IDENT: 'ident',
-	FUNCTION: 'function',
-	AT_KEYWORD: 'at-keyword',
-	HASH: 'hash',
-	STRING: 'string',
-	DELIM: 'delim',
-	WHITESPACE: 'whitespace',
-	COLON: 'colon',
-	SEMICOLON: 'semicolon',
-	COMMA: 'comma',
-	BRACKET_OPEN: '[',
-	BRACKET_CLOSE: ']',
-	PAREN_OPEN: '(',
-	PAREN_CLOSE: ')',
-	BRACE_OPEN: '{',
-	BRACE_CLOSE: '}'
+export const Tokens = {
+	Ident: 'ident',
+	Function: 'function',
+	AtKeyword: 'at-keyword',
+	Hash: 'hash',
+	String: 'string',
+	Delim: 'delim',
+	Whitespace: 'whitespace',
+	Colon: 'colon',
+	Semicolon: 'semicolon',
+	Comma: 'comma',
+	BracketOpen: '[',
+	BracketClose: ']',
+	ParenOpen: '(',
+	ParenClose: ')',
+	BraceOpen: '{',
+	BraceClose: '}'
 };
 
 /*
@@ -71,12 +71,12 @@ export const tokenize = str => {
 			return false;
 		}
 		let ch = peek();
-		if (ch.match(IDENT_START_CP)) {
+		if (ch.match(IdentStartCodePoint)) {
 			return true;
 		}
 		if (ch === '-') {
 			let ch1 = peek(1);
-			if (ch1.match(IDENT_CP) || ch1 === '-') {
+			if (ch1.match(IdentCodePoint) || ch1 === '-') {
 				return true;
 			}
 			if (ch1 === '\\') {
@@ -96,7 +96,7 @@ export const tokenize = str => {
 	const ident = () => {
 		let v = '',
 			ch;
-		while (!eof() && (peek().match(IDENT_CP) || peek() === '\\')) {
+		while (!eof() && (peek().match(IdentCodePoint) || peek() === '\\')) {
 			v += (ch = next()) === '\\' ? esc() : ch;
 		}
 		return v;
@@ -111,12 +111,12 @@ export const tokenize = str => {
 		if (peek() === '(') {
 			next();
 			return {
-				type: TOKENS.FUNCTION,
+				type: Tokens.Function,
 				value: v
 			};
 		}
 		return {
-			type: TOKENS.IDENT,
+			type: Tokens.Ident,
 			value: v
 		};
 	};
@@ -148,7 +148,7 @@ export const tokenize = str => {
 			while (!eof() && peek().match(/[\n\t ]/)) {
 				next();
 			}
-			tokens.push({ type: TOKENS.WHITESPACE });
+			tokens.push({ type: Tokens.Whitespace });
 			continue;
 		}
 
@@ -158,7 +158,7 @@ export const tokenize = str => {
 		if (ch === '"' || ch === "'") {
 			ref_ch = ch;
 			token = {
-				type: TOKENS.STRING,
+				type: Tokens.String,
 				value: ''
 			};
 			while (!eof() && (ch = next()) !== ref_ch && ch !== '\n') {
@@ -183,9 +183,9 @@ export const tokenize = str => {
 			Consume IDs 
 		*/
 		if (ch === '#') {
-			if (!eof() && (peek().match(IDENT_CP) || is_esc())) {
+			if (!eof() && (peek().match(IdentCodePoint) || is_esc())) {
 				token = {
-					type: TOKENS.HASH
+					type: Tokens.Hash
 				};
 				if (is_ident()) {
 					token.id = true;
@@ -193,23 +193,23 @@ export const tokenize = str => {
 				token.value = ident();
 				tokens.push(token);
 			} else {
-				tokens.push({ type: TOKENS.DELIM, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch });
 			}
 			continue;
 		}
 
 		if (ch === '(') {
-			tokens.push({ type: TOKENS.PAREN_OPEN });
+			tokens.push({ type: Tokens.ParenOpen });
 			continue;
 		}
 
 		if (ch === ')') {
-			tokens.push({ type: TOKENS.PAREN_CLOSE });
+			tokens.push({ type: Tokens.ParenClose });
 			continue;
 		}
 
 		if (ch === ',') {
-			tokens.push({ type: TOKENS.COMMA });
+			tokens.push({ type: Tokens.Comma });
 			continue;
 		}
 
@@ -217,39 +217,39 @@ export const tokenize = str => {
 			if (is_ident()) {
 				reconsume(ch);
 				tokens.push({
-					type: TOKENS.IDENT,
+					type: Tokens.Ident,
 					value: ident()
 				});
 			} else {
-				tokens.push({ type: TOKENS.DELIM, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch });
 			}
 			continue;
 		}
 
 		if (ch === ':') {
-			tokens.push({ type: TOKENS.COLON });
+			tokens.push({ type: Tokens.Colon });
 			continue;
 		}
 
 		if (ch === ';') {
-			tokens.push({ type: TOKENS.SEMICOLON });
+			tokens.push({ type: Tokens.Semicolon });
 			continue;
 		}
 
 		if (ch === '@') {
 			if (is_ident()) {
 				tokens.push({
-					type: TOKENS.AT_KEYWORD,
+					type: Tokens.AtKeyword,
 					value: ident()
 				});
 			} else {
-				tokens.push({ type: TOKENS.DELIM, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch });
 			}
 			continue;
 		}
 
 		if (ch === '[') {
-			tokens.push({ type: TOKENS.BRACKET_OPEN });
+			tokens.push({ type: Tokens.BracketOpen });
 			continue;
 		}
 
@@ -263,23 +263,23 @@ export const tokenize = str => {
 		}
 
 		if (ch === ']') {
-			tokens.push({ type: TOKENS.BRACKET_CLOSE });
+			tokens.push({ type: Tokens.BracketClose });
 			continue;
 		}
 
 		if (ch === '{') {
-			tokens.push({ type: TOKENS.BRACE_OPEN });
+			tokens.push({ type: Tokens.BraceOpen });
 			continue;
 		}
 
 		if (ch === '}') {
-			tokens.push({ type: TOKENS.BRACE_CLOSE });
+			tokens.push({ type: Tokens.BraceClose });
 			continue;
 		}
 
 		// TODO: digits
 
-		if (ch.match(IDENT_START_CP)) {
+		if (ch.match(IdentStartCodePoint)) {
 			reconsume(ch);
 			tokens.push(identlike());
 			continue;
@@ -289,7 +289,7 @@ export const tokenize = str => {
 			Treat everything not already handled
 			as a delimiter.
 		 */
-		tokens.push({ type: TOKENS.DELIM, value: ch });
+		tokens.push({ type: Tokens.Delim, value: ch });
 	}
 
 	return tokens;
