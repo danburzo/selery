@@ -12,7 +12,7 @@ npm install selery
 
 ### Basic methods
 
-#### selery.**tokenize**(_selector_)
+#### tokenize(_selector_)
 
 Takes a string _selector_ and returns an array of tokens.
 
@@ -41,7 +41,7 @@ For the sample code above, the resulting token array is:
 
 The function will throw an erorr if the selector supplied does not follow generally valid CSS syntax.
 
-#### selery.**parse**(_input_, _options_)
+#### parse(_input_, _options_)
 
 Accepts an _input_ argument, which can be either an array of tokens obtained from the `tokenize()` function or, more conveniently, a string representing a selector. The latter is passed through `tokenize()` internally.
 
@@ -55,23 +55,27 @@ Available options:
 
 - _recursive_ (Boolean | Array) — whether to recursively parse the argument to some pseudo-classes and pseudo-elements. The default value is `true`. Pass in an array to add to the set of pseudo-things to recursively parse, beyond the default `[':is', ':where', ':not', '::slotted']`.
 
+#### serialize(_input_)
+
+Converts the input back into a string. The _input_ argument can be either an array of tokens, or an object representing a parse tree.
+
 ### DOM API shims
 
 Shims for selector-accepting DOM methods using simpler DOM primitives.
 
-#### selery.**matches**(_element_, _selector_)
+#### matches(_element_, _selector_)
 
 See the [Element.matches](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches) DOM method.
 
-#### selery.**closest**(_element_, _selector_)
+#### closest(_element_, _selector_)
 
 See the [Element.closest](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest) DOM method.
 
-#### selery.**querySelector**(_element_, _selector_)
+#### querySelector(_element_, _selector_)
 
 See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector) DOM method.
 
-#### selery.**querySelectorAll**(_element_, _selector_)
+#### querySelectorAll(_element_, _selector_)
 
 See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method.
 
