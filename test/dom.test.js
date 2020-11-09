@@ -16,7 +16,7 @@ const mount = win => {
 	};
 
 	let qs = function (sel) {
-		return querySelector(this, sel);
+		return querySelector(this, sel, win.document);
 	};
 
 	win.Element.prototype.querySelector = qs;
@@ -24,7 +24,7 @@ const mount = win => {
 	win.DocumentFragment.prototype.querySelector = qs;
 
 	let qsa = function (sel) {
-		return querySelectorAll(this, sel);
+		return querySelectorAll(this, sel, win.document);
 	};
 
 	win.Element.prototype.querySelectorAll = qsa;
@@ -32,9 +32,11 @@ const mount = win => {
 	win.DocumentFragment.prototype.querySelectorAll = qsa;
 };
 
-tape('basic', t => {
-	let dom = new JSDOM('<div>Some thing</div>');
+tape('Basic dom queries', t => {
+	let dom = new JSDOM(
+		'<div>Some thing</div> <article><div>Another</div></article>'
+	);
 	mount(dom.window);
-	dom.window.document.querySelector('div');
+	console.log(dom.window.document.querySelectorAll('div'));
 	t.end();
 });

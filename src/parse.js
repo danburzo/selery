@@ -1,7 +1,16 @@
 import { tokenize, Tokens } from './tokenize';
 import { walk } from './walk';
 
-export const RecursiveFunctions = [':is', ':where', ':not', '::slotted'];
+export const RecursiveFunctions = [
+	':is',
+	':matches',
+	':-moz-any',
+	':-webkit-any',
+	':where',
+	':not',
+	':has',
+	'::slotted'
+];
 export const NodeTypes = {
 	SelectorList: 'SelectorList',
 	ComplexSelector: 'ComplexSelector',
