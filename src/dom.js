@@ -49,14 +49,12 @@ export const matches = (el, sel) => {
 
 	if (node.type === NodeTypes.AttributeSelector) {
 		// TODO namespaces
-		let haystack = el.getAttribute(node.identifier);
 		if (!node.matcher) {
-			// TODO: should this be !!haystack instead?
-			return haystack !== undefined;
+			return e.hasAttribute(node.identifier);
 		}
+		let haystack = el.getAttribute(node.identifier);
 		let needle = node.value;
 		if (node.modifier !== 's') {
-			// TODO: are there cases where 'i' is *not* the default?
 			haystack = haystack.toLowerCase();
 			needle = needle.toLowerCase();
 		}
@@ -129,8 +127,6 @@ export const matches = (el, sel) => {
 				break;
 			case 'nth-last-child':
 				break;
-			case 'nth-of-type':
-				break;
 			case 'only-child':
 				return !el.previousElementSibling && !el.nextElementSibling;
 			case 'only-of-type':
@@ -160,17 +156,17 @@ export const matches = (el, sel) => {
 	throw new Error(`Unsupported node type ${node.type}`);
 };
 
-export const querySelector = (el, sel, doc) => {
+export const querySelector = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
-	let it = (doc || el.ownerDocument).createNodeIterator(el, 1, node =>
+	let it = (el.ownerDocument || el).createNodeIterator(el, 1, node =>
 		matches(node, sel)
 	);
 	return it.nextNode();
 };
 
-export const querySelectorAll = (el, sel, doc) => {
+export const querySelectorAll = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
-	let it = (doc || el.ownerDocument).createNodeIterator(el, 1, node =>
+	let it = (el.ownerDocument || el).createNodeIterator(el, 1, node =>
 		matches(node, sel)
 	);
 	let res = [],

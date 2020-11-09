@@ -7,36 +7,40 @@ import {
 	querySelector
 } from '../src/index';
 
-const mount = win => {
-	win.Element.prototype.closest = function (sel) {
+const doc = function (str) {
+	let dom = new JSDOM(str);
+	dom.window.Element.prototype.closest = function (sel) {
 		return closest(this, sel);
 	};
-	win.Element.prototype.matches = function (sel) {
+	dom.window.Element.prototype.matches = function (sel) {
 		return matches(this, sel);
 	};
 
 	let qs = function (sel) {
-		return querySelector(this, sel, win.document);
+		return querySelector(this, sel);
 	};
 
-	win.Element.prototype.querySelector = qs;
-	win.Document.prototype.querySelector = qs;
-	win.DocumentFragment.prototype.querySelector = qs;
+	dom.window.Element.prototype.querySelector = qs;
+	dom.window.Document.prototype.querySelector = qs;
+	dom.window.DocumentFragment.prototype.querySelector = qs;
 
 	let qsa = function (sel) {
-		return querySelectorAll(this, sel, win.document);
+		return querySelectorAll(this, sel);
 	};
 
-	win.Element.prototype.querySelectorAll = qsa;
-	win.Document.prototype.querySelectorAll = qsa;
-	win.DocumentFragment.prototype.querySelectorAll = qsa;
+	dom.window.Element.prototype.querySelectorAll = qsa;
+	dom.window.Document.prototype.querySelectorAll = qsa;
+	dom.window.DocumentFragment.prototype.querySelectorAll = qsa;
+
+	return dom.window.document;
 };
 
 tape('Basic dom queries', t => {
-	let dom = new JSDOM(
-		'<div>Some thing</div> <article><div class="box secondary">Another</div></article>'
-	);
-	mount(dom.window);
-	console.log(dom.window.document.querySelectorAll('div.secondary'));
+	let document = doc`
+		<div>Some thing</div> 
+		<article>
+			<div class="box secondary">Another</div>
+		</article>
+	`;
 	t.end();
 });

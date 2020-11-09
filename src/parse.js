@@ -188,8 +188,13 @@ export const parse = (arg, options = {}) => {
 	};
 
 	const AttrModifier = () => {
-		if (delim(tok, 'i') || delim(tok, 's')) {
-			let ret = tok.value;
+		if (
+			tok &&
+			tok.type === Tokens.Delim &&
+			tok.value &&
+			tok.value.match(/i|s/i)
+		) {
+			let ret = tok.value.toLowerCase();
 			next();
 			return ret;
 		}
