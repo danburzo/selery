@@ -11,6 +11,16 @@ export const RecursiveFunctions = [
 	':has',
 	'::slotted'
 ];
+
+export const AnBFunctions = [
+	':nth-child',
+	':nth-last-child',
+	':nth-of-type',
+	':nth-last-of-type',
+	':nth-col',
+	':nth-last-col'
+];
+
 export const NodeTypes = {
 	SelectorList: 'SelectorList',
 	ComplexSelector: 'ComplexSelector',

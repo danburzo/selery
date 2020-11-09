@@ -44,7 +44,7 @@ export const matches = (el, sel) => {
 	}
 
 	if (node.type === NodeTypes.ClassSelector) {
-		return el.classList.has(node.identifier);
+		return el.classList.contains(node.identifier);
 	}
 
 	if (node.type === NodeTypes.AttributeSelector) {
@@ -107,14 +107,23 @@ export const matches = (el, sel) => {
 			 */
 
 			case 'first-child':
-				return el.previousElementSibling === null;
+				return previous(el) === 0;
 			case 'first-of-type':
 				return firstOfType(el);
 			case 'last-child':
-				return el.nextElementSibling === null;
+				return next(el) === 0;
 			case 'last-of-type':
 				return lastOfType(el);
 			case 'nth-child':
+				let n = previous(el) + 1;
+				let arg = node.argument.map(serializeToken).join('');
+				if (arg === 'odd') {
+					return n % 2;
+				}
+				if (arg === 'even') {
+					return n % 2 === 0;
+				}
+
 				break;
 			case 'nth-of-type':
 				break;
@@ -175,8 +184,23 @@ export const querySelectorAll = (el, sel, doc) => {
 	-------
  */
 
+const previous = el => {
+	let count = 0,
+		ref = el;
+	while ((ref = ref.previousElementSibling)) count++;
+	return count;
+};
+
+const next = el => {
+	let count = 0,
+		ref = el;
+	while ((ref = ref.nextElementSibling)) count++;
+	return count;
+};
+
 const firstOfType = el => {
-	while ((ref = el.previousElementSibling)) {
+	let ref = el;
+	while ((ref = ref.previousElementSibling)) {
 		if (ref.localName === el.localName && ref.prefix === el.prefix) {
 			return false;
 		}
@@ -185,7 +209,8 @@ const firstOfType = el => {
 };
 
 const lastOfType = el => {
-	while ((ref = el.nextElementSibling)) {
+	let ref = el;
+	while ((ref = ref.nextElementSibling)) {
 		if (ref.localName === el.localName && ref.prefix === el.prefix) {
 			return false;
 		}

@@ -34,9 +34,9 @@ const mount = win => {
 
 tape('Basic dom queries', t => {
 	let dom = new JSDOM(
-		'<div>Some thing</div> <article><div>Another</div></article>'
+		'<div>Some thing</div> <article><div class="box secondary">Another</div></article>'
 	);
 	mount(dom.window);
-	console.log(dom.window.document.querySelectorAll('div'));
+	console.log(dom.window.document.querySelectorAll('div.secondary'));
 	t.end();
 });
