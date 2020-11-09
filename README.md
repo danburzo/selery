@@ -77,7 +77,7 @@ See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API
 
 #### querySelectorAll(_element_, _selector_)
 
-See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method.
+See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method. While the native DOM method return a `NodeList`, our implementation of `querySelectorAll` returns an `Array`.
 
 ## CSS Selector AST
 

@@ -12,23 +12,27 @@ export const closest = (el, sel) => {
 export const matches = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
 	if (Matchers[node.type]) {
-		return Matchers[node.type];
+		return Matchers[node.type](el, node);
 	}
 	throw new Error(`Unsupported node type ${node.type}`);
 };
 
 export const querySelector = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
-	let it = (el.ownerDocument || el).createNodeIterator(el, 1, n =>
-		matches(n, node)
+	let it = (el.ownerDocument || el).createNodeIterator(
+		el,
+		1,
+		n => n !== el && matches(n, node)
 	);
 	return it.nextNode();
 };
 
 export const querySelectorAll = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
-	let it = (el.ownerDocument || el).createNodeIterator(el, 1, n =>
-		matches(n, node)
+	let it = (el.ownerDocument || el).createNodeIterator(
+		el,
+		1,
+		n => n !== el && matches(n, node)
 	);
 	let res = [],
 		n;
@@ -102,12 +106,33 @@ const matchPseudoClassSelector = (el, node) => {
 		case 'matches':
 		case '-moz-any':
 		case '-webkit-any':
-			return node.selectors.some(s => matches(el, s));
+			// TODO is this correct?
+			if (!node.argument) {
+				return false;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
+			return node.argument.selectors.some(s => matches(el, s));
 		case 'not':
-			return node.selectors.every(s => !matches(el, s));
+			// TODO is this correct?
+			if (!node.argument) {
+				return true;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
+			return node.argument.selectors.every(s => !matches(el, s));
 		case 'has':
+			// TODO is this correct?
+			if (!node.argument) {
+				return false;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
 			// TODO handle :scope
-			return !!querySelector(el, node.selectors);
+			return !!querySelector(el, node.argument);
 
 		/*
 			Tree-Structural pseudo-classes
