@@ -1,8 +1,10 @@
-# selery
+![selery](./.github/selery.svg)
 
-A small, handwritten CSS selector parser. **Currently a work-in-progress.**
+selery is a small, handwritten CSS selector parser. **Currently a work-in-progress.**
 
 ## Installation
+
+<a href="https://www.npmjs.org/package/selery"><img src="https://img.shields.io/npm/v/selery.svg?style=flat-square&labelColor=50B888&color=black" alt="npm version"></a> <a href="https://bundlephobia.com/result?p=selery"><img src="https://img.shields.io/bundlephobia/minzip/selery?style=flat-square&labelColor=50B888&color=black" alt="npm version"></a>
 
 ```bash
 npm install selery
@@ -184,3 +186,7 @@ Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not`, a
 - [parsel](https://github.com/LeaVerou/parsel)
 - [scalpel](https://github.com/gajus/scalpel)
 - [csstree](https://github.com/csstree/csstree)
+
+## Colophon
+
+The selery logo is typeset in [Manicotti](https://djr.com/manicotti/) by David Jonathan Ross.
