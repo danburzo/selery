@@ -2,15 +2,28 @@
 
 selery is a small, handwritten CSS selector parser. **Currently a work-in-progress.**
 
+- [Goals of the project](#goals-of-the-project)
+- [Installation](#installation)
+- [API reference](#api-reference)
+- [CSS selector AST](#api-reference)
+- [See also](#see-also)
+- [Colophon](#colophon)
+
+## Goals of the project
+
+- Follow the [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/) and [CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/) specifications;
+- Pass relevant Web Platform Tests;
+- Allow lax selector parsing matching browsers' behavior.
+
 ## Installation
 
-<a href="https://www.npmjs.org/package/selery"><img src="https://img.shields.io/npm/v/selery.svg?style=flat-square&labelColor=50B888&color=black" alt="npm version"></a> <a href="https://bundlephobia.com/result?p=selery"><img src="https://img.shields.io/bundlephobia/minzip/selery?style=flat-square&labelColor=50B888&color=black" alt="npm version"></a>
+[![selery on npm](https://img.shields.io/npm/v/selery.svg?style=flat-square&labelColor=50B888&color=black)](https://www.npmjs.org/package/selery) [![selery on bundlephobia](https://img.shields.io/bundlephobia/minzip/selery?style=flat-square&labelColor=50B888&color=black)](https://bundlephobia.com/result?p=selery)
 
 ```bash
 npm install selery
 ```
 
-## API
+## API reference
 
 ### Basic methods
 
@@ -81,7 +94,7 @@ See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API
 
 See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method. While the native DOM method return a `NodeList`, our implementation of `querySelectorAll` returns an `Array`.
 
-## CSS Selector AST
+## CSS selector AST
 
 All nodes in the AST contain a `type` property, and additional properties for each specific type, listed below.
 
@@ -173,12 +186,6 @@ Both types of nodes share a common structure:
 In CSS, there is more than one way to interpret the argument passed to pseudo-classes and pseudo-elements which expressed with the function notation. Some pseudo-classes, such as '\*-child', use the `An+B` microsyntax, others accept a list of selectors.
 
 Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not`, and the pseudo-element `::slotted`, are parsed as a `SelectorList` when the `recursive` parsing option is enabled. In all other cases, the `argument` property of the node will contain the array of unparsed tokens.
-
-## Goals
-
-- Follow the [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/) and [CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/) specifications;
-- Pass relevant Web Platform Tests;
-- Allow lax selector parsing matching browsers' behavior.
 
 ## See also
 

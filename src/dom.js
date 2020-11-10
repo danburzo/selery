@@ -52,8 +52,19 @@ const matchComplexSelector = (el, node) => {
 	if (!matches(el, node.right)) {
 		return false;
 	}
-	let ancestor = closest(el, node.left);
-	return ancestor && ancestor !== el;
+	switch (node.combinator) {
+		case ' ': {
+			let ancestor = closest(el, node.left);
+			return ancestor && ancestor !== el;
+		}
+		case '>':
+			return el.parentNode && matches(el.parentNode, node.left);
+		// TODO
+		case '+':
+		case '~':
+		default:
+			throw new Error(`Unsupported combinator ${node.combinator}`);
+	}
 };
 
 const matchCompoundSelector = (el, node) =>

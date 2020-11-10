@@ -2,9 +2,9 @@
 	"name": "selery",
 	"version": "0.0.6",
 	"description": "A CSS selector parser",
-	"main": "dist/index.cjs.js",
-	"module": "dist/index.es.js",
-	"browser": "dist/index.iife.js",
+	"main": "dist/selery-node.js",
+	"module": "dist/selery-module.js",
+	"browser": "dist/selery-browser.min.js",
 	"source": "src/index.js",
 	"files": [
 		"dist/*",
@@ -13,10 +13,15 @@
 	"scripts": {
 		"test": "tape -r esm 'test/**/*.test.js'",
 		"lint": "eslint '{src,test}/**/*.js'",
-		"build": "npm run build:cjs && npm run build:es && npm run build:iife",
-		"build:cjs": "mkdir -p dist && esbuild --bundle --platform=node --outfile=dist/index.cjs.js src/index.js",
-		"build:es": "mkdir -p dist && esbuild --format=esm --outfile=dist/index.es.js --bundle src/index.js",
-		"build:iife": "mkdir -p dist && esbuild --bundle --minify --outfile=dist/index.iife.js --global-name=selery src/index.js"
+		"prep": "npm run build && npm run lint && npm run test",
+		"preversion": "npm run prep",
+		"prepublishOnly": "npm run prep",
+		"build": "npm run build:node && npm run build:module && npm run build:modulemin && npm run build:browser && npm run build:browsermin",
+		"build:node": "mkdir -p dist && esbuild --bundle --platform=node --outfile=dist/selery-node.js src/index.js",
+		"build:module": "mkdir -p dist && esbuild --format=esm --outfile=dist/selery-module.js --bundle src/index.js",
+		"build:modulemin": "mkdir -p dist && esbuild --format=esm --minify --outfile=dist/selery-module.min.js --bundle src/index.js",
+		"build:browser": "mkdir -p dist && esbuild --bundle --outfile=dist/selery-browser.js --global-name=selery src/index.js",
+		"build:browsermin": "mkdir -p dist && esbuild --bundle --minify --outfile=dist/selery-browser.min.js --global-name=selery src/index.js"
 	},
 	"repository": {
 		"type": "git",
