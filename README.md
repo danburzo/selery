@@ -30,9 +30,9 @@ Or fetch the library from [Unpkg](https://unpkg.com/) by including this in your 
 
 Or, to bring the library into any web page you're on (as long as its [configuration doesn't prevent it](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src)), bring up the browser's Console and paste this snippet:
 
+<!-- prettier-ignore -->
 ```js
-with (document)
-	body.appendChild(createElement`script`).src = '//unpkg.com/selery';
+with (document)body.appendChild(createElement`script`).src = '//unpkg.com/selery';
 ```
 
 > When used with a `<script>` tag, the library is available under the `selery` global variable.
