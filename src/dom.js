@@ -105,6 +105,10 @@ const matchAttributeSelector = (el, node) => {
 	}
 };
 
+/*
+	Matches the element `el` against a `node`
+	of type PseudoClassSelector.
+ */
 const matchPseudoClassSelector = (el, node) => {
 	switch (node.identifier) {
 		/*
@@ -161,7 +165,11 @@ const matchPseudoClassSelector = (el, node) => {
 			return !next(el) && !previous(el);
 		case 'only-of-type':
 			return firstOfType(el) && lastOfType(el);
-		case ':empty':
+
+		case 'root':
+			return el === (el.ownerDocument || el).documentElement;
+
+		case 'empty':
 			return (
 				!el.childNodes.length ||
 				(el.childNodes.length === 1 &&
@@ -169,13 +177,40 @@ const matchPseudoClassSelector = (el, node) => {
 					el.childNodes[0].nodeValue.match(/^\s*$/))
 			);
 
+		/*
+			Input Pseudo-classes
+			See also: https://html.spec.whatwg.org/multipage/semantics-other.html#pseudo-classes
+		 */
+		case 'enabled':
+			return !el.disabled;
+		case 'disabled':
+			return el.disabled;
+		case 'link':
+			return (
+				(el.localName === 'a' ||
+					el.localName === 'area' ||
+					el.localName === 'link') &&
+				el.hasAttribute('href')
+			);
+		case 'visited':
+			return false;
+		case 'checked':
+			return el.checked || el.selected;
+		case 'indeterminate':
+			return el.indeterminate;
+
 		// TODO
+		case 'default':
+		case 'defined':
+		case 'active':
+		case 'hover':
+		case 'focus':
+		case 'target':
 		case 'nth-child':
 		case 'nth-of-type':
 		case 'nth-last-child':
-		case ':root':
-		case ':host':
-		case ':scope':
+		case 'nth-last-of-type':
+		case 'scope':
 		default:
 			throw new Error(`Unsupported pseudo-class ${node.identifier}`);
 	}

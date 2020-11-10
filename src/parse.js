@@ -8,8 +8,8 @@ export const RecursiveFunctions = [
 	':-webkit-any',
 	':where',
 	':not',
-	':has',
-	'::slotted'
+	':has'
+	// '::slotted'
 ];
 
 export const AnBFunctions = [

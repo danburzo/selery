@@ -1,14 +1,8 @@
 ![selery](./.github/selery.svg)
 
-selery is a small, handwritten CSS selector parser.
+selery is a small, handwritten CSS selector parser. It aims to be compliant with the relevant specifications ([CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), [HTML Specification: pseudo-classes](https://html.spec.whatwg.org/multipage/semantics-other.html#pseudo-classes) and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
 
 > ⚠️ Currently a work-in-progress
-
-## Goals of the project
-
-- Follow the [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/) and [CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/) specifications;
-- Pass relevant Web Platform Tests;
-- Allow lax selector parsing matching browsers' behavior.
 
 ## Getting started
 
@@ -80,7 +74,7 @@ let tree = parse('div > span:nth-child(3)');
 
 Available options:
 
-- _recursive_ (Boolean | Array) — whether to recursively parse the argument to some pseudo-classes and pseudo-elements. The default value is `true`. Pass in an array to add to the set of pseudo-things to recursively parse, beyond the default `[':is', ':where', ':not', '::slotted']`.
+- _recursive_ (Boolean | Array) — whether to recursively parse the argument to some pseudo-classes and pseudo-elements. The default value is `true`. Pass in an array to add to the set of pseudo-things to recursively parse, beyond the default `[':is', ':where', ':not']`.
 
 #### serialize(_input_)
 
@@ -188,7 +182,7 @@ Represents an [attribute selector](https://drafts.csswg.org/selectors/#attribute
 
 #### `PseudoClassSelector` and `PseudoElementSelector`
 
-Represents a pseudo-class selector (such as `:visited` or `:is(a, b, c)`) or a pseudo-element (such as `::before` or `::slotted(span)`), respectively.
+Represents a pseudo-class selector (such as `:visited` or `:is(a, b, c)`) or a pseudo-element (such as `::before`), respectively.
 
 Both types of nodes share a common structure:
 
@@ -197,7 +191,7 @@ Both types of nodes share a common structure:
 
 In CSS, there is more than one way to interpret the argument passed to pseudo-classes and pseudo-elements which expressed with the function notation. Some pseudo-classes, such as '\*-child', use the `An+B` microsyntax, others accept a list of selectors.
 
-Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not`, and the pseudo-element `::slotted`, are parsed as a `SelectorList` when the `recursive` parsing option is enabled. In all other cases, the `argument` property of the node will contain the array of unparsed tokens.
+Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not` are parsed as a `SelectorList` when the `recursive` parsing option is enabled. In all other cases, the `argument` property of the node will contain the array of unparsed tokens.
 
 ## See also
 
