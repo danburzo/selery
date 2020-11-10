@@ -136,6 +136,20 @@ let tests = [
 				}
 			]
 		}
+	},
+	{
+		selector: '[id^=featured]',
+		result: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'AttributeSelector',
+					identifier: 'id',
+					matcher: '^=',
+					value: 'featured'
+				}
+			]
+		}
 	}
 ];
 

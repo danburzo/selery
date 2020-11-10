@@ -185,7 +185,9 @@ export const parse = (arg, options = {}) => {
 		if (!eoi() && tok && tok.type === Tokens.Delim && delim(peek(), '=')) {
 			let ret = tok.value;
 			next();
-			return ret + tok.value;
+			ret += tok.value;
+			next();
+			return ret;
 		}
 		return undefined;
 	};

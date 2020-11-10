@@ -1,5 +1,5 @@
 const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
-const IdentCodePoint = /[^\x00-\x7F]|[a-zA-Z_0-9\-]/;
+const IdentCodePoint = /[^\x00-\x7F]|[-\w]/;
 
 export const Tokens = {
 	Ident: 'ident',
