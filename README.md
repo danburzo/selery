@@ -1,13 +1,8 @@
 ![selery](./.github/selery.svg)
 
-selery is a small, handwritten CSS selector parser. **Currently a work-in-progress.**
+selery is a small, handwritten CSS selector parser.
 
-- [Goals of the project](#goals-of-the-project)
-- [Installation](#installation)
-- [API reference](#api-reference)
-- [CSS selector AST](#api-reference)
-- [See also](#see-also)
-- [Colophon](#colophon)
+> ⚠️ Currently a work-in-progress
 
 ## Goals of the project
 
@@ -15,17 +10,34 @@ selery is a small, handwritten CSS selector parser. **Currently a work-in-progre
 - Pass relevant Web Platform Tests;
 - Allow lax selector parsing matching browsers' behavior.
 
-## Installation
+## Getting started
 
 [![selery on npm](https://img.shields.io/npm/v/selery.svg?style=flat-square&labelColor=50B888&color=black)](https://www.npmjs.org/package/selery) [![selery on bundlephobia](https://img.shields.io/bundlephobia/minzip/selery?style=flat-square&labelColor=50B888&color=black)](https://bundlephobia.com/result?p=selery)
+
+You can install selery as an [npm package](https://npmjs.com/package/selery):
 
 ```bash
 npm install selery
 ```
 
-## API reference
+Alternatively, head over to the [latest release](https://github.com/danburzo/selery/releases/latest) and download the `selery-<version>.zip` file. The archive contains the library built in several variants to choose from, suitable for both browsers and Node.js.
 
-### Basic methods
+Or fetch the library from [Unpkg](https://unpkg.com/) by including this in your web page:
+
+```html
+<script src="https://unpkg.com/selery"></script>
+```
+
+Or, to bring the library into any web page you're on (as long as its [configuration doesn't prevent it](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src)), bring up the browser's Console and paste this snippet:
+
+```js
+with (document)
+	body.appendChild(createElement`script`).src = '//unpkg.com/selery';
+```
+
+> When used with a `<script>` tag, the library is available under the `selery` global variable.
+
+## API reference
 
 #### tokenize(_selector_)
 
