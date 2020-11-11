@@ -25,6 +25,8 @@ tape('Testcases', t => {
 			if (c.serialize !== undefined) {
 				if (c.serialize instanceof RegExp) {
 					t.throws(serialize(parse(sel)), c.serialize, 'serialize: ' + desc);
+				} else if (c.serialize === true) {
+					t.equals(serialize(parse(sel)), sel, 'serialize: ' + desc);
 				} else {
 					t.deepEqual(serialize(parse(sel)), c.serialize, 'serialize: ' + desc);
 				}
