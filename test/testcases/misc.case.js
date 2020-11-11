@@ -1,10 +1,42 @@
-import tape from 'tape';
-import { parse } from '../src/index.js';
-
-let tests = [
+/*
+	Miscellaneous cases migrated from older test files
+ */
+export default [
+	{
+		selector: 'div.primary > span',
+		tokenize: [
+			{ type: 'ident', value: 'div' },
+			{ type: 'delim', value: '.' },
+			{ type: 'ident', value: 'primary' },
+			{ type: 'whitespace' },
+			{ type: 'delim', value: '>' },
+			{ type: 'whitespace' },
+			{ type: 'ident', value: 'span' }
+		]
+	},
+	{
+		selector: '#hello',
+		tokenize: [{ type: 'hash', id: true, value: 'hello' }]
+	},
+	{
+		selector: '#he\\#llo',
+		tokenize: [{ type: 'hash', id: true, value: 'he#llo' }]
+	},
+	{
+		selector: '# hello',
+		tokenize: [
+			{ type: 'delim', value: '#' },
+			{ type: 'whitespace' },
+			{ type: 'ident', value: 'hello' }
+		]
+	},
+	{
+		selector: 'a span > article',
+		serialize: true
+	},
 	{
 		selector: 'div',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -16,7 +48,7 @@ let tests = [
 	},
 	{
 		selector: 'article a[href="#"]',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -47,7 +79,7 @@ let tests = [
 	},
 	{
 		selector: 'article > p span',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -75,7 +107,7 @@ let tests = [
 	},
 	{
 		selector: 'div:is(.primary, #main)',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -109,7 +141,7 @@ let tests = [
 	},
 	{
 		selector: ':not(:where(#main))',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -139,7 +171,7 @@ let tests = [
 	},
 	{
 		selector: '[id^=featured]',
-		result: {
+		parse: {
 			type: 'SelectorList',
 			selectors: [
 				{
@@ -152,14 +184,3 @@ let tests = [
 		}
 	}
 ];
-
-tape(
-	'Parsing',
-	t => {
-		tests.forEach(it => {
-			t.deepEqual(parse(it.selector), it.result, it.description || it.selector);
-		});
-		t.end();
-	},
-	{ objectPrintDepth: 10 }
-);
