@@ -2,22 +2,24 @@ const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
 const IdentCodePoint = /[^\x00-\x7F]|[-\w]/;
 
 export const Tokens = {
-	Ident: 'ident',
-	Function: 'function',
 	AtKeyword: 'at-keyword',
-	Hash: 'hash',
-	String: 'string',
-	Delim: 'delim',
-	Whitespace: 'whitespace',
-	Colon: 'colon',
-	Semicolon: 'semicolon',
-	Comma: 'comma',
-	BracketOpen: '[',
-	BracketClose: ']',
-	ParenOpen: '(',
-	ParenClose: ')',
+	BraceClose: '}',
 	BraceOpen: '{',
-	BraceClose: '}'
+	BracketClose: ']',
+	BracketOpen: '[',
+	Colon: 'colon',
+	Comma: 'comma',
+	Delim: 'delim',
+	Dimension: 'dimension',
+	Function: 'function',
+	Hash: 'hash',
+	Ident: 'ident',
+	Number: 'number',
+	ParenClose: ')',
+	ParenOpen: '(',
+	Semicolon: 'semicolon',
+	String: 'string',
+	Whitespace: 'whitespace'
 };
 
 /*
@@ -63,11 +65,71 @@ export const tokenize = str => {
 	};
 
 	/*
-		Check if the stream starts with an identifier
+		4.3.10. Check if three code points would start a number
+		https://drafts.csswg.org/css-syntax/#starts-with-a-number
+	 */
+	const is_num = () => {
+		let ch = peek(),
+			ch1 = peek(1);
+		if (ch === '-' || ch === '+') {
+			return /\d/.test(ch1) || (ch1 === '.' && /\d/.test(peek(2)));
+		}
+		if (ch === '.') {
+			return /\d/.test(ch1);
+		}
+		return /\d/.test(ch);
+	};
+
+	/*
+		4.3.3. Consume a numeric token
+		https://drafts.csswg.org/css-syntax/#consume-numeric-token
+	 */
+	const num = () => {
+		let value = '';
+		if (/[+-]/.test(peek())) {
+			value += next();
+		}
+		value += digits();
+		if (peek() === '.' && /\d/.test(peek(1))) {
+			value += next() + digits();
+		}
+		if (/e/i.test(peek())) {
+			if (/[+-]/.test(peek(1)) && /\d/.test(peek(2))) {
+				value += next() + next() + digits();
+			} else if (/\d/.test(peek(1))) {
+				value += next() + digits();
+			}
+		}
+		if (is_ident()) {
+			return {
+				type: Tokens.Dimension,
+				value,
+				unit: ident()
+			};
+		}
+		return {
+			type: Tokens.Number,
+			value
+		};
+	};
+
+	/*
+		Consume digits
+	 */
+	const digits = () => {
+		let v = '';
+		while (/\d/.test(peek())) {
+			v += next();
+		}
+		return v;
+	};
+
+	/*
+		Check if the stream starts with an identifier.
 	 */
 
 	const is_ident = () => {
-		if (size() < 2) {
+		if (!size()) {
 			return false;
 		}
 		let ch = peek();
@@ -75,6 +137,9 @@ export const tokenize = str => {
 			return true;
 		}
 		if (ch === '-') {
+			if (size() < 2) {
+				return false;
+			}
 			let ch1 = peek(1);
 			if (ch1.match(IdentCodePoint) || ch1 === '-') {
 				return true;
@@ -208,18 +273,40 @@ export const tokenize = str => {
 			continue;
 		}
 
+		if (ch === '+') {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
+		}
+
 		if (ch === ',') {
 			tokens.push({ type: Tokens.Comma });
 			continue;
 		}
 
 		if (ch === '-') {
-			if (is_ident()) {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
+			} else if (is_ident()) {
 				reconsume(ch);
 				tokens.push({
 					type: Tokens.Ident,
 					value: ident()
 				});
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
+			continue;
+		}
+
+		if (ch === '.') {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
 			}
@@ -277,7 +364,11 @@ export const tokenize = str => {
 			continue;
 		}
 
-		// TODO: digits
+		if (ch.match(/\d/)) {
+			reconsume(ch);
+			tokens.push(num());
+			continue;
+		}
 
 		if (ch.match(IdentStartCodePoint)) {
 			reconsume(ch);
