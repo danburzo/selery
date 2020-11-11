@@ -4,7 +4,7 @@
 	"description": "A CSS selector parser",
 	"main": "dist/selery-node.js",
 	"module": "dist/selery-module.js",
-	"browser": "dist/selery-browser.min.js",
+	"browser": "dist/selery-browser.js",
 	"source": "src/index.js",
 	"files": [
 		"dist/*",
@@ -21,8 +21,8 @@
 		"build:node": "mkdir -p dist && esbuild --bundle --platform=node --outfile=${npm_package_main} ${npm_package_source}",
 		"build:module": "mkdir -p dist && esbuild --format=esm --outfile=${npm_package_module} --bundle ${npm_package_source}",
 		"build:modulemin": "mkdir -p dist && esbuild --format=esm --minify --outfile=dist/selery-module.min.js --bundle ${npm_package_source}",
-		"build:browser": "mkdir -p dist && esbuild --bundle --outfile=dist/selery-browser.js --global-name=selery ${npm_package_source}",
-		"build:browsermin": "mkdir -p dist && esbuild --bundle --minify --outfile=${npm_package_browser} --global-name=selery ${npm_package_source}"
+		"build:browser": "mkdir -p dist && esbuild --bundle --outfile=${npm_package_browser} --global-name=selery ${npm_package_source}",
+		"build:browsermin": "mkdir -p dist && esbuild --bundle --minify --outfile=dist/selery-browser.min.js --global-name=selery ${npm_package_source}"
 	},
 	"repository": {
 		"type": "git",
