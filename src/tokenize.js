@@ -69,23 +69,15 @@ export const tokenize = str => {
 		https://drafts.csswg.org/css-syntax/#starts-with-a-number
 	 */
 	const is_num = () => {
-		if (!size()) {
-			return false;
-		}
-		let ch = peek();
+		let ch = peek(),
+			ch1 = peek(1);
 		if (ch === '-' || ch === '+') {
-			if (peek(1) && peek(1).match(/\d/)) {
-				return true;
-			}
-			if (peek(1) === '.' && peek(2) && peek(2).match(/\d/)) {
-				return true;
-			}
-			return false;
+			return /\d/.test(ch1) || (ch1 === '.' && /\d/.test(peek(2)));
 		}
 		if (ch === '.') {
-			return peek(1) && peek(1).match(/\d/);
+			return /\d/.test(ch1);
 		}
-		return ch.match(/\d/);
+		return /\d/.test(ch);
 	};
 
 	/*
@@ -93,34 +85,19 @@ export const tokenize = str => {
 		https://drafts.csswg.org/css-syntax/#consume-numeric-token
 	 */
 	const num = () => {
-		let value = '',
-			kind = 'integer';
-		if (peek() === '+' || peek() === '-') {
+		let value = '';
+		if (/[+-]/.test(peek())) {
 			value += next();
 		}
-		while (peek() && peek().match(/\d/)) {
-			value += next();
+		value += digits();
+		if (peek() === '.' && /\d/.test(peek(1))) {
+			value += next() + digits();
 		}
-		if (size() > 1 && peek() === '.' && peek(1).match(/\d/)) {
-			value += next() + next();
-			while (peek() && peek().match(/\d/)) {
-				value += next();
-			}
-		}
-		if (size() > 1 && peek().match(/e/i)) {
-			if (
-				peek(1) === '+' ||
-				(peek(1) === '-' && peek(2) && peek(2).match(/\d/))
-			) {
-				value += next() + next() + next();
-				while (peek() && peek().match(/\d/)) {
-					value += next();
-				}
-			} else if (peek(1).match(/\d/)) {
-				value += next() + next();
-				while (peek() && peek().match(/\d/)) {
-					value += next();
-				}
+		if (/e/i.test(peek())) {
+			if (/[+-]/.test(peek(1)) && /\d/.test(peek(2))) {
+				value += next() + next() + digits();
+			} else if (/\d/.test(peek(1))) {
+				value += next() + digits();
 			}
 		}
 		if (is_ident()) {
@@ -130,13 +107,21 @@ export const tokenize = str => {
 				unit: ident()
 			};
 		}
-		if (peek() === '%') {
-			// TODO: <percent-tokens> are kind of useless for selectors
-		}
 		return {
 			type: Tokens.Number,
 			value
 		};
+	};
+
+	/*
+		Consume digits
+	 */
+	const digits = () => {
+		let v = '';
+		while (/\d/.test(peek())) {
+			v += next();
+		}
+		return v;
 	};
 
 	/*
