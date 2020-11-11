@@ -1,6 +1,22 @@
 import tape from 'tape';
 import { doc } from './utils/doc.js';
-import { querySelector } from '../src/index.js';
+import { querySelector, querySelectorAll } from '../src/index.js';
+
+tape('Combinators', t => {
+	let d = doc`
+	<article>
+		<div>
+			<h1>Heading</h1>
+			<p>1st para</p>
+			<p>2nd para</p>
+		</div>
+	</article>`;
+	t.equals(querySelector(d, 'article h1 + p').textContent, '1st para');
+	t.equals(querySelectorAll(d, 'article h1 ~ p').length, 2);
+	t.equals(querySelector(d, 'div > p').textContent, '1st para');
+	t.equals(querySelector(d, 'article > p'), null);
+	t.end();
+});
 
 tape('Tree-positional pseudo-classes', t => {
 	let d = doc`

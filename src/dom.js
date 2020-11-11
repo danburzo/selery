@@ -53,15 +53,24 @@ const matchComplexSelector = (el, node) => {
 		return false;
 	}
 	switch (node.combinator) {
-		case ' ': {
-			let ancestor = closest(el, node.left);
-			return ancestor && ancestor !== el;
-		}
+		case ' ':
+			return el.parentNode && closest(el.parentNode, node.left);
 		case '>':
 			return el.parentNode && matches(el.parentNode, node.left);
-		// TODO
 		case '+':
-		case '~':
+			return (
+				el.previousElementSibling &&
+				matches(el.previousElementSibling, node.left)
+			);
+		case '~': {
+			let ref = el;
+			while ((ref = ref.previousElementSibling)) {
+				if (matches(ref, node.left)) {
+					return true;
+				}
+			}
+			return false;
+		}
 		default:
 			throw new Error(`Unsupported combinator ${node.combinator}`);
 	}
@@ -216,9 +225,8 @@ const matchPseudoClassSelector = (el, node) => {
 	}
 };
 
-// TODO probably some pseudo-elements should be supported
 const matchPseudoElementSelector = () => {
-	throw new Error('Pseudo-elements are not supported in matches()');
+	throw new Error('Pseudo-elements are not supported.');
 };
 
 const matchTypeSelector = (el, node) => {

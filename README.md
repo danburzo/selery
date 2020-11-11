@@ -1,6 +1,8 @@
 ![selery](./.github/selery.svg)
 
-selery is a small, handwritten CSS selector parser. It aims to be compliant with the relevant specifications ([CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), [HTML Specification: pseudo-classes](https://html.spec.whatwg.org/multipage/semantics-other.html#pseudo-classes) and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
+selery is a small, handwritten CSS selector parser and DOM query engine.
+
+It aims to be compliant with the relevant specifications ([CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
 
 > ⚠️ Currently a work-in-progress
 
@@ -14,7 +16,7 @@ You can install selery as an [npm package](https://npmjs.com/package/selery):
 npm install selery
 ```
 
-Alternatively, head over to the [latest release](https://github.com/danburzo/selery/releases/latest) and download the `selery-<version>.zip` file. The archive contains the library built in several variants to choose from, suitable for both browsers and Node.js.
+Alternatively, head over to the [latest release](https://github.com/danburzo/selery/releases/latest) and download the `selery-<version>.zip` file from under _Assets_. The archive contains the library built in several variants to choose from, suitable for both browsers and Node.js.
 
 Or fetch the library from [Unpkg](https://unpkg.com/) by including this in your web page:
 
@@ -26,7 +28,7 @@ Or, to bring the library into any web page you're on (as long as its [configurat
 
 <!-- prettier-ignore -->
 ```js
-with (document)body.appendChild(createElement`script`).src = '//unpkg.com/selery';
+with(document)body.appendChild(createElement`script`).src = '//unpkg.com/selery';
 ```
 
 > When used with a `<script>` tag, the library is available under the `selery` global variable.
@@ -66,6 +68,8 @@ The function will throw an erorr if the selector supplied does not follow genera
 
 Accepts an _input_ argument, which can be either an array of tokens obtained from the `tokenize()` function or, more conveniently, a string representing a selector. The latter is passed through `tokenize()` internally.
 
+It produces an _abstract syntax tree_ (AST), also called a _parse tree_, for the provided input.
+
 ```js
 let { parse } = require('selery');
 
@@ -84,19 +88,26 @@ Converts the input back into a string. The _input_ argument can be either an arr
 
 Shims for selector-accepting DOM methods using simpler DOM primitives.
 
-#### matches(_element_, _selector_)
+Across these methods:
+
+- the _selector_ argument can be a string (as with their native DOM counterparts), an array of tokens, or an object representing a parse tree;
+- the _options_ object accepts the following keys:
+  - _root_ (Element) — an optional _scoping root_;
+  - _scope_ (Element | Array) — an optional set of _:scope elements_.
+
+#### matches(_element_, _selector_, _options_)
 
 See the [Element.matches](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches) DOM method.
 
-#### closest(_element_, _selector_)
+#### closest(_element_, _selector_, _options_)
 
 See the [Element.closest](https://developer.mozilla.org/en-US/docs/Web/API/Element/closest) DOM method.
 
-#### querySelector(_element_, _selector_)
+#### querySelector(_element_, _selector_, _options_)
 
 See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelector) DOM method.
 
-#### querySelectorAll(_element_, _selector_)
+#### querySelectorAll(_element_, _selector_, _options_)
 
 See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method. While the native DOM method return a `NodeList`, our implementation of `querySelectorAll` returns an `Array`.
 
