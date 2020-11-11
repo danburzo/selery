@@ -1,6 +1,6 @@
 {
 	"name": "selery",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": "A CSS selector parser",
 	"main": "dist/selery-node.js",
 	"module": "dist/selery-module.js",
