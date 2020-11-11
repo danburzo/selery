@@ -22,11 +22,14 @@ export default [
 		]
 	},
 	{
-		selector: '1em 2n-3',
+		selector: '1em 2n-3 3n+2',
 		tokenize: [
 			{ type: 'dimension', value: '1', unit: 'em' },
 			{ type: 'whitespace' },
-			{ type: 'dimension', value: '2', unit: 'n-3' }
+			{ type: 'dimension', value: '2', unit: 'n-3' },
+			{ type: 'whitespace' },
+			{ type: 'dimension', value: '3', unit: 'n' },
+			{ type: 'number', value: '+2' }
 		]
 	}
 ];

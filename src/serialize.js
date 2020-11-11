@@ -76,6 +76,9 @@ export const serializeToken = tok => {
 			return '#' + tok.value;
 		case Tokens.String:
 			return `"${tok.value.replace(/"/g, '\\"')}"`;
+		case Tokens.Dimension:
+			return tok.value + tok.unit;
+		case Tokens.Number:
 		case Tokens.Delim:
 			return tok.value;
 		case Tokens.Whitespace:

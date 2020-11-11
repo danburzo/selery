@@ -280,6 +280,7 @@ export const tokenize = str => {
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
 			}
+			continue;
 		}
 
 		if (ch === ',') {
