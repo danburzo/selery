@@ -45,9 +45,7 @@ let { tokenize } = require('selery');
 tokenize('article a[href="#"]');
 ```
 
-A token is a plain object having a `type` property whose value is one of: `ident`, `function`, `at-keyword`, `hash`, `string`, `delim`, `whitespace`, `colon`, `semicolon`, `comma`, `[`, `]`, `(`, `)`, `{`, or `}`. Some tokens also contain a `value` property, which holds extra information.
-
-For the sample code above, the resulting token array is:
+A token is a plain object having a `type` property, along with other optional properties, which are documented in the [CSS token reference](#css-token-reference). For the sample selector `'article a[href="#"]'` mentioned above, the resulting token array is:
 
 ```js
 [
@@ -111,7 +109,15 @@ See the [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API
 
 See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Element/querySelectorAll) DOM method. While the native DOM method return a `NodeList`, our implementation of `querySelectorAll` returns an `Array`.
 
-## CSS selector AST
+## CSS token reference
+
+| Token `type`                                                              | Additional properties |
+| ------------------------------------------------------------------------- | --------------------- |
+| `dimension`                                                               | `value`, `unit`       |
+| `at-keyword`, `function`, `hash`, `ident`, `number`, `string`, `delim`    | `value`               |
+| `)`, `(`, `}`, `{`, `]`, `[`, `colon`, `comma`, `semicolon`, `whitespace` | none                  |
+
+## CSS selector AST reference
 
 All nodes in the AST contain a `type` property, and additional properties for each specific type, listed below.
 

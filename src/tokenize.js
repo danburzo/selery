@@ -2,24 +2,24 @@ const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
 const IdentCodePoint = /[^\x00-\x7F]|[-\w]/;
 
 export const Tokens = {
-	Ident: 'ident',
-	Function: 'function',
 	AtKeyword: 'at-keyword',
-	Hash: 'hash',
-	String: 'string',
-	Number: 'number',
-	Dimension: 'dimension',
-	Delim: 'delim',
-	Whitespace: 'whitespace',
-	Colon: 'colon',
-	Semicolon: 'semicolon',
-	Comma: 'comma',
-	BracketOpen: '[',
-	BracketClose: ']',
-	ParenOpen: '(',
-	ParenClose: ')',
+	BraceClose: '}',
 	BraceOpen: '{',
-	BraceClose: '}'
+	BracketClose: ']',
+	BracketOpen: '[',
+	Colon: 'colon',
+	Comma: 'comma',
+	Delim: 'delim',
+	Dimension: 'dimension',
+	Function: 'function',
+	Hash: 'hash',
+	Ident: 'ident',
+	Number: 'number',
+	ParenClose: ')',
+	ParenOpen: '(',
+	Semicolon: 'semicolon',
+	String: 'string',
+	Whitespace: 'whitespace'
 };
 
 /*
@@ -65,7 +65,8 @@ export const tokenize = str => {
 	};
 
 	/*
-		Check if the stream starts with a number
+		4.3.10. Check if three code points would start a number
+		https://drafts.csswg.org/css-syntax/#starts-with-a-number
 	 */
 	const is_num = () => {
 		if (!size()) {
@@ -88,7 +89,8 @@ export const tokenize = str => {
 	};
 
 	/*
-		Consume a numeric token
+		4.3.3. Consume a numeric token
+		https://drafts.csswg.org/css-syntax/#consume-numeric-token
 	 */
 	const num = () => {
 		let value = '',
