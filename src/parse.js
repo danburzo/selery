@@ -211,14 +211,14 @@ export const parse = (arg, options = {}) => {
 			peek().type === Tokens.Colon
 		) {
 			next(); // consume first colon
-			let node = PseudoClassSelector();
+			let node = PseudoClassSelector(true);
 			node.type = NodeTypes.PseudoElementSelector;
 			return node;
 		}
 		return undefined;
 	};
 
-	const PseudoClassSelector = () => {
+	const PseudoClassSelector = (is_actually_pseudo_elem = false) => {
 		if (!eoi() && tok && tok.type === Tokens.Colon) {
 			if (peek().type === Tokens.Ident || peek().type === Tokens.Function) {
 				next();
@@ -244,7 +244,10 @@ export const parse = (arg, options = {}) => {
 						}
 					}
 
-					let syntax = microsyntax[':' + node.identifier];
+					let syntax =
+						microsyntax[
+							(is_actually_pseudo_elem ? '::' : ':') + node.identifier
+						];
 					if (syntax && syntax !== Syntax.None) {
 						node.argument = Argument(node.argument, syntax);
 					}
