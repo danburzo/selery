@@ -88,6 +88,9 @@ const matchAttributeSelector = (el, node) => {
 		return el.hasAttribute(node.identifier);
 	}
 	let haystack = el.getAttribute(node.identifier);
+	if (!haystack) {
+		return false;
+	}
 	let needle = node.value;
 	if (node.modifier !== 's') {
 		haystack = haystack.toLowerCase();
