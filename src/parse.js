@@ -1,25 +1,4 @@
 import { tokenize, Tokens } from './tokenize';
-import { walk } from './walk';
-
-export const RecursiveFunctions = [
-	':is',
-	':matches',
-	':-moz-any',
-	':-webkit-any',
-	':where',
-	':not',
-	':has'
-	// '::slotted'
-];
-
-export const AnBFunctions = [
-	':nth-child',
-	':nth-last-child',
-	':nth-of-type',
-	':nth-last-of-type',
-	':nth-col',
-	':nth-last-col'
-];
 
 export const NodeTypes = {
 	SelectorList: 'SelectorList',
@@ -33,19 +12,37 @@ export const NodeTypes = {
 	PseudoElementSelector: 'PseudoElementSelector'
 };
 
+export const Syntax = {
+	None: 'None',
+	SelectorList: 'SelectorList',
+	AnPlusB: 'AnPlusB'
+};
+
+export const Syntaxes = {
+	':is': Syntax.SelectorList,
+	':matches': Syntax.SelectorList,
+	':-moz-any': Syntax.SelectorList,
+	':-webkit-any': Syntax.SelectorList,
+	':where': Syntax.SelectorList,
+	':not': Syntax.SelectorList,
+	':has': Syntax.SelectorList,
+	':nth-child': Syntax.AnPlusB,
+	':nth-last-child': Syntax.AnPlusB,
+	':nth-of-type': Syntax.AnPlusB,
+	':nth-last-of-type': Syntax.AnPlusB,
+	':nth-col': Syntax.AnPlusB,
+	':nth-last-col': Syntax.AnPlusB
+};
+
 export const parse = (arg, options = {}) => {
 	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
 
-	const wants_recursive =
-		options.recursive === undefined ? true : options.recursive;
-	let has_potentially_recursive = false;
-	const recursive_fns = new Set(
-		Array.isArray(options.recursive)
-			? [...RecursiveFunctions, ...options.recursive]
-			: RecursiveFunctions
-	);
-
 	let tok;
+
+	let microsyntax = {
+		...Syntaxes,
+		...(options.syntaxes || {})
+	};
 
 	const delim = (t, ch) => t && t.type === Tokens.Delim && t.value === ch;
 
@@ -216,7 +213,6 @@ export const parse = (arg, options = {}) => {
 			next(); // consume first colon
 			let node = PseudoClassSelector();
 			node.type = NodeTypes.PseudoElementSelector;
-			has_potentially_recursive = true;
 			return node;
 		}
 		return undefined;
@@ -247,16 +243,39 @@ export const parse = (arg, options = {}) => {
 							node.argument.push(tok);
 						}
 					}
+
+					let syntax = microsyntax[':' + node.identifier];
+					if (syntax && syntax !== Syntax.None) {
+						node.argument = Argument(node.argument, syntax);
+					}
+
 					if (!tok && fn_depth) {
 						throw new Error('Parentheses mismatch');
 					}
 				}
 				next();
-				has_potentially_recursive = true;
 				return node;
 			}
 		}
 	};
+
+	const Argument = (tokens, syntax = Syntax.None) => {
+		if (typeof syntax === 'function') {
+			return syntax(tokens);
+		}
+		switch (syntax) {
+			case Syntax.SelectorList:
+				return parse(tokens, options);
+			case Syntax.AnPlusB:
+				return AnPlusB(tokens);
+			case Syntax.None:
+				return tokens;
+		}
+		throw new Error(`Invalid argument syntax ${syntax}`);
+	};
+
+	// TODO
+	const AnPlusB = tokens => tokens;
 
 	/*
 		<compound> = [<type>? <subclass>* [<pseudo-el> <pseudo-class>*]*]!
@@ -363,27 +382,6 @@ export const parse = (arg, options = {}) => {
 		if (tok && tok.type !== Tokens.Comma) {
 			throw new Error(`Unexpected token ${tok.type}`);
 		}
-	}
-
-	if (wants_recursive && has_potentially_recursive) {
-		walk(ast, {
-			PseudoClassSelector(node) {
-				if (
-					recursive_fns.has(':' + node.identifier) &&
-					Array.isArray(node.argument)
-				) {
-					node.argument = parse(node.argument, options);
-				}
-			},
-			PseudoElementSelector(node) {
-				if (
-					recursive_fns.has('::' + node.identifier) &&
-					Array.isArray(node.argument)
-				) {
-					node.argument = parse(node.argument, options);
-				}
-			}
-		});
 	}
 
 	return ast;
