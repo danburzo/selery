@@ -76,7 +76,21 @@ let tree = parse('div > span:nth-child(3)');
 
 Available options:
 
-- _recursive_ (Boolean | Array) — whether to recursively parse the argument to some pseudo-classes and pseudo-elements. The default value is `true`. Pass in an array to add to the set of pseudo-things to recursively parse, beyond the default `[':is', ':where', ':not']`.
+**`syntax`** (_Object_) — provide custom microsyntaxes to various pseudo-classes and pseudo-elements. By default, the argument of `:nth-*()` pseudo-classes are parsed with the _An+B microsyntax_, while for the `:is()`, `:where()`, `:not()`, and `:has()`, the argument is parsed as a `SelectorList`.
+
+The keys to the _syntax_ object are the identifier for the pseudo-class (prefixed by `:`) or pseudo-element (prefixed by `::`), and the values are either strings (one of `None`, `AnPlusB`, or `SelectorList`) or functions. Function values will receive an array of tokens and can return anything suitable for storing in the AST node's `argument` key.
+
+```js
+parse(':nth-child(3)', {
+	syntax: {
+		/* Change the microsyntax of a pseudo-class */
+		':nth-child': 'None',
+
+		/* A microsyntax defined as a function */
+		':magic': tokens => tokens.map(t => t.value).join('★')
+	}
+});
+```
 
 #### serialize(_input_)
 
@@ -204,11 +218,11 @@ Represents a pseudo-class selector (such as `:visited` or `:is(a, b, c)`) or a p
 Both types of nodes share a common structure:
 
 - `identifier` (String) — the pseudo-class or pseudo-element;
-- `argument` (Array|Object) — the argument to the pseudo-class / pseudo-element;
+- `argument` (Anything) — the argument to the pseudo-class / pseudo-element;
 
-In CSS, there is more than one way to interpret the argument passed to pseudo-classes and pseudo-elements which expressed with the function notation. Some pseudo-classes, such as '\*-child', use the `An+B` microsyntax, others accept a list of selectors.
+In CSS, there is more than one way to interpret the argument passed to pseudo-classes and pseudo-elements which expressed with the function notation. Some pseudo-classes, such as `:nth-*()`, use the `An+B microsyntax`, others accept a list of selectors.
 
-Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not` are parsed as a `SelectorList` when the `recursive` parsing option is enabled. In all other cases, the `argument` property of the node will contain the array of unparsed tokens.
+You can control how the microsyntaxes get applied to the pseudo-classes and pseudo-elements with the `syntax` option on the `parse()` method.
 
 ## Supported selectors
 
