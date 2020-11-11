@@ -322,6 +322,13 @@ export const parse = (arg, options = {}) => {
 			}
 			cmb = Combinator();
 			if (cmb) {
+				if (!node) {
+					// Relative selector
+					node = {
+						type: NodeTypes.ComplexSelector,
+						relative: true
+					};
+				}
 				node.combinator = cmb;
 			}
 
@@ -331,7 +338,7 @@ export const parse = (arg, options = {}) => {
 			}
 		}
 		if (node && !node.right) {
-			if (!node.combinator || node.combinator === ' ') {
+			if ((!node.combinator || node.combinator === ' ') && !node.relative) {
 				return node.left;
 			} else {
 				throw new Error(

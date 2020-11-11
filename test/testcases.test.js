@@ -38,6 +38,6 @@ tape(
 		t.end();
 	},
 	{
-		objectPrintDepth: 10
+		objectPrintDepth: 100
 	}
 );

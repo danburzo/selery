@@ -10,6 +10,16 @@ Hi, and thank you for considering a contribution to selery!
 
 ## Topics for contributors
 
+### Setting up shop
+
+Clone the repository and run `npm install` to fetch all the project dependencies.
+
+Available npm scripts:
+
+- `npm run test` — run all tests;
+- `npm run build` — bundle for all targets (browsers, Node.js, and ES modules);
+- `npm run lint` — lint the code with `eslint`.
+
 ### Creating a selector test-case
 
 The `test/testcases` folder contains a set of test-cases with which we can verify the output of the `selery.tokenize()`, `selery.parse()` and `selery.serialize()` methods. A test-case file in this location must end in `.case.js` in order to be evaluated.

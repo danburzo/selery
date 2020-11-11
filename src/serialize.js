@@ -11,8 +11,12 @@ export const serialize = (node, extra) => {
 		case NodeTypes.SelectorList:
 			return node.selectors.map(s => serialize(s, extra)).join(', ');
 		case NodeTypes.ComplexSelector:
-			out = serialize(node.left, extra);
-			out += node.combinator === ' ' ? node.combinator : ` ${node.combinator} `;
+			out = node.relative ? '' : serialize(node.left, extra);
+			if (node.combinator === ' ') {
+				out += ' ';
+			} else {
+				out += (node.relative ? '' : ' ') + node.combinator + ' ';
+			}
 			return out + serialize(node.right, extra);
 		case NodeTypes.CompoundSelector:
 			return node.selectors.map(s => serialize(s, extra)).join('');
