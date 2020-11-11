@@ -210,7 +210,7 @@ TODO
 
 ## See also
 
-- [qsx](https://github.com/danburzo/qsx) and [hred](https://github.com/danburzo.hred)
+- [qsx](https://github.com/danburzo/qsx) and [hred](https://github.com/danburzo/hred)
 - [parsel](https://github.com/LeaVerou/parsel)
 - [scalpel](https://github.com/gajus/scalpel)
 - [csstree](https://github.com/csstree/csstree)
