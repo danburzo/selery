@@ -221,7 +221,7 @@ const matchPseudoClassSelector = (el, node) => {
 		case 'nth-last-of-type':
 		case 'scope':
 		default:
-			throw new Error(`Unsupported pseudo-class ${node.identifier}`);
+			throw new Error(`Pseudo-class ${node.identifier} not implemented yet`);
 	}
 };
 
