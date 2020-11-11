@@ -38,5 +38,28 @@ export default [
 				}
 			]
 		}
+	},
+	{
+		selector: ':nth-child(2 of :is(wow))',
+		serialize: true,
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'PseudoClassSelector',
+					identifier: 'nth-child',
+					argument: [
+						{ type: 'number', value: '2' },
+						{ type: 'whitespace' },
+						{ type: 'ident', value: 'of' },
+						{ type: 'whitespace' },
+						{ type: 'colon' },
+						{ type: 'function', value: 'is' },
+						{ type: 'ident', value: 'wow' },
+						{ type: ')' }
+					]
+				}
+			]
+		}
 	}
 ];
