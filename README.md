@@ -125,12 +125,9 @@ The topmost node in the AST.
 
 A complex selector represents a pair of selectors stringed together with combinators, such as `article > p`.
 
-- `left` — the left-side (possibly complex, or compound) selector;
+- `left` — the left-side (possibly complex, or compound) selector; `null` when the selector is relative, such as the `> img` in `a:has(> img)`;
 - `right` — the right-side (possibly complex, compound) selector;
-- `combinator` — one of ` `, `>`, `~`, `+`, `||`;
-- `relative` — `true` when the selector is relative, undefined otherwise.
-
-In case the selector is relative, such as the implied `:scope ` at the beginning of the `:has()` pseudo-class, for example `a:has(> img)`, the `left` property will be undefined and the `relative` property will be set to `true`.
+- `combinator` — one of ` `, `>`, `~`, `+`, `||`
 
 Longer sequences of selectors are represented with nested `ComplexSelector` elements in the AST. For example, `article > p span` is represented as:
 

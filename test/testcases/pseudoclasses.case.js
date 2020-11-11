@@ -76,7 +76,7 @@ export default [
 								selectors: [
 									{
 										type: 'ComplexSelector',
-										relative: true,
+										left: null,
 										combinator: '>',
 										right: { type: 'TypeSelector', identifier: 'img' }
 									}

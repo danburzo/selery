@@ -48,7 +48,7 @@ export const querySelectorAll = (el, sel) => {
 const matchSelectorList = (el, node) =>
 	node.selectors.some(s => matches(el, s));
 
-// TODO: handle node.relative = true (missing node.left)
+// TODO: handle node.left === null (relative selector)
 const matchComplexSelector = (el, node) => {
 	if (!matches(el, node.right)) {
 		return false;
