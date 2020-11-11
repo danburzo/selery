@@ -206,37 +206,7 @@ Currently, arguments passed to the pseudo-classes `:where`, `:is`, and `:not` ar
 
 ## Supported selectors
 
-<!-- prettier-ignore -->
-Selector | Tokenize | Parse | Query
--------- | -------- | ----- | -----
-`*`	| ✓ | ✓ | ✓
-`E` | ✓ | ✓ | ✓
-`.class` | ✓ | ✓ | ✓
-`#id` | ✓ | ✓ | ✓
-`[attr]` | ✓ | ✓ | ✓
-`[attr="value"]` | ✓ | ✓ | ✓
-`[attr="value" i]` | ✓ | ✓ | ✓
-`[attr="value" s]` | ✓ | ✓ | ✓
-`[attr^="value"]` | ✓ | ✓ | ✓
-`[attr$="value"]` | ✓ | ✓ | ✓
-`[attr*="value"]` | ✓ | ✓ | ✓
-`[attr~="value"]` | ✓ | ✓ | ✓
-`[attr|="value"]` | ✓ | ✓ | ✓
-`E F` | ✓ | ✓ | ✓
-`E > F` | ✓ | ✓ | ✓
-`E + F` | ✓ | ✓ | ✓
-`E ~ F` | ✓ | ✓ | ✓
-`F || E` | ✓ | ? | ?
-
-Fantasy-land CSS:
-
-In the examples below, `§` denotes any non-standard ACII delimiter.
-
-<!-- prettier-ignore -->
-Selector | Tokenize | Parse | Query
--------- | -------- | ----- | -----
-`[*="value"]` | ✓ | ✓ | x
-`[attr§="value"]` | ✓ | ✓ | x
+TODO
 
 ## See also
 
