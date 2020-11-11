@@ -7,6 +7,8 @@ export const Tokens = {
 	AtKeyword: 'at-keyword',
 	Hash: 'hash',
 	String: 'string',
+	Number: 'number',
+	Dimension: 'dimension',
 	Delim: 'delim',
 	Whitespace: 'whitespace',
 	Colon: 'colon',
@@ -63,11 +65,84 @@ export const tokenize = str => {
 	};
 
 	/*
-		Check if the stream starts with an identifier
+		Check if the stream starts with a number
+	 */
+	const is_num = () => {
+		if (!size()) {
+			return false;
+		}
+		let ch = peek();
+		if (ch === '-' || ch === '+') {
+			if (peek(1) && peek(1).match(/\d/)) {
+				return true;
+			}
+			if (peek(1) === '.' && peek(2) && peek(2).match(/\d/)) {
+				return true;
+			}
+			return false;
+		}
+		if (ch === '.') {
+			return peek(1) && peek(1).match(/\d/);
+		}
+		return ch.match(/\d/);
+	};
+
+	/*
+		Consume a numeric token
+	 */
+	const num = () => {
+		let value = '',
+			kind = 'integer';
+		if (peek() === '+' || peek() === '-') {
+			value += next();
+		}
+		while (peek() && peek().match(/\d/)) {
+			value += next();
+		}
+		if (size() > 1 && peek() === '.' && peek(1).match(/\d/)) {
+			value += next() + next();
+			while (peek() && peek().match(/\d/)) {
+				value += next();
+			}
+		}
+		if (size() > 1 && peek().match(/e/i)) {
+			if (
+				peek(1) === '+' ||
+				(peek(1) === '-' && peek(2) && peek(2).match(/\d/))
+			) {
+				value += next() + next() + next();
+				while (peek() && peek().match(/\d/)) {
+					value += next();
+				}
+			} else if (peek(1).match(/\d/)) {
+				value += next() + next();
+				while (peek() && peek().match(/\d/)) {
+					value += next();
+				}
+			}
+		}
+		if (is_ident()) {
+			return {
+				type: Tokens.Dimension,
+				value,
+				unit: ident()
+			};
+		}
+		if (peek() === '%') {
+			// TODO: <percent-tokens> are kind of useless for selectors
+		}
+		return {
+			type: Tokens.Number,
+			value
+		};
+	};
+
+	/*
+		Check if the stream starts with an identifier.
 	 */
 
 	const is_ident = () => {
-		if (size() < 2) {
+		if (!size()) {
 			return false;
 		}
 		let ch = peek();
@@ -75,6 +150,9 @@ export const tokenize = str => {
 			return true;
 		}
 		if (ch === '-') {
+			if (size() < 2) {
+				return false;
+			}
 			let ch1 = peek(1);
 			if (ch1.match(IdentCodePoint) || ch1 === '-') {
 				return true;
@@ -208,18 +286,40 @@ export const tokenize = str => {
 			continue;
 		}
 
+		if (ch === '+') {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
+		}
+
 		if (ch === ',') {
 			tokens.push({ type: Tokens.Comma });
 			continue;
 		}
 
 		if (ch === '-') {
-			if (is_ident()) {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
+			} else if (is_ident()) {
 				reconsume(ch);
 				tokens.push({
 					type: Tokens.Ident,
 					value: ident()
 				});
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
+			continue;
+		}
+
+		if (ch === '.') {
+			if (is_num()) {
+				reconsume(ch);
+				tokens.push(num());
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
 			}
@@ -277,7 +377,11 @@ export const tokenize = str => {
 			continue;
 		}
 
-		// TODO: digits
+		if (ch.match(/\d/)) {
+			reconsume(ch);
+			tokens.push(num());
+			continue;
+		}
 
 		if (ch.match(IdentStartCodePoint)) {
 			reconsume(ch);
