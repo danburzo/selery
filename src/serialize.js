@@ -33,6 +33,7 @@ export const serialize = (node, extra) => {
 			out = '[' + node.identifier;
 			if (node.matcher) {
 				out += node.matcher;
+				// TODO: this serializes Idents as Strings, is that okay?
 				out += `"${node.value.replace(/"/g, '\\"')}"`;
 				if (node.modifier) {
 					out += ' ' + node.modifier;

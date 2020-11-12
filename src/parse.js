@@ -163,6 +163,14 @@ export const parse = (arg, options = {}) => {
 				if (mod) {
 					node.modifier = mod;
 				}
+				WS();
+			}
+			/*
+				Allow unclosed attribute selector
+				if we've reached the end of input
+			 */
+			if (!tok) {
+				return node;
 			}
 			if (tok.type === Tokens.BracketClose) {
 				next();
