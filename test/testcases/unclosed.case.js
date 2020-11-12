@@ -1,7 +1,7 @@
-/*
-	Constructs left unclosed are valid.
- */
 export default [
+	/*
+		Constructs left unclosed by end-of-input are valid.
+	*/
 	{
 		selector: ':nth-child(3',
 		serialize: ':nth-child(3)'
@@ -14,4 +14,13 @@ export default [
 		selector: '[attr=val',
 		serialize: '[attr="val"]'
 	}
+
+	/*
+		...but not all closed constructs
+		TODO: this currently passes (incorrectly)
+	 */
+	// {
+	// 	selector: ':is([attr=val)',
+	// 	tokenize: /TODO/
+	// }
 ];
