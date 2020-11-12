@@ -76,13 +76,13 @@ let tree = parse('div > span:nth-child(3)');
 
 Available options:
 
-**`syntax`** (_Object_) — provide custom microsyntaxes to various pseudo-classes and pseudo-elements. By default, the argument of `:nth-*()` pseudo-classes are parsed with the _An+B microsyntax_, while for the `:is()`, `:where()`, `:not()`, and `:has()`, the argument is parsed as a `SelectorList`.
+**`syntaxes`** (_Object_) — provide custom microsyntaxes to various pseudo-classes and pseudo-elements. By default, the argument of `:nth-*()` pseudo-classes are parsed with the _An+B microsyntax_, while for the `:is()`, `:where()`, `:not()`, and `:has()`, the argument is parsed as a `SelectorList`.
 
-The keys to the _syntax_ object are the identifier for the pseudo-class (prefixed by `:`) or pseudo-element (prefixed by `::`), and the values are either strings (one of `None`, `AnPlusB`, or `SelectorList`) or functions. Function values will receive an array of tokens and can return anything suitable for storing in the AST node's `argument` key.
+The keys to the _syntaxes_ object are the identifier for the pseudo-class (prefixed by `:`) or pseudo-element (prefixed by `::`), and the values are either strings (one of `None`, `AnPlusB`, or `SelectorList`) or functions. Function values will receive an array of tokens and can return anything suitable for storing in the AST node's `argument` key.
 
 ```js
 parse(':nth-child(3)', {
-	syntax: {
+	syntaxes: {
 		/* Change the microsyntax of a pseudo-class */
 		':nth-child': 'None',
 
@@ -208,6 +208,7 @@ Represents an [attribute selector](https://drafts.csswg.org/selectors/#attribute
 
 - `identifier` (String) — the attribute to match;
 - `value` (String) — the value to match against;
+- `quotes` (Boolean) — `true` if the value is a string; otherwise absent for brevity;
 - `matcher` (String) — one of `=`, `^=`, `$=`, `*=`, `~=`, `|=`;
 - `modifier` (String) — either `s` or `i`, if any.
 

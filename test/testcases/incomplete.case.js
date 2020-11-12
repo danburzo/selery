@@ -12,7 +12,7 @@ export default [
 	},
 	{
 		selector: '[attr=val',
-		serialize: '[attr="val"]'
+		serialize: '[attr=val]'
 	},
 
 	/*
