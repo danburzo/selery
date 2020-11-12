@@ -379,21 +379,23 @@ export const parse = (arg, options = {}) => {
 		return node;
 	};
 
-	let ast = {
-		type: NodeTypes.SelectorList,
-		selectors: []
+	const SelectorList = () => {
+		let selectors = [];
+		while (!eoi()) {
+			next();
+			let sel = ComplexSelector();
+			if (sel) {
+				selectors.push(sel);
+			}
+			if (tok && (tok.type !== Tokens.Comma || !sel || !peek())) {
+				throw new Error(`Unexpected token ${tok.type}`);
+			}
+		}
+		return {
+			type: NodeTypes.SelectorList,
+			selectors
+		};
 	};
 
-	while (!eoi()) {
-		next();
-		let sel = ComplexSelector();
-		if (sel) {
-			ast.selectors.push(sel);
-		}
-		if (tok && tok.type !== Tokens.Comma) {
-			throw new Error(`Unexpected token ${tok.type}`);
-		}
-	}
-
-	return ast;
+	return SelectorList();
 };
