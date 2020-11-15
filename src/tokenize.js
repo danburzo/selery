@@ -172,7 +172,7 @@ export const tokenize = str => {
 	 */
 	const identlike = () => {
 		let v = ident();
-		// TODO: handle URLs
+		// TODO: handle URLs?
 		if (peek() === '(') {
 			next();
 			return {
