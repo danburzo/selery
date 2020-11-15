@@ -2,7 +2,7 @@
 
 selery is a small, handwritten CSS selector parser and DOM query engine.
 
-It aims to be compliant with the relevant specifications ([CSS Syntax Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
+It aims to be compliant with the relevant specifications ([CSS Syntax Module Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
 
 > ⚠️ Currently a work-in-progress
 

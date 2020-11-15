@@ -1,6 +1,12 @@
 import { NodeTypes } from './parse';
 import { Tokens } from './tokenize';
 
+/*
+	Serialize an AST tree or array of tokens.
+
+	https://drafts.csswg.org/css-syntax/#serialization
+ */
+
 export const serialize = (node, extra) => {
 	if (Array.isArray(node)) {
 		return node.map(serializeToken).join('');
@@ -83,10 +89,11 @@ export const serializeToken = tok => {
 		case Tokens.String:
 			return `"${tok.value.replace(/"/g, '\\"')}"`;
 		case Tokens.Dimension:
-			return tok.value + tok.unit;
+			// Escape unit if it conflicts with the scientific number notation
+			return tok.value + (/^e[+-]?\d/.test(tok.unit) ? '\\' : '') + tok.unit;
 		case Tokens.Number:
 		case Tokens.Delim:
-			return tok.value;
+			return tok.value + (tok.value === '\\' ? '\n' : '');
 		case Tokens.Whitespace:
 			return ' ';
 		case Tokens.Colon:
