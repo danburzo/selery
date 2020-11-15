@@ -16,13 +16,13 @@
 		"prep": "npm run build && npm run lint && npm run test",
 		"preversion": "npm run prep",
 		"prepublishOnly": "npm run prep",
-		"release": "ZIPFILE=${npm_package_name}-${npm_package_version}.zip; TAG=v${npm_package_version}; zip -j $ZIPFILE dist/* && gh release create $TAG $ZIPFILE && rm $ZIPFILE",
+		"release": "ZIPFILE=selery-${npm_package_version}.zip; TAG=v${npm_package_version}; zip -j $ZIPFILE dist/* && gh release create $TAG $ZIPFILE && rm $ZIPFILE",
 		"build": "npm run build:node && npm run build:module && npm run build:modulemin && npm run build:browser && npm run build:browsermin",
-		"build:node": "mkdir -p dist && esbuild --bundle --platform=node --outfile=${npm_package_main} ${npm_package_source}",
-		"build:module": "mkdir -p dist && esbuild --format=esm --outfile=${npm_package_module} --bundle ${npm_package_source}",
-		"build:modulemin": "mkdir -p dist && esbuild --format=esm --minify --outfile=dist/selery-module.min.js --bundle ${npm_package_source}",
-		"build:browser": "mkdir -p dist && esbuild --bundle --outfile=${npm_package_browser} --global-name=selery ${npm_package_source}",
-		"build:browsermin": "mkdir -p dist && esbuild --bundle --minify --outfile=dist/selery-browser.min.js --global-name=selery ${npm_package_source}"
+		"build:node": "esbuild --bundle --platform=node --outfile=dist/selery-node.js src/index.js",
+		"build:module": "esbuild --format=esm --outfile=dist/selery-module.js --bundle src/index.js",
+		"build:modulemin": "esbuild --format=esm --minify --outfile=dist/selery-module.min.js --bundle src/index.js",
+		"build:browser": "esbuild --bundle --outfile=dist/selery-browser.js --global-name=selery src/index.js",
+		"build:browsermin": "esbuild --bundle --minify --outfile=dist/selery-browser.min.js --global-name=selery src/index.js"
 	},
 	"repository": {
 		"type": "git",
