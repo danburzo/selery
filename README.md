@@ -16,23 +16,6 @@ You can install selery as an [npm package](https://npmjs.com/package/selery):
 npm install selery
 ```
 
-Alternatively, head over to the [latest release](https://github.com/danburzo/selery/releases/latest) and download the `selery-<version>.zip` file from under _Assets_. The archive contains the library built in several variants to choose from, suitable for both browsers and Node.js.
-
-Or fetch the library from [Unpkg](https://unpkg.com/) by including this in your web page:
-
-```html
-<script src="https://unpkg.com/selery"></script>
-```
-
-Or, to bring the library into any web page you're on (as long as its [configuration doesn't prevent it](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src)), bring up the browser's Console and paste this snippet:
-
-<!-- prettier-ignore -->
-```js
-with(document)body.appendChild(createElement`script`).src = '//unpkg.com/selery';
-```
-
-> When used with a `<script>` tag, the library is available under the `selery` global variable.
-
 ## API reference
 
 #### tokenize(_selector_)
@@ -76,7 +59,7 @@ let tree = parse('div > span:nth-child(3)');
 
 Available options:
 
-**`syntax`** (_Object_) — provide custom microsyntaxes to various pseudo-classes and pseudo-elements. By default, the argument of `:nth-*()` pseudo-classes are parsed with the _An+B microsyntax_, while for the `:is()`, `:where()`, `:not()`, and `:has()`, the argument is parsed as a `SelectorList`.
+**`syntax`** (_Object_) — provide custom microsyntaxes to various pseudo-classes and pseudo-elements. By default, the argument of `:nth-*()` pseudo-classes is parsed with the _An+B microsyntax_, while for the `:is()`, `:where()`, `:not()`, and `:has()`, the argument is parsed as a `SelectorList`.
 
 The keys to the _syntax_ object are the identifier for the pseudo-class (prefixed by `:`) or pseudo-element (prefixed by `::`), and the values are either strings (one of `None`, `AnPlusB`, or `SelectorList`) or functions. Function values will receive an array of tokens and can return anything suitable for storing in the AST node's `argument` key.
 

@@ -1,12 +1,16 @@
 import fg from 'fast-glob';
 import tape from 'tape';
 import { tokenize, parse, serialize } from '../src/index.js';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 tape(
 	'Testcases',
-	t => {
-		fg.sync('./testcases/**/*.case.js', { cwd: __dirname }).forEach(file => {
-			let cases = require('./' + file).default;
+	async t => {
+		const files = fg.sync('testcases/**/*.case.js', { cwd: __dirname });
+		for await (const file of files) {
+			let cases = (await import(`./${file}`)).default;
 			(Array.isArray(cases) ? cases : [cases]).forEach(c => {
 				let sel = c.selector;
 				let desc = c.description || sel;
@@ -34,8 +38,7 @@ tape(
 					}
 				}
 			});
-		});
-		t.end();
+		}
 	},
 	{
 		objectPrintDepth: 100

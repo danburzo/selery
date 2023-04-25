@@ -1,4 +1,4 @@
-import { NodeTypes } from './parse';
+import { NodeTypes } from './parse.js';
 
 export const walk = (ast, arg) => {
 	let queue = [ast];

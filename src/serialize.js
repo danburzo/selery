@@ -1,5 +1,5 @@
-import { NodeTypes } from './parse';
-import { Tokens } from './tokenize';
+import { NodeTypes } from './parse.js';
+import { Tokens } from './tokenize.js';
 
 export const serialize = (node, extra) => {
 	if (Array.isArray(node)) {
