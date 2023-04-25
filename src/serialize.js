@@ -1,5 +1,5 @@
-import { NodeTypes } from './parse';
-import { Tokens } from './tokenize';
+import { NodeTypes } from './parse.js';
+import { Tokens } from './tokenize.js';
 
 /*
 	Serialize an AST tree or array of tokens.

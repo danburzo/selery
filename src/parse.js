@@ -1,4 +1,4 @@
-import { tokenize, Tokens } from './tokenize';
+import { tokenize, Tokens } from './tokenize.js';
 
 export const NodeTypes = {
 	SelectorList: 'SelectorList',

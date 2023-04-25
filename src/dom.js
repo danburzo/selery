@@ -1,4 +1,4 @@
-import { parse, NodeTypes } from './parse';
+import { parse, NodeTypes } from './parse.js';
 
 export const closest = (el, sel) => {
 	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
