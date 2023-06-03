@@ -68,6 +68,7 @@ export default [
 								type: 'AttributeSelector',
 								identifier: 'href',
 								value: '#',
+								quotes: true,
 								matcher: '='
 							}
 						]

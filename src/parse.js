@@ -36,10 +36,9 @@ export const Syntaxes = {
 
 export const parse = (arg, options = {}) => {
 	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
-
 	let tok;
 
-	let microsyntax = {
+	const microsyntax = {
 		...Syntaxes,
 		...(options.syntaxes || {})
 	};
@@ -47,16 +46,17 @@ export const parse = (arg, options = {}) => {
 	const delim = (t, ch) => t && t.type === Tokens.Delim && t.value === ch;
 
 	const eoi = () => !tokens.length;
-	const next = () => {
-		tok = tokens.shift();
-	};
+	const next = () => tokens.shift();
 	const peek = ch => tokens[ch || 0];
 
+	/*
+		Consume all available whitespace
+	 */
 	const WS = () => {
 		let ws = false;
 		while (tok && tok.type === Tokens.Whitespace) {
 			ws = true;
-			next();
+			tok = next();
 		}
 		return ws;
 	};
@@ -71,7 +71,7 @@ export const parse = (arg, options = {}) => {
 			if (ns !== undefined) {
 				node.namespace = ns;
 			}
-			next();
+			tok = next();
 			return node;
 		}
 		return undefined;
@@ -85,8 +85,8 @@ export const parse = (arg, options = {}) => {
 			delim(peek(), '|')
 		) {
 			let ns = tok.value;
-			next();
-			next();
+			tok = next();
+			tok = next();
 			return ns;
 		}
 		return undefined;
@@ -107,7 +107,7 @@ export const parse = (arg, options = {}) => {
 				type: NodeTypes.IdSelector,
 				identifier: tok.value
 			};
-			next();
+			tok = next();
 			return ret;
 		}
 		return undefined;
@@ -115,12 +115,12 @@ export const parse = (arg, options = {}) => {
 
 	const ClassSelector = () => {
 		if (!eoi() && delim(tok, '.') && peek().type === Tokens.Ident) {
-			next();
+			tok = next();
 			let ret = {
 				type: NodeTypes.ClassSelector,
 				identifier: tok.value
 			};
-			next();
+			tok = next();
 			return ret;
 		}
 		return undefined;
@@ -132,7 +132,7 @@ export const parse = (arg, options = {}) => {
 	 */
 	const AttributeSelector = () => {
 		if (tok && tok.type === Tokens.BracketOpen) {
-			next(); // consume '['
+			tok = next(); // consume '['
 			WS();
 
 			let ns = NsPrefix();
@@ -146,7 +146,7 @@ export const parse = (arg, options = {}) => {
 			if (ns !== undefined) {
 				node.namespace = ns;
 			}
-			next(); // consume attribute name
+			tok = next(); // consume attribute name
 			WS();
 			let matcher = AttrMatcher();
 			if (matcher) {
@@ -154,7 +154,10 @@ export const parse = (arg, options = {}) => {
 				WS();
 				if (tok.type === Tokens.String || tok.type === Tokens.Ident) {
 					node.value = tok.value;
-					next();
+					if (tok.type === Tokens.String) {
+						node.quotes = true;
+					}
+					tok = next();
 				} else {
 					throw new Error('Expected attribute value');
 				}
@@ -173,7 +176,7 @@ export const parse = (arg, options = {}) => {
 				return node;
 			}
 			if (tok.type === Tokens.BracketClose) {
-				next();
+				tok = next();
 				return node;
 			}
 			throw new Error('Unclosed attribute selector');
@@ -182,30 +185,28 @@ export const parse = (arg, options = {}) => {
 	};
 
 	const AttrMatcher = () => {
+		let ret;
 		if (delim(tok, '=')) {
-			let ret = tok.value;
-			next();
-			return ret;
-		}
-		if (!eoi() && tok && tok.type === Tokens.Delim && delim(peek(), '=')) {
-			let ret = tok.value;
-			next();
+			ret = tok.value;
+			tok = next();
+		} else if (
+			!eoi() &&
+			tok &&
+			tok.type === Tokens.Delim &&
+			delim(peek(), '=')
+		) {
+			ret = tok.value;
+			tok = next();
 			ret += tok.value;
-			next();
-			return ret;
+			tok = next();
 		}
-		return undefined;
+		return ret;
 	};
 
 	const AttrModifier = () => {
-		if (
-			tok &&
-			tok.type === Tokens.Delim &&
-			tok.value &&
-			tok.value.match(/i|s/i)
-		) {
+		if (tok && tok.type === Tokens.Delim && /i|s/i.test(tok.value)) {
 			let ret = tok.value.toLowerCase();
-			next();
+			tok = next();
 			return ret;
 		}
 		return undefined;
@@ -218,7 +219,7 @@ export const parse = (arg, options = {}) => {
 			!eoi() &&
 			peek().type === Tokens.Colon
 		) {
-			next(); // consume first colon
+			tok = next(); // consume first colon
 			let node = PseudoClassSelector(true);
 			node.type = NodeTypes.PseudoElementSelector;
 			return node;
@@ -229,7 +230,7 @@ export const parse = (arg, options = {}) => {
 	const PseudoClassSelector = (is_actually_pseudo_elem = false) => {
 		if (!eoi() && tok && tok.type === Tokens.Colon) {
 			if (peek().type === Tokens.Ident || peek().type === Tokens.Function) {
-				next();
+				tok = next();
 				let node = {
 					type: NodeTypes.PseudoClassSelector,
 					identifier: tok.value
@@ -238,7 +239,7 @@ export const parse = (arg, options = {}) => {
 					node.argument = [];
 					let fn_depth = 1;
 					while (!eoi() && fn_depth) {
-						next();
+						tok = next();
 						if (tok.type === Tokens.ParenClose) {
 							fn_depth -= 1;
 						} else if (
@@ -264,7 +265,7 @@ export const parse = (arg, options = {}) => {
 						throw new Error('Parentheses mismatch');
 					}
 				}
-				next();
+				tok = next();
 				return node;
 			}
 		}
@@ -276,8 +277,12 @@ export const parse = (arg, options = {}) => {
 		}
 		switch (syntax) {
 			case Syntax.SelectorList:
+				// TODO: can we get away with
+				// just consuming a SelectorList()
+				// on the current token stream?
 				return parse(tokens, options);
 			case Syntax.AnPlusB:
+				// TODO: same as Syntax.SelectorList above
 				return AnPlusB(tokens);
 			case Syntax.None:
 				return tokens;
@@ -326,7 +331,7 @@ export const parse = (arg, options = {}) => {
 		let combinator = WS() ? ' ' : '';
 		if (tok && tok.type === Tokens.Delim) {
 			combinator = tok.value;
-			next();
+			tok = next();
 			WS(); // consume trailing whitespace
 		}
 		return combinator;
@@ -379,21 +384,25 @@ export const parse = (arg, options = {}) => {
 		return node;
 	};
 
-	let ast = {
-		type: NodeTypes.SelectorList,
-		selectors: []
+	/*
+		Consume a selector list
+	 */
+	const SelectorList = () => {
+		let selectors = [];
+		while ((tok = next())) {
+			let sel = ComplexSelector();
+			if (sel) {
+				selectors.push(sel);
+			}
+			if (tok && (tok.type !== Tokens.Comma || !sel || !peek())) {
+				throw new Error(`Unexpected token ${tok.type}`);
+			}
+		}
+		return {
+			type: NodeTypes.SelectorList,
+			selectors
+		};
 	};
 
-	while (!eoi()) {
-		next();
-		let sel = ComplexSelector();
-		if (sel) {
-			ast.selectors.push(sel);
-		}
-		if (tok && tok.type !== Tokens.Comma) {
-			throw new Error(`Unexpected token ${tok.type}`);
-		}
-	}
-
-	return ast;
+	return SelectorList();
 };
