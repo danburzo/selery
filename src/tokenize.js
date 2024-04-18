@@ -1,4 +1,7 @@
+/* eslint-disable-next-line no-control-regex */
 const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
+
+/* eslint-disable-next-line no-control-regex */
 const IdentCodePoint = /[^\x00-\x7F]|[-\w]/;
 
 export const Tokens = {
@@ -28,22 +31,18 @@ export const Tokens = {
  */
 const preprocess = str =>
 	str
-		// We won't be needing trailing whitespace
+		// We won’t be needing trailing whitespace
 		.replace(/^\s+|\s+$/, '')
 		// Normalize newline characters
 		.replace(/\f|\r\n?/g, '\n')
 		// Some Unicode characters are not supported
+		/* eslint-disable-next-line no-control-regex */
 		.replace(/[\u0000\uD800-\uDFFF]/g, '\uFFFD');
 
 export const tokenize = str => {
-	let chars = preprocess(str).split('');
+	let chars = preprocess(str);
+	let _i = 0;
 	let tokens = [];
-
-	const next = () => chars.shift();
-	const reconsume = ch => chars.unshift(ch);
-	const peek = n => chars[n || 0];
-	const eof = () => !chars.length;
-	const size = () => chars.length;
 
 	let ch, ref_ch, token;
 
@@ -52,14 +51,15 @@ export const tokenize = str => {
 
 		TODO: handle newlines and hex digits
 	*/
-	const is_esc = () => size() > 1 && peek() === '\\' && peek(1) !== '\n';
+	const is_esc = () =>
+		_i < chars.length - 1 && chars[_i] === '\\' && chars[_i + 1] !== '\n';
 	const esc = () => {
 		let v = '';
-		if (eof()) {
+		if (_i === chars.length) {
 			throw new Error('Unexpected end of input, unterminated escape sequence');
 		} else {
 			// Consume escaped character
-			v += next();
+			v += chars[_i++];
 		}
 		return v;
 	};
@@ -69,10 +69,10 @@ export const tokenize = str => {
 		https://drafts.csswg.org/css-syntax/#starts-with-a-number
 	 */
 	const is_num = () => {
-		let ch = peek(),
-			ch1 = peek(1);
+		let ch = chars[_i],
+			ch1 = chars[_i + 1];
 		if (ch === '-' || ch === '+') {
-			return /\d/.test(ch1) || (ch1 === '.' && /\d/.test(peek(2)));
+			return /\d/.test(ch1) || (ch1 === '.' && /\d/.test(chars[_i + 2]));
 		}
 		if (ch === '.') {
 			return /\d/.test(ch1);
@@ -86,18 +86,18 @@ export const tokenize = str => {
 	 */
 	const num = () => {
 		let value = '';
-		if (/[+-]/.test(peek())) {
-			value += next();
+		if (/[+-]/.test(chars[_i])) {
+			value += chars[_i++];
 		}
 		value += digits();
-		if (peek() === '.' && /\d/.test(peek(1))) {
-			value += next() + digits();
+		if (chars[_i] === '.' && /\d/.test(chars[_i + 1])) {
+			value += chars[_i++] + digits();
 		}
-		if (/e/i.test(peek())) {
-			if (/[+-]/.test(peek(1)) && /\d/.test(peek(2))) {
-				value += next() + next() + digits();
-			} else if (/\d/.test(peek(1))) {
-				value += next() + digits();
+		if (/e/i.test(chars[_i])) {
+			if (/[+-]/.test(chars[_i + 1]) && /\d/.test(chars[_i + 2])) {
+				value += chars[_i++] + chars[_i++] + digits();
+			} else if (/\d/.test(chars[_i + 1])) {
+				value += chars[_i++] + digits();
 			}
 		}
 		if (is_ident()) {
@@ -118,8 +118,8 @@ export const tokenize = str => {
 	 */
 	const digits = () => {
 		let v = '';
-		while (/\d/.test(peek())) {
-			v += next();
+		while (/\d/.test(chars[_i])) {
+			v += chars[_i++];
 		}
 		return v;
 	};
@@ -129,18 +129,18 @@ export const tokenize = str => {
 	 */
 
 	const is_ident = () => {
-		if (!size()) {
+		if (_i >= chars.length - 1) {
 			return false;
 		}
-		let ch = peek();
+		let ch = chars[_i];
 		if (ch.match(IdentStartCodePoint)) {
 			return true;
 		}
 		if (ch === '-') {
-			if (size() < 2) {
+			if (_i >= chars.length - 2) {
 				return false;
 			}
-			let ch1 = peek(1);
+			let ch1 = chars[_i + 1];
 			if (ch1.match(IdentCodePoint) || ch1 === '-') {
 				return true;
 			}
@@ -161,8 +161,11 @@ export const tokenize = str => {
 	const ident = () => {
 		let v = '',
 			ch;
-		while (!eof() && (peek().match(IdentCodePoint) || peek() === '\\')) {
-			v += (ch = next()) === '\\' ? esc() : ch;
+		while (
+			_i < chars.length &&
+			(chars[_i].match(IdentCodePoint) || chars[_i] === '\\')
+		) {
+			v += (ch = chars[_i++]) === '\\' ? esc() : ch;
 		}
 		return v;
 	};
@@ -173,8 +176,8 @@ export const tokenize = str => {
 	const identlike = () => {
 		let v = ident();
 		// TODO: handle URLs?
-		if (peek() === '(') {
-			next();
+		if (chars[_i] === '(') {
+			chars[_i++];
 			return {
 				type: Tokens.Function,
 				value: v
@@ -186,23 +189,26 @@ export const tokenize = str => {
 		};
 	};
 
-	while (!eof()) {
-		ch = next();
+	while (_i < chars.length) {
+		ch = chars[_i++];
 
 		/* 
 			Consume comments
 		*/
-		if (ch === '/' && peek() === '*') {
-			next(); // consume *
-			while (!eof() && ((ch = next()) !== '*' || peek() !== '/')) {
+		if (ch === '/' && chars[_i] === '*') {
+			chars[_i++]; // consume *
+			while (
+				_i < chars.length &&
+				((ch = chars[_i++]) !== '*' || chars[_i] !== '/')
+			) {
 				if (ch === '\\') {
 					esc();
 				}
 			}
-			if (eof()) {
+			if (_i >= chars.length) {
 				throw new Error('Unexpected end of input, unterminated comment');
 			}
-			next(); // consume /
+			chars[_i++]; // consume /
 			continue;
 		}
 
@@ -210,8 +216,8 @@ export const tokenize = str => {
 			Consume whitespace
 		 */
 		if (ch.match(/[\n\t ]/)) {
-			while (!eof() && peek().match(/[\n\t ]/)) {
-				next();
+			while (_i < chars.length && chars[_i].match(/[\n\t ]/)) {
+				chars[_i++];
 			}
 			tokens.push({ type: Tokens.Whitespace });
 			continue;
@@ -226,7 +232,11 @@ export const tokenize = str => {
 				type: Tokens.String,
 				value: ''
 			};
-			while (!eof() && (ch = next()) !== ref_ch && ch !== '\n') {
+			while (
+				_i < chars.length &&
+				(ch = chars[_i++]) !== ref_ch &&
+				ch !== '\n'
+			) {
 				token.value += ch === '\\' ? esc() : ch;
 			}
 			if (ch === ref_ch) {
@@ -237,7 +247,7 @@ export const tokenize = str => {
 				// TODO: spec says to return bad-string token here, relevant?
 				throw new Error('Unexpected newline character inside string');
 			}
-			if (eof()) {
+			if (_i >= chars.length) {
 				throw new Error(
 					`Unexpected end of input, unterminated string ${token.value}`
 				);
@@ -248,7 +258,7 @@ export const tokenize = str => {
 			Consume IDs 
 		*/
 		if (ch === '#') {
-			if (!eof() && (peek().match(IdentCodePoint) || is_esc())) {
+			if (_i < chars.length && (chars[_i].match(IdentCodePoint) || is_esc())) {
 				token = {
 					type: Tokens.Hash
 				};
@@ -275,7 +285,7 @@ export const tokenize = str => {
 
 		if (ch === '+') {
 			if (is_num()) {
-				reconsume(ch);
+				_i--;
 				tokens.push(num());
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
@@ -290,10 +300,10 @@ export const tokenize = str => {
 
 		if (ch === '-') {
 			if (is_num()) {
-				reconsume(ch);
+				_i--;
 				tokens.push(num());
 			} else if (is_ident()) {
-				reconsume(ch);
+				_i--;
 				tokens.push({
 					type: Tokens.Ident,
 					value: ident()
@@ -306,7 +316,7 @@ export const tokenize = str => {
 
 		if (ch === '.') {
 			if (is_num()) {
-				reconsume(ch);
+				_i--;
 				tokens.push(num());
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
@@ -342,8 +352,8 @@ export const tokenize = str => {
 		}
 
 		if (ch === '\\') {
-			if (!eof() && peek() !== '\n') {
-				reconsume(ch);
+			if (_i < chars.length && chars[_i] !== '\n') {
+				_i--;
 				tokens.push(identlike());
 				continue;
 			}
@@ -366,13 +376,13 @@ export const tokenize = str => {
 		}
 
 		if (ch.match(/\d/)) {
-			reconsume(ch);
+			_i--;
 			tokens.push(num());
 			continue;
 		}
 
 		if (ch.match(IdentStartCodePoint)) {
-			reconsume(ch);
+			_i--;
 			tokens.push(identlike());
 			continue;
 		}

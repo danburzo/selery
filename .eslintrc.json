@@ -17,7 +17,6 @@
 		"no-this-before-super": 1,
 		"no-undef": 2,
 		"no-unused-vars": [1, { "args": "none" }],
-		"valid-typeof": 1,
-		"no-control-regex": 0
+		"valid-typeof": 1
 	}
 }
