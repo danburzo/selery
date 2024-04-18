@@ -12,8 +12,8 @@ export default [
 	},
 	{
 		selector: '[attr=val',
-		serialize: '[attr="val"]'
-	}
+		serialize: '[attr=val]'
+	},
 
 	/*
 		...but not all closed constructs
@@ -23,4 +23,20 @@ export default [
 	// 	selector: ':is([attr=val)',
 	// 	tokenize: /TODO/
 	// }
+
+	/*
+		Weird commas
+	 */
+	{
+		selector: ',b',
+		parse: /Unexpected token comma/
+	},
+	{
+		selector: 'a,',
+		parse: /Unexpected token comma/
+	},
+	{
+		selector: 'a,    ,b',
+		parse: /Unexpected token comma/
+	}
 ];
