@@ -7,10 +7,10 @@ export default [
 	},
 	{
 		selector: '/* A comment \\',
-		tokenize: /unterminated escape/
+		tokenize: /unterminated comment/
 	},
 	{
 		selector: '/* A comment \\*/',
-		tokenize: /unterminated comment/
+		tokenize: []
 	}
 ];

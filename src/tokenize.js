@@ -1,8 +1,15 @@
-/* eslint-disable-next-line no-control-regex */
-const IdentStartCodePoint = /[^\x00-\x7F]|[a-zA-Z_]/;
+// https://drafts.csswg.org/css-syntax/#ident-start-code-point
+const IdentStartCodePoint =
+	/[a-zA-Z_]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
+const IdentCodePoint =
+	/[-\w]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
+const HexDigit = /[0-9a-zA-Z]/;
 
-/* eslint-disable-next-line no-control-regex */
-const IdentCodePoint = /[^\x00-\x7F]|[-\w]/;
+/*
+
+
+    greater than or equal to U+10000
+*/
 
 export const Tokens = {
 	AtKeyword: 'at-keyword',
@@ -28,75 +35,89 @@ export const Tokens = {
 /*
 	Preprocess the selector according to:
 	https://drafts.csswg.org/css-syntax/#input-preprocessing
+
+	1. Remove trailing whitespace
+	2. Normalize newline characters
+	3. Handle U+0000 NULL and surrogate code points
  */
 const preprocess = str =>
 	str
-		// We won’t be needing trailing whitespace
-		.replace(/^\s+|\s+$/, '')
-		// Normalize newline characters
+		.trim()
 		.replace(/\f|\r\n?/g, '\n')
-		// Some Unicode characters are not supported
-		/* eslint-disable-next-line no-control-regex */
 		.replace(/[\u0000\uD800-\uDFFF]/g, '\uFFFD');
 
 export const tokenize = str => {
-	let chars = preprocess(str);
-	let _i = 0;
-	let tokens = [];
-
-	let ch, ref_ch, token;
+	let chars = preprocess(str),
+		_i = 0;
+	let tokens = [],
+		token;
+	let ch, matching_ch;
 
 	/* 
-		Consume an escape sequence.
-
-		TODO: handle newlines and hex digits
+		§ 4.3.7. Consume an escaped code point
 	*/
-	const is_esc = () =>
-		_i < chars.length - 1 && chars[_i] === '\\' && chars[_i + 1] !== '\n';
 	const esc = () => {
-		let v = '';
-		if (_i === chars.length) {
+		if (_i >= chars.length) {
 			throw new Error('Unexpected end of input, unterminated escape sequence');
-		} else {
-			// Consume escaped character
-			v += chars[_i++];
+		} else if (HexDigit.test(chars[_i] || '')) {
+			let hex = chars[_i++];
+			while (hex.length < 6 && HexDigit.test(chars[_i] || '')) {
+				hex += chars[_i];
+			}
+			// consume following whitespace
+			if (chars[_i] === ' ' || chars[_i] === '\n' || chars[_i] === '\t') {
+				i++;
+			}
+			let v = parseInt(hex, 16);
+			if (v === 0 || (v >= 0xd800 && v <= 0xdfff) || v > 0x10ffff) {
+				return '\uFFFD';
+			}
+			return String.fromCodePoint(v);
 		}
-		return v;
+		return chars[_i++]; // Consume escaped character
 	};
 
+	// § 4.3.8. Check if two code points are a valid escape
+	const is_esc = (offset = 0) =>
+		chars[_i + offset] === '\\' && chars[_i + offset + 1] !== '\n';
+
 	/*
-		4.3.10. Check if three code points would start a number
+		§ 4.3.10. Check if three code points would start a number
 		https://drafts.csswg.org/css-syntax/#starts-with-a-number
 	 */
 	const is_num = () => {
-		let ch = chars[_i],
-			ch1 = chars[_i + 1];
-		if (ch === '-' || ch === '+') {
-			return /\d/.test(ch1) || (ch1 === '.' && /\d/.test(chars[_i + 2]));
+		if (chars[_i] === '-' || chars[_i] === '+') {
+			return (
+				/\d/.test(chars[_i + 1] || '') ||
+				(chars[_i + 1] === '.' && /\d/.test(chars[_i + 2] || ''))
+			);
 		}
-		if (ch === '.') {
-			return /\d/.test(ch1);
+		if (chars[_i] === '.') {
+			return /\d/.test(chars[_i + 1] || '');
 		}
-		return /\d/.test(ch);
+		return /\d/.test(chars[_i] || '');
 	};
 
 	/*
-		4.3.3. Consume a numeric token
+		§ 4.3.3. Consume a numeric token
 		https://drafts.csswg.org/css-syntax/#consume-numeric-token
 	 */
 	const num = () => {
 		let value = '';
-		if (/[+-]/.test(chars[_i])) {
+		if (chars[_i] === '+' || chars[_i] === '-') {
 			value += chars[_i++];
 		}
 		value += digits();
-		if (chars[_i] === '.' && /\d/.test(chars[_i + 1])) {
+		if (chars[_i] === '.' && /\d/.test(chars[_i + 1] || '')) {
 			value += chars[_i++] + digits();
 		}
-		if (/e/i.test(chars[_i])) {
-			if (/[+-]/.test(chars[_i + 1]) && /\d/.test(chars[_i + 2])) {
+		if (chars[_i] === 'e' || chars[_i] === 'E') {
+			if (
+				(chars[_i + 1] === '+' || chars[_i + 1] === '-') &&
+				/\d/.test(chars[_i + 2] || '')
+			) {
 				value += chars[_i++] + chars[_i++] + digits();
-			} else if (/\d/.test(chars[_i + 1])) {
+			} else if (/\d/.test(chars[_i + 1] || '')) {
 				value += chars[_i++] + digits();
 			}
 		}
@@ -107,6 +128,7 @@ export const tokenize = str => {
 				unit: ident()
 			};
 		}
+		// TODO: handle U+0025 PERCENTAGE SIGN
 		return {
 			type: Tokens.Number,
 			value
@@ -118,66 +140,62 @@ export const tokenize = str => {
 	 */
 	const digits = () => {
 		let v = '';
-		while (/\d/.test(chars[_i])) {
+		while (/\d/.test(chars[_i] || '')) {
 			v += chars[_i++];
 		}
 		return v;
 	};
 
 	/*
-		Check if the stream starts with an identifier.
+		§ 4.3.9. Check if three code points would start an ident sequence
 	 */
 
 	const is_ident = () => {
-		if (_i >= chars.length - 1) {
-			return false;
-		}
-		let ch = chars[_i];
-		if (ch.match(IdentStartCodePoint)) {
-			return true;
-		}
-		if (ch === '-') {
-			if (_i >= chars.length - 2) {
-				return false;
-			}
-			let ch1 = chars[_i + 1];
-			if (ch1.match(IdentCodePoint) || ch1 === '-') {
+		if (chars[_i] === '-') {
+			if (IdentCodePoint.test(chars[_i + 1] || '') || chars[_i + 1] === '-') {
 				return true;
 			}
-			if (ch1 === '\\') {
-				return !!esc();
+			if (chars[_i + 1] === '\\') {
+				return is_esc(1);
 			}
 			return false;
 		}
-		if (ch === '\\') {
-			return !!esc();
+		if (IdentStartCodePoint.test(chars[_i] || '')) {
+			return true;
+		}
+		if (chars[_i] === '\\') {
+			return is_esc();
 		}
 		return false;
 	};
 
 	/*
-		Consume an identifier.
+		§ 4.3.12. Consume an ident sequence
 	 */
 	const ident = () => {
-		let v = '',
-			ch;
-		while (
-			_i < chars.length &&
-			(chars[_i].match(IdentCodePoint) || chars[_i] === '\\')
-		) {
-			v += (ch = chars[_i++]) === '\\' ? esc() : ch;
+		let v = '';
+		while (_i < chars.length) {
+			if (IdentCodePoint.test(chars[_i] || '')) {
+				v += chars[_i++];
+			} else if (is_esc()) {
+				_i++; // consume solidus
+				v += esc();
+			} else {
+				return v;
+			}
 		}
 		return v;
 	};
 
 	/*
-		Consume an ident-like token.
+		§ 4.3.4. Consume an ident-like token
+		https://drafts.csswg.org/css-syntax/#consume-an-ident-like-token
 	 */
 	const identlike = () => {
 		let v = ident();
 		// TODO: handle URLs?
 		if (chars[_i] === '(') {
-			chars[_i++];
+			chars[_i++]; // consume parenthesis
 			return {
 				type: Tokens.Function,
 				value: v
@@ -190,56 +208,62 @@ export const tokenize = str => {
 	};
 
 	while (_i < chars.length) {
-		ch = chars[_i++];
-
-		/* 
-			Consume comments
-		*/
-		if (ch === '/' && chars[_i] === '*') {
-			chars[_i++]; // consume *
+		// § 4.3.2. Consume comments
+		if (chars[_i] === '/' && chars[_i + 1] === '*') {
+			_i += 2; // consume start of comment
 			while (
 				_i < chars.length &&
-				((ch = chars[_i++]) !== '*' || chars[_i] !== '/')
+				!(chars[_i] === '*' || chars[_i + 1] === '/')
 			) {
-				if (ch === '\\') {
-					esc();
-				}
+				_i++;
 			}
-			if (_i >= chars.length) {
+			if (_i === chars.length) {
 				throw new Error('Unexpected end of input, unterminated comment');
 			}
-			chars[_i++]; // consume /
+			_i += 2; // consume end of comment
 			continue;
 		}
 
-		/*
-			Consume whitespace
-		 */
-		if (ch.match(/[\n\t ]/)) {
-			while (_i < chars.length && chars[_i].match(/[\n\t ]/)) {
-				chars[_i++];
+		// Consume the next input code point.
+		ch = chars[_i++];
+
+		// Consume whitespace
+		if (ch === ' ' || ch === '\n' || ch === '\t') {
+			while (
+				_i < chars.length &&
+				(chars[_i] === ' ' || chars[_i] === '\n' || chars[_i] === '\t')
+			) {
+				_i++;
 			}
 			tokens.push({ type: Tokens.Whitespace });
 			continue;
 		}
 
-		/* 
-			Consume strings
-		*/
+		// § 4.3.5. Consume a string token
 		if (ch === '"' || ch === "'") {
-			ref_ch = ch;
+			matching_ch = ch;
 			token = {
 				type: Tokens.String,
 				value: ''
 			};
 			while (
 				_i < chars.length &&
-				(ch = chars[_i++]) !== ref_ch &&
+				(ch = chars[_i++]) !== matching_ch &&
 				ch !== '\n'
 			) {
-				token.value += ch === '\\' ? esc() : ch;
+				if (ch === '\\') {
+					if (_i === chars.length) {
+						// do nothing
+					} else if (chars[_i] === '\n') {
+						_i++;
+					} else {
+						token.value += esc();
+					}
+				} else {
+					token.value += ch;
+				}
 			}
-			if (ch === ref_ch) {
+			if (ch === matching_ch) {
 				tokens.push(token);
 				continue;
 			}
@@ -255,10 +279,13 @@ export const tokenize = str => {
 		}
 
 		/* 
-			Consume IDs 
+			Consume a hash token
 		*/
 		if (ch === '#') {
-			if (_i < chars.length && (chars[_i].match(IdentCodePoint) || is_esc())) {
+			if (
+				_i < chars.length &&
+				(IdentCodePoint.test(chars[_i] || '') || is_esc())
+			) {
 				token = {
 					type: Tokens.Hash
 				};
@@ -299,15 +326,13 @@ export const tokenize = str => {
 		}
 
 		if (ch === '-') {
+			// TODO: handle <CDC-token>
 			if (is_num()) {
 				_i--;
 				tokens.push(num());
 			} else if (is_ident()) {
 				_i--;
-				tokens.push({
-					type: Tokens.Ident,
-					value: ident()
-				});
+				tokens.push(identlike());
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });
 			}
@@ -334,6 +359,8 @@ export const tokenize = str => {
 			continue;
 		}
 
+		// TODO: handle "<"
+
 		if (ch === '@') {
 			if (is_ident()) {
 				tokens.push({
@@ -352,7 +379,7 @@ export const tokenize = str => {
 		}
 
 		if (ch === '\\') {
-			if (_i < chars.length && chars[_i] !== '\n') {
+			if (is_esc()) {
 				_i--;
 				tokens.push(identlike());
 				continue;
@@ -375,11 +402,13 @@ export const tokenize = str => {
 			continue;
 		}
 
-		if (ch.match(/\d/)) {
+		if (/\d/.test(ch || '')) {
 			_i--;
 			tokens.push(num());
 			continue;
 		}
+
+		// TODO: handle "U"
 
 		if (ch.match(IdentStartCodePoint)) {
 			_i--;
