@@ -1,8 +1,9 @@
-import tape from 'tape';
+import test from 'node:test';
+import assert from 'node:assert';
 import { doc } from './utils/doc.js';
 import { querySelector, querySelectorAll } from '../src/index.js';
 
-tape('Combinators', t => {
+test('Combinators', t => {
 	let d = doc`
 	<article>
 		<div>
@@ -11,14 +12,13 @@ tape('Combinators', t => {
 			<p>2nd para</p>
 		</div>
 	</article>`;
-	t.equals(querySelector(d, 'article h1 + p').textContent, '1st para');
-	t.equals(querySelectorAll(d, 'article h1 ~ p').length, 2);
-	t.equals(querySelector(d, 'div > p').textContent, '1st para');
-	t.equals(querySelector(d, 'article > p'), null);
-	t.end();
+	assert.equal(querySelector(d, 'article h1 + p').textContent, '1st para');
+	assert.equal(querySelectorAll(d, 'article h1 ~ p').length, 2);
+	assert.equal(querySelector(d, 'div > p').textContent, '1st para');
+	assert.equal(querySelector(d, 'article > p'), null);
 });
 
-tape('Tree-positional pseudo-classes', t => {
+test('Tree-positional pseudo-classes', t => {
 	let d = doc`
 		<dl>	
 			<dt>1-term</dt>
@@ -33,15 +33,12 @@ tape('Tree-positional pseudo-classes', t => {
 		<p class='not-empty'>	<strong></strong></p>
 	`;
 
-	t.equals(querySelector(d, 'dl :first-child').textContent, '1-term');
-	t.equals(querySelector(d, 'dl :last-child').textContent, '3-def');
-	t.equals(querySelector(d, 'dd:first-of-type').textContent, '1-def');
-	t.equals(querySelector(d, 'dt:last-of-type').textContent, '3-term');
-	t.equals(querySelector(d, 'body :only-of-type').localName, 'dl');
-	t.equals(querySelector(d, 'body :only-child').textContent, 'para');
-
-	t.equals(querySelector(d, ':root'), d.documentElement);
-	t.equals(querySelector(d, 'body :empty').localName, 'strong');
-
-	t.end();
+	assert.equal(querySelector(d, 'dl :first-child').textContent, '1-term');
+	assert.equal(querySelector(d, 'dl :last-child').textContent, '3-def');
+	assert.equal(querySelector(d, 'dd:first-of-type').textContent, '1-def');
+	assert.equal(querySelector(d, 'dt:last-of-type').textContent, '3-term');
+	assert.equal(querySelector(d, 'body :only-of-type').localName, 'dl');
+	assert.equal(querySelector(d, 'body :only-child').textContent, 'para');
+	assert.equal(querySelector(d, ':root'), d.documentElement);
+	assert.equal(querySelector(d, 'body :empty').localName, 'strong');
 });

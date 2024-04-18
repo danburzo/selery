@@ -1,7 +1,8 @@
-import tape from 'tape';
+import test from 'node:test';
+import assert from 'node:assert';
 import { walk } from '../src/index.js';
 
-tape('walk', t => {
+test('walk', t => {
 	let ast = {
 		type: 'SelectorList',
 		selectors: [
@@ -38,6 +39,5 @@ tape('walk', t => {
 		out += node.identifier || '';
 	});
 
-	t.equal(out, 'nth-childisdivprimarysecondary');
-	t.end();
+	assert.equal(out, 'nth-childisdivprimarysecondary');
 });
