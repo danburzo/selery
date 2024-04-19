@@ -122,20 +122,21 @@ export function tokenize(str) {
 		chars[_i + offset] === '\\' && chars[_i + offset + 1] !== '\n';
 
 	/*
-		§ 4.3.10. Check if three code points would start a number
+		§ 4.3.10. Check if input stream contains the start of a number
+		(This involves checking the last selected code point)
 		https://drafts.csswg.org/css-syntax/#starts-with-a-number
 	 */
 	const is_num = () => {
-		if (chars[_i] === '-' || chars[_i] === '+') {
+		if (ch === '-' || ch === '+') {
 			return (
-				/\d/.test(chars[_i + 1] || '') ||
-				(chars[_i + 1] === '.' && /\d/.test(chars[_i + 2] || ''))
+				/\d/.test(chars[_i] || '') ||
+				(chars[_i] === '.' && /\d/.test(chars[_i + 1] || ''))
 			);
 		}
-		if (chars[_i] === '.') {
-			return /\d/.test(chars[_i + 1] || '');
+		if (ch === '.') {
+			return /\d/.test(chars[_i] || '');
 		}
-		return /\d/.test(chars[_i] || '');
+		return /\d/.test(ch || '');
 	};
 
 	/*
@@ -164,7 +165,7 @@ export function tokenize(str) {
 		if (is_ident()) {
 			return {
 				type: Tokens.Dimension,
-				value: parseFloat(value),
+				value: +value,
 				unit: ident()
 			};
 		}
@@ -173,12 +174,12 @@ export function tokenize(str) {
 			_i++;
 			return {
 				type: Tokens.Percentage,
-				value: parseFloat(value)
+				value: +value
 			};
 		}
 		return {
 			type: Tokens.Number,
-			value: parseFloat(value)
+			value: +value
 		};
 	};
 
@@ -195,23 +196,25 @@ export function tokenize(str) {
 
 	/*
 		§ 4.3.9. Check if three code points would start an ident sequence
+		Occasionally we need to check the last selected code point, in which
+		case offset = -1, but usually offset = 0;
 	 */
 
-	const is_ident = () => {
-		if (chars[_i] === '-') {
-			if (isIdent(chars[_i + 1]) || chars[_i + 1] === '-') {
+	const is_ident = (offset = 0) => {
+		if (chars[_i + offset] === '-') {
+			if (isIdent(chars[_i + offset + 1]) || chars[_i + offset + 1] === '-') {
 				return true;
 			}
-			if (chars[_i + 1] === '\\') {
-				return is_esc(1);
+			if (chars[_i + offset + 1] === '\\') {
+				return is_esc(offset + 1);
 			}
 			return false;
 		}
-		if (isIdentStart(chars[_i])) {
+		if (isIdentStart(chars[_i + offset])) {
 			return true;
 		}
-		if (chars[_i] === '\\') {
-			return is_esc();
+		if (chars[_i + offset] === '\\') {
+			return is_esc(offset);
 		}
 		return false;
 	};
@@ -435,15 +438,15 @@ export function tokenize(str) {
 		}
 
 		if (ch === '-') {
-			if (chars[_i] === '-' && chars[_i + 1] === '>') {
+			if (is_num()) {
+				_i--;
+				tokens.push(num());
+			} else if (chars[_i] === '-' && chars[_i + 1] === '>') {
 				_i += 2;
 				tokens.push({
 					type: Tokens.CDC
 				});
-			} else if (is_num()) {
-				_i--;
-				tokens.push(num());
-			} else if (is_ident()) {
+			} else if (is_ident(-1)) {
 				_i--;
 				tokens.push(identlike());
 			} else {
