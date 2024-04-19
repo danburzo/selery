@@ -247,6 +247,7 @@ TODO
 - [scalpel](https://github.com/gajus/scalpel)
 - [csstree](https://github.com/csstree/csstree)
 - [parse-css](https://github.com/tabatkins/parse-css)
+- [domSelector](https://github.com/asamuzaK/domSelector)
 
 ## Colophon
 

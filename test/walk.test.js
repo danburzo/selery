@@ -1,3 +1,7 @@
+/*
+	Tests for the AST walker.
+*/
+
 import test from 'node:test';
 import assert from 'node:assert';
 import { walk } from '../src/index.js';

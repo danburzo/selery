@@ -11,13 +11,39 @@
 */
 
 // https://drafts.csswg.org/css-syntax/#ident-start-code-point
-const IdentStartCodePoint =
-	/[a-zA-Z_]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{10FFFF}]/u;
-const IdentCodePoint =
-	/[-\w]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{10FFFF}]/u;
+
 // https://drafts.csswg.org/css-syntax/#non-printable-code-point
 const NonPrintableCodePoint = /[\x00-\x08\x0B\x0E-\x1F\x7F]/;
 const HexDigit = /[0-9a-zA-Z]/;
+
+function nonascii(c) {
+	return (
+		c == 0xb7 ||
+		(c >= 0xc0 && c <= 0xd6) ||
+		(c >= 0xd8 && c <= 0xf6) ||
+		(c >= 0xf8 && c <= 0x37d) ||
+		(c >= 0x37f && c <= 0x1fff) ||
+		c == 0x200c ||
+		c == 0x200d ||
+		c == 0x203f ||
+		c == 0x2040 ||
+		(c >= 0x37f && c <= 0x1fff) ||
+		(c >= 0x2070 && c <= 0x218f) ||
+		(c >= 0x2c00 && c <= 0x2fef) ||
+		(c >= 0x3001 && c <= 0xd7ff) ||
+		(c >= 0xf900 && c <= 0xfdcf) ||
+		(c >= 0xfdf0 && c <= 0xfffd) ||
+		c > 0x10000
+	);
+}
+
+function isIdentStart(ch) {
+	return ch && (/[a-zA-Z_]/.test(ch) || nonascii(ch.codePointAt(0)));
+}
+
+function isIdent(ch) {
+	return ch && (/[-\w]/.test(ch) || nonascii(ch.codePointAt(0)));
+}
 
 /* 
 	§ 4. Tokenization
@@ -80,7 +106,7 @@ export function tokenize(str) {
 			}
 			// consume following whitespace
 			if (is_ws()) {
-				i++;
+				_i++;
 			}
 			let v = parseInt(hex, 16);
 			if (v === 0 || (v >= 0xd800 && v <= 0xdfff) || v > 0x10ffff) {
@@ -173,7 +199,7 @@ export function tokenize(str) {
 
 	const is_ident = () => {
 		if (chars[_i] === '-') {
-			if (IdentCodePoint.test(chars[_i + 1] || '') || chars[_i + 1] === '-') {
+			if (isIdent(chars[_i + 1]) || chars[_i + 1] === '-') {
 				return true;
 			}
 			if (chars[_i + 1] === '\\') {
@@ -181,7 +207,7 @@ export function tokenize(str) {
 			}
 			return false;
 		}
-		if (IdentStartCodePoint.test(chars[_i] || '')) {
+		if (isIdentStart(chars[_i])) {
 			return true;
 		}
 		if (chars[_i] === '\\') {
@@ -196,7 +222,7 @@ export function tokenize(str) {
 	const ident = () => {
 		let v = '';
 		while (_i < chars.length) {
-			if (IdentCodePoint.test(chars[_i] || '')) {
+			if (isIdent(chars[_i])) {
 				v += chars[_i++];
 			} else if (is_esc()) {
 				_i++; // consume solidus
@@ -368,10 +394,7 @@ export function tokenize(str) {
 			Consume a hash token
 		*/
 		if (ch === '#') {
-			if (
-				_i < chars.length &&
-				(IdentCodePoint.test(chars[_i] || '') || is_esc())
-			) {
+			if (_i < chars.length && (isIdent(chars[_i]) || is_esc())) {
 				token = {
 					type: Tokens.Hash
 				};
@@ -507,7 +530,7 @@ export function tokenize(str) {
 
 		// TODO: handle unicode ranges (u)
 
-		if (ch.match(IdentStartCodePoint)) {
+		if (isIdentStart(ch)) {
 			_i--;
 			tokens.push(identlike());
 			continue;
