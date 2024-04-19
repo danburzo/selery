@@ -1,3 +1,7 @@
+/*
+	Tests for the DOM selection engine.
+*/
+
 import test from 'node:test';
 import assert from 'node:assert';
 import { doc } from './utils/doc.js';

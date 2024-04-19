@@ -145,7 +145,6 @@ export const parse = (arg, options = {}) => {
 	*/
 	function ComplexSelector() {
 		let node, sel, comb;
-		let expect_sel;
 		while (tok) {
 			sel = CompoundSelector();
 			if (sel) {
@@ -399,7 +398,7 @@ export const parse = (arg, options = {}) => {
 			let matcher = AttrMatcher();
 			if (matcher) {
 				if (attrMatchers.indexOf(matcher) < 0) {
-					throw new error(`Unsupported attribute matcher: ${matcher}`);
+					throw new Error(`Unsupported attribute matcher: ${matcher}`);
 				}
 				node.matcher = matcher;
 				WhiteSpace();
