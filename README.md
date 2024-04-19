@@ -108,11 +108,39 @@ See the [Element.querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/
 
 ## CSS token reference
 
-| Token `type`                                                              | Additional properties |
-| ------------------------------------------------------------------------- | --------------------- |
-| `dimension`                                                               | `value`, `unit`       |
-| `at-keyword`, `function`, `hash`, `ident`, `number`, `string`, `delim`    | `value`               |
-| `)`, `(`, `}`, `{`, `]`, `[`, `colon`, `comma`, `semicolon`, `whitespace` | none                  |
+The `tokenize()` function returns an Array of tokens with a `type` property. The list of `type` values is below:
+
+```js
+export const Tokens = {
+	AtKeyword: 'at-keyword',
+	BadString: 'bad-string',
+	BadUrl: 'bad-url',
+	BraceClose: '}',
+	BraceOpen: '{',
+	BracketClose: ']',
+	BracketOpen: '[',
+	CDC: 'cdc',
+	CDO: 'cdo',
+	Colon: 'colon',
+	Comma: 'comma',
+	Delim: 'delim',
+	Dimension: 'dimension',
+	Function: 'function',
+	Hash: 'hash',
+	Ident: 'ident',
+	Number: 'number',
+	ParenClose: ')',
+	ParenOpen: '(',
+	Percentage: 'percentage',
+	Semicolon: 'semicolon',
+	String: 'string',
+	UnicodeRange: 'unicode',
+	Url: 'url',
+	Whitespace: 'whitespace'
+};
+```
+
+The following token types also include a `value` property: `at-keyword`, `bad-string`, `bad-url`, `delim`, `dimension`, `function`, `hash`, `ident`, `number`, `percentage`, `string`, `unicode`, `url`.
 
 ## CSS selector AST reference
 
