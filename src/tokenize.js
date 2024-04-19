@@ -164,7 +164,7 @@ export function tokenize(str) {
 		if (is_ident()) {
 			return {
 				type: Tokens.Dimension,
-				value,
+				value: parseFloat(value),
 				unit: ident()
 			};
 		}
@@ -173,12 +173,12 @@ export function tokenize(str) {
 			_i++;
 			return {
 				type: Tokens.Percentage,
-				value
+				value: parseFloat(value)
 			};
 		}
 		return {
 			type: Tokens.Number,
-			value
+			value: parseFloat(value)
 		};
 	};
 
@@ -328,7 +328,7 @@ export function tokenize(str) {
 			_i += 2; // consume start of comment
 			while (
 				_i < chars.length &&
-				!(chars[_i] === '*' || chars[_i + 1] === '/')
+				!(chars[_i] === '*' && chars[_i + 1] === '/')
 			) {
 				_i++;
 			}
@@ -474,6 +474,7 @@ export function tokenize(str) {
 
 		if (ch === '<') {
 			if (chars[_i] === '!' && chars[_i + 1] === '-' && chars[_i + 2] === '-') {
+				_i += 3;
 				tokens.push({ type: Tokens.CDO });
 			} else {
 				tokens.push({ type: Tokens.Delim, value: ch });

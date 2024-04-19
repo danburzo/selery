@@ -4,7 +4,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert';
-import { doc } from './utils/doc.js';
+import { doc } from './_util.js';
 import { querySelector, querySelectorAll } from '../src/index.js';
 
 test('Combinators', t => {

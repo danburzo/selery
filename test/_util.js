@@ -4,9 +4,9 @@ import {
 	matches,
 	querySelectorAll,
 	querySelector
-} from '../../src/index.js';
+} from '../src/index.js';
 
-export const doc = function (str) {
+export function doc(str) {
 	let dom = new JSDOM(str);
 	dom.window.Element.prototype.closest = function (sel) {
 		return closest(this, sel);
@@ -32,4 +32,4 @@ export const doc = function (str) {
 	dom.window.DocumentFragment.prototype.querySelectorAll = qsa;
 
 	return dom.window.document;
-};
+}
