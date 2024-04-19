@@ -1,16 +1,41 @@
+/*
+	Tokenize a string according to the rules of CSS Syntax:
+
+		https://drafts.csswg.org/css-syntax/
+
+	The `tokenize()` function implements it almost completely,
+	but skimps on a couple of areas unrelated to CSS selectors.
+	(See the TODOs throughout the code.)
+
+	It also doesn’t currently track the concrete position of tokens.
+*/
+
 // https://drafts.csswg.org/css-syntax/#ident-start-code-point
 const IdentStartCodePoint =
 	/[a-zA-Z_]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{10FFFF}]/u;
 const IdentCodePoint =
 	/[-\w]|[\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u037D\u037F-\u1FFF\u200C\u200D\u203F\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{10FFFF}]/u;
+// https://drafts.csswg.org/css-syntax/#non-printable-code-point
+const NonPrintableCodePoint = /[\x00-\x08\x0B\x0E-\x1F\x7F]/;
 const HexDigit = /[0-9a-zA-Z]/;
 
+/* 
+	§ 4. Tokenization
+	https://drafts.csswg.org/css-syntax/#tokenizer-definitions
+
+	Note: This structure defines all CSS tokens. 
+	Not all of them are currently emitted by `tokenize()`.
+*/
 export const Tokens = {
 	AtKeyword: 'at-keyword',
+	BadString: 'bad-string',
+	BadUrl: 'bad-url',
 	BraceClose: '}',
 	BraceOpen: '{',
 	BracketClose: ']',
 	BracketOpen: '[',
+	CDC: 'cdc',
+	CDO: 'cdo',
 	Colon: 'colon',
 	Comma: 'comma',
 	Delim: 'delim',
@@ -21,28 +46,23 @@ export const Tokens = {
 	Number: 'number',
 	ParenClose: ')',
 	ParenOpen: '(',
+	Percentage: 'percentage',
 	Semicolon: 'semicolon',
 	String: 'string',
+	UnicodeRange: 'unicode',
+	Url: 'url',
 	Whitespace: 'whitespace'
 };
 
-/*
-	Preprocess the selector according to:
-	https://drafts.csswg.org/css-syntax/#input-preprocessing
-
-	1. Remove trailing whitespace
-	2. Normalize newline characters
-	3. Handle U+0000 NULL and surrogate code points
- */
-const preprocess = str =>
-	str
-		.trim()
+export function tokenize(str) {
+	/*
+		§ 3.3. Preprocessing the input stream
+		https://drafts.csswg.org/css-syntax/#input-preprocessing
+	 */
+	let chars = str
 		.replace(/\f|\r\n?/g, '\n')
 		.replace(/[\u0000\uD800-\uDFFF]/g, '\uFFFD');
-
-export const tokenize = str => {
-	let chars = preprocess(str),
-		_i = 0;
+	let _i = 0;
 	let tokens = [],
 		token;
 	let ch, matching_ch;
@@ -59,7 +79,7 @@ export const tokenize = str => {
 				hex += chars[_i];
 			}
 			// consume following whitespace
-			if (chars[_i] === ' ' || chars[_i] === '\n' || chars[_i] === '\t') {
+			if (is_ws()) {
 				i++;
 			}
 			let v = parseInt(hex, 16);
@@ -122,7 +142,14 @@ export const tokenize = str => {
 				unit: ident()
 			};
 		}
-		// TODO: handle U+0025 PERCENTAGE SIGN
+
+		if (chars[_i] === '%') {
+			_i++;
+			return {
+				type: Tokens.Percentage,
+				value
+			};
+		}
 		return {
 			type: Tokens.Number,
 			value
@@ -187,7 +214,70 @@ export const tokenize = str => {
 	 */
 	const identlike = () => {
 		let v = ident();
-		// TODO: handle URLs?
+		if (v.toLowerCase() === 'url' && chars[_i] === '(') {
+			_i++; // consume parenthesis
+			while (is_ws() && is_ws(1)) {
+				_i++;
+			}
+			if (
+				chars[_i] === '"' ||
+				chars[_i] === "'" ||
+				(is_ws() && (chars[_i + 1] === '"' || chars[_i + 1] === "'"))
+			) {
+				return {
+					type: Tokens.Function,
+					value: v
+				};
+			} else {
+				// § 4.3.6. Consume a url token
+				// https://drafts.csswg.org/css-syntax/#consume-a-url-token
+				let curr;
+				while (is_ws()) {
+					_i++;
+				}
+				let tok = { type: Tokens.Url, value: '' };
+				while ((curr = chars[_i++])) {
+					if (curr === ')') {
+						return tok;
+					}
+					if (curr === ' ' || curr === '\n' || curr === '\t') {
+						while (is_ws()) {
+							_i++;
+						}
+						if (chars[_i] === ')') {
+							_i++; // consume right parenthesis
+							return tok;
+						}
+						if (_i === chars.length) {
+							throw new Error('Unexpected end of input');
+						}
+						// TODO: consume remnants of bad URL
+					}
+					if (
+						curr === '"' ||
+						curr === "'" ||
+						curr === '(' ||
+						curr === '' ||
+						NonPrintableCodePoint.test(curr || '')
+					) {
+						throw new Error('Invalid URL');
+						// TODO: consume remnants of bad URL
+					}
+					if (curr === '\\') {
+						if (is_esc()) {
+							tok.value += esc();
+							continue;
+						} else {
+							throw new Error('Invalid escape sequence');
+							// TODO: consume remnants of bad URL
+						}
+					}
+					tok.value += curr;
+				}
+				throw new Error('Unexpected end of input');
+			}
+		}
+
 		if (chars[_i] === '(') {
 			chars[_i++]; // consume parenthesis
 			return {
@@ -200,6 +290,11 @@ export const tokenize = str => {
 			value: v
 		};
 	};
+
+	const is_ws = (offset = 0) =>
+		chars[_i + offset] === ' ' ||
+		chars[_i + offset] === '\n' ||
+		chars[_i + offset] === '\t';
 
 	while (_i < chars.length) {
 		// § 4.3.2. Consume comments
@@ -223,10 +318,7 @@ export const tokenize = str => {
 
 		// Consume whitespace
 		if (ch === ' ' || ch === '\n' || ch === '\t') {
-			while (
-				_i < chars.length &&
-				(chars[_i] === ' ' || chars[_i] === '\n' || chars[_i] === '\t')
-			) {
+			while (is_ws()) {
 				_i++;
 			}
 			tokens.push({ type: Tokens.Whitespace });
@@ -320,8 +412,12 @@ export const tokenize = str => {
 		}
 
 		if (ch === '-') {
-			// TODO: handle <CDC-token>
-			if (is_num()) {
+			if (chars[_i] === '-' && chars[_i + 1] === '>') {
+				_i += 2;
+				tokens.push({
+					type: Tokens.CDC
+				});
+			} else if (is_num()) {
 				_i--;
 				tokens.push(num());
 			} else if (is_ident()) {
@@ -353,7 +449,14 @@ export const tokenize = str => {
 			continue;
 		}
 
-		// TODO: handle "<"
+		if (ch === '<') {
+			if (chars[_i] === '!' && chars[_i + 1] === '-' && chars[_i + 2] === '-') {
+				tokens.push({ type: Tokens.CDO });
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
+			continue;
+		}
 
 		if (ch === '@') {
 			if (is_ident()) {
@@ -402,7 +505,7 @@ export const tokenize = str => {
 			continue;
 		}
 
-		// TODO: handle "U"
+		// TODO: handle unicode ranges (u)
 
 		if (ch.match(IdentStartCodePoint)) {
 			_i--;
@@ -418,4 +521,4 @@ export const tokenize = str => {
 	}
 
 	return tokens;
-};
+}
