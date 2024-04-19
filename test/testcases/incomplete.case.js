@@ -33,7 +33,7 @@ export default [
 	},
 	{
 		selector: 'a,',
-		parse: /Unexpected token comma/
+		parse: /Unexpected end of input/
 	},
 	{
 		selector: 'a,    ,b',

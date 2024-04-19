@@ -183,5 +183,123 @@ export default [
 				}
 			]
 		}
+	},
+	// Extraneous combinator, throw
+	{
+		selector: 'a > > b',
+		parse: /Extraneous combinator/
+	},
+
+	{
+		selector: 'dialog::overlay#id',
+		parse: /Selector not allowed/
+	},
+
+	{
+		selector: 'dialog::overlay[attr=val]',
+		parse: /Selector not allowed/
+	},
+
+	{
+		selector: 'dialog::overlay.className',
+		parse: /Selector not allowed/
+	},
+
+	{
+		selector: 'dialog::overlay|path',
+		parse: /Selector not allowed/
+	},
+
+	{
+		selector: 'a => b',
+		parse: /Unsupported combinator/
+	},
+
+	{
+		selector: 'svg|path',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'TypeSelector',
+					identifier: 'path',
+					namespace: 'svg'
+				}
+			]
+		}
+	},
+
+	{
+		selector: '*|path',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'TypeSelector',
+					identifier: 'path',
+					namespace: '*'
+				}
+			]
+		}
+	},
+
+	{
+		selector: '|path',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'TypeSelector',
+					identifier: 'path',
+					namespace: ''
+				}
+			]
+		}
+	},
+
+	{
+		selector: 'path',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'TypeSelector',
+					identifier: 'path'
+				}
+			]
+		}
+	},
+
+	{
+		selector: '[name=val I]',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'AttributeSelector',
+					identifier: 'name',
+					matcher: '=',
+					value: 'val',
+					modifier: 'i'
+				}
+			]
+		}
+	},
+
+	{
+		selector: '[name="val"I]',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'AttributeSelector',
+					identifier: 'name',
+					matcher: '=',
+					value: 'val',
+					quotes: true,
+					modifier: 'i'
+				}
+			]
+		}
 	}
 ];
