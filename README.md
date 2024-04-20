@@ -1,16 +1,16 @@
 ![selery](./.github/selery.svg)
 
-selery is a small, handwritten CSS selector parser and DOM query engine.
+Selery is a small, handwritten CSS selector parser and DOM query engine.
 
 It aims to be compliant with the relevant specifications ([CSS Syntax Module Level 3](https://drafts.csswg.org/css-syntax-3/), [CSS Selectors Level 4](https://drafts.csswg.org/selectors-4/), and others), while remaining compact and understandable so that it can be used as a starting point to experiment with new CSS syntax.
 
-> ⚠️ Currently a work-in-progress
+An online playground is available at [danburzo.ro/selery/](https://danburzo.ro/selery/).
 
 ## Getting started
 
 [![selery on npm](https://img.shields.io/npm/v/selery.svg?style=flat-square&labelColor=50B888&color=black)](https://www.npmjs.org/package/selery) [![selery on bundlephobia](https://img.shields.io/bundlephobia/minzip/selery?style=flat-square&labelColor=50B888&color=black)](https://bundlephobia.com/result?p=selery)
 
-You can install selery as an [npm package](https://npmjs.com/package/selery):
+You can install Selery as an [npm package](https://npmjs.com/package/selery):
 
 ```bash
 npm install selery
@@ -238,7 +238,8 @@ You can control how the microsyntaxes get applied to the pseudo-classes and pseu
 
 ## Supported selectors
 
-TODO
+- [x] [Logical combinations](https://drafts.csswg.org/selectors/#logical-combination) with `:has()`, `:not()`, `:is()`, `:where()` (and their legacy counterparts);
+- [x] [Combinators](https://drafts.csswg.org/selectors/#combinators) `A B`, `A > B`, `A + B`, `A ~ B`, `A || B`, plus any custom combinators passed to `parse()`;
 
 ## See also
 

@@ -10,7 +10,9 @@
 	"scripts": {
 		"prepare": "git config core.hooksPath .git-hooks",
 		"test": "node --test 'test/**/*.test.js'",
-		"lint": "eslint '{src,test}/**/*.js'"
+		"lint": "eslint '{src,test}/**/*.js'",
+		"start:web": "npx esbuild --servedir=web --watch --outdir=web/build --metafile=web/build/meta.json --bundle --format=esm --target=es6 web/index.js",
+		"build:web": "npx esbuild --outdir=web/build --metafile=web/build/meta.json --bundle --minify --format=esm --target=es6 web/index.js"
 	},
 	"repository": {
 		"type": "git",
@@ -28,6 +30,7 @@
 	},
 	"homepage": "https://github.com/danburzo/selery",
 	"devDependencies": {
+		"esbuild": "^0.20.2",
 		"eslint": "^8.39.0",
 		"jsdom": "^24.0.0",
 		"prettier": "3.2.5",

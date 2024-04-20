@@ -79,18 +79,17 @@ export const parse = (arg, options = {}) => {
 	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
 	let tok;
 
-	const microsyntax = {
+	/* Extensions */
+	const syntaxes = {
 		...Syntaxes,
 		...(options.syntaxes || {})
 	};
-
 	const combinators = options.combinators || DefaultCombinators;
 	const attrMatchers = options.attrMatchers || DefaultAttrMatchers;
 
-	// TODO
-	const AnPlusB = tokens => tokens;
-
-	const delim = (t, ch) => t && t.type === Tokens.Delim && t.value === ch;
+	function isDelim(t, ch) {
+		return t?.type === Tokens.Delim && t.value === ch;
+	}
 
 	const eoi = () => !tokens.length;
 	const next = () => tokens.shift();
@@ -167,7 +166,7 @@ export const parse = (arg, options = {}) => {
 			comb = Combinator();
 			if (comb) {
 				if (combinators.indexOf(comb) < 0) {
-					throw new Error(`Unsupported combinator :${comb}`);
+					throw new Error(`Unsupported combinator: ${comb}`);
 				}
 				if (!node) {
 					// Relative selector, eg `> a`.
@@ -269,19 +268,23 @@ export const parse = (arg, options = {}) => {
 	}
 
 	/*
-		Consume a combinator, ingesting its surrounding whitespace.
+		Consume a combinator, ingesting any surrounding whitespace.
+		Here we diverge from the <combinator> CSS production 
+		by consuming a run of consecutive delimiters into 
+		a single combinator to allow extending CSS syntax 
+		with multi-character combinators, seg. `=>`. 
 	*/
 	function Combinator() {
 		if (!tok) {
 			return undefined;
 		}
 		let combinator = WhiteSpace() ? ' ' : '';
-		if (tok && tok.type === Tokens.Delim) {
-			combinator = tok.value;
+		while (tok?.type === Tokens.Delim) {
+			combinator += tok.value;
 			tok = next();
-			WhiteSpace(); // consume trailing whitespace
 		}
-		return combinator;
+		WhiteSpace(); // consume trailing whitespace
+		return combinator.length > 1 ? combinator.trim() : combinator;
 	}
 
 	/*
@@ -289,7 +292,7 @@ export const parse = (arg, options = {}) => {
 	 */
 	function WhiteSpace() {
 		let had_ws = false;
-		while (tok && tok.type === Tokens.Whitespace) {
+		while (tok?.type === Tokens.Whitespace) {
 			had_ws = true;
 			tok = next();
 		}
@@ -302,7 +305,7 @@ export const parse = (arg, options = {}) => {
 	*/
 	function TypeSelector() {
 		let ns = NsPrefix();
-		if (tok && (tok.type === Tokens.Ident || delim(tok, '*'))) {
+		if (tok?.type === Tokens.Ident || isDelim(tok, '*')) {
 			let node = {
 				type: NodeTypes.TypeSelector,
 				identifier: tok.value
@@ -324,11 +327,14 @@ export const parse = (arg, options = {}) => {
 		if (!tok) {
 			return undefined;
 		}
-		if (delim(tok, '|')) {
+		if (isDelim(tok, '|')) {
 			tok = next();
 			return '';
 		}
-		if ((tok.type === Tokens.Ident || delim(tok, '*')) && delim(peek(), '|')) {
+		if (
+			(tok?.type === Tokens.Ident || isDelim(tok, '*')) &&
+			isDelim(peek(), '|')
+		) {
 			let ns = tok.value;
 			tok = next();
 			tok = next();
@@ -342,7 +348,7 @@ export const parse = (arg, options = {}) => {
 		whitespace has already been consumed.
 	*/
 	function IdSelector() {
-		if (tok && tok.type === Tokens.Hash) {
+		if (tok?.type === Tokens.Hash) {
 			let ret = {
 				type: NodeTypes.IdSelector,
 				identifier: tok.value
@@ -358,7 +364,7 @@ export const parse = (arg, options = {}) => {
 		whitespace has already been consumed.
 	*/
 	function ClassSelector() {
-		if (delim(tok, '.') && peek()?.type === Tokens.Ident) {
+		if (isDelim(tok, '.') && peek()?.type === Tokens.Ident) {
 			tok = next(); // skip dot
 			let ret = {
 				type: NodeTypes.ClassSelector,
@@ -383,7 +389,7 @@ export const parse = (arg, options = {}) => {
 			WhiteSpace();
 
 			let ns = NsPrefix();
-			if (tok.type !== Tokens.Ident) {
+			if (tok?.type !== Tokens.Ident) {
 				throw new Error('Invalid attribute name');
 			}
 			let node = {
@@ -402,7 +408,7 @@ export const parse = (arg, options = {}) => {
 				}
 				node.matcher = matcher;
 				WhiteSpace();
-				if (tok.type === Tokens.String || tok.type === Tokens.Ident) {
+				if (tok?.type === Tokens.String || tok?.type === Tokens.Ident) {
 					node.value = tok.value;
 					if (tok.type === Tokens.String) {
 						node.quotes = true;
@@ -439,12 +445,12 @@ export const parse = (arg, options = {}) => {
 		whitespace has already been consumed.
 	*/
 	function AttrMatcher() {
-		if (delim(tok, '=')) {
+		if (isDelim(tok, '=')) {
 			let ret = tok.value;
 			tok = next();
 			return ret;
 		}
-		if (tok?.type === Tokens.Delim && delim(peek(), '=')) {
+		if (tok?.type === Tokens.Delim && isDelim(peek(), '=')) {
 			let ret = tok.value;
 			tok = next();
 			ret += tok.value;
@@ -508,9 +514,7 @@ export const parse = (arg, options = {}) => {
 					}
 
 					let syntax =
-						microsyntax[
-							(is_actually_pseudo_elem ? '::' : ':') + node.identifier
-						];
+						syntaxes[(is_actually_pseudo_elem ? '::' : ':') + node.identifier];
 					if (syntax && syntax !== Syntax.None) {
 						node.argument = Argument(node.argument, syntax);
 					}
@@ -550,3 +554,8 @@ export const parse = (arg, options = {}) => {
 
 	return SelectorList();
 };
+
+// TODO
+function AnPlusB(tokens) {
+	return tokens;
+}

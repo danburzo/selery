@@ -1,0 +1,130 @@
+{
+	"inputs": {
+		"src/tokenize.js": {
+			"bytes": 12010,
+			"imports": [],
+			"format": "esm"
+		},
+		"src/parse.js": {
+			"bytes": 13069,
+			"imports": [
+				{
+					"path": "src/tokenize.js",
+					"kind": "import-statement",
+					"original": "./tokenize.js"
+				},
+				{
+					"path": "<runtime>",
+					"kind": "import-statement",
+					"external": true
+				}
+			],
+			"format": "esm"
+		},
+		"src/walk.js": {
+			"bytes": 822,
+			"imports": [
+				{
+					"path": "src/parse.js",
+					"kind": "import-statement",
+					"original": "./parse.js"
+				}
+			],
+			"format": "esm"
+		},
+		"src/dom.js": {
+			"bytes": 7278,
+			"imports": [
+				{
+					"path": "src/parse.js",
+					"kind": "import-statement",
+					"original": "./parse.js"
+				}
+			],
+			"format": "esm"
+		},
+		"src/serialize.js": {
+			"bytes": 3109,
+			"imports": [
+				{
+					"path": "src/parse.js",
+					"kind": "import-statement",
+					"original": "./parse.js"
+				},
+				{
+					"path": "src/tokenize.js",
+					"kind": "import-statement",
+					"original": "./tokenize.js"
+				}
+			],
+			"format": "esm"
+		},
+		"src/index.js": {
+			"bytes": 250,
+			"imports": [
+				{
+					"path": "src/tokenize.js",
+					"kind": "import-statement",
+					"original": "./tokenize.js"
+				},
+				{
+					"path": "src/parse.js",
+					"kind": "import-statement",
+					"original": "./parse.js"
+				},
+				{
+					"path": "src/walk.js",
+					"kind": "import-statement",
+					"original": "./walk.js"
+				},
+				{
+					"path": "src/dom.js",
+					"kind": "import-statement",
+					"original": "./dom.js"
+				},
+				{
+					"path": "src/serialize.js",
+					"kind": "import-statement",
+					"original": "./serialize.js"
+				}
+			],
+			"format": "esm"
+		},
+		"web/index.js": {
+			"bytes": 50,
+			"imports": [
+				{
+					"path": "src/index.js",
+					"kind": "import-statement",
+					"original": "../src/index.js"
+				}
+			],
+			"format": "esm"
+		}
+	},
+	"outputs": {
+		"web/build/index.js": {
+			"imports": [],
+			"exports": ["parse", "tokenize"],
+			"entryPoint": "web/index.js",
+			"inputs": {
+				"src/tokenize.js": {
+					"bytesInOutput": 4839
+				},
+				"src/index.js": {
+					"bytesInOutput": 0
+				},
+				"src/parse.js": {
+					"bytesInOutput": 4762
+				},
+				"src/dom.js": {
+					"bytesInOutput": 3786
+				},
+				"web/index.js": {
+					"bytesInOutput": 0
+				}
+			},
+			"bytes": 13768
+		}
+	}
+}

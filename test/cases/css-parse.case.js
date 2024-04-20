@@ -2,7 +2,7 @@
 	Tests imported and adapted from: 
 	https://github.com/tabatkins/parse-css/
 
-	Note: Some of the original tests are skipped.
+	Note: Some of the original tests are skipped & commented out.
 */
 
 export default [
@@ -239,15 +239,15 @@ export default [
 			{ type: 'ident', value: 'o' }
 		]
 	},
-	{
-		selector: 'test\\\n',
-		skip: true,
-		tokenize: [
-			{ type: 'ident', value: 'test' },
-			{ type: 'delim', value: '\\' },
-			{ type: 'whitespace' }
-		]
-	},
+	// {
+	// 	selector: 'test\\\n',
+	// 	skip: true,
+	// 	tokenize: [
+	// 		{ type: 'ident', value: 'test' },
+	// 		{ type: 'delim', value: '\\' },
+	// 		{ type: 'whitespace' }
+	// 	]
+	// },
 	{
 		selector: 'test\\D799',
 		tokenize: [{ type: 'ident', value: 'test\uD799' }]
@@ -268,21 +268,21 @@ export default [
 		selector: '\\.\\,\\:\\!',
 		tokenize: [{ type: 'ident', value: '.,:!' }]
 	},
-	{
-		selector: '\\\r',
-		skip: true,
-		tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
-	},
-	{
-		selector: '\\\f',
-		skip: true,
-		tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
-	},
-	{
-		selector: '\\\r\n',
-		skip: true,
-		tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
-	},
+	// {
+	// 	selector: '\\\r',
+	// 	skip: true,
+	// 	tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
+	// },
+	// {
+	// 	selector: '\\\f',
+	// 	skip: true,
+	// 	tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
+	// },
+	// {
+	// 	selector: '\\\r\n',
+	// 	skip: true,
+	// 	tokenize: [{ type: 'delim', value: '\\' }, { type: 'whitespace' }]
+	// },
 	{
 		selector: 'null\\\0',
 		tokenize: [{ type: 'ident', value: 'null\uFFFD' }]
@@ -335,11 +335,11 @@ export default [
 		selector: '\\10000000',
 		tokenize: [{ type: 'ident', value: '\u{100000}00' }]
 	},
-	{
-		selector: 'eof\\',
-		skip: true,
-		tokenize: [{ type: 'ident', value: 'eof\uFFFD' }]
-	},
+	// {
+	// 	selector: 'eof\\',
+	// 	skip: true,
+	// 	tokenize: [{ type: 'ident', value: 'eof\uFFFD' }]
+	// },
 
 	// -- identToken
 	{
@@ -549,34 +549,34 @@ export default [
 		selector: 'urL(https://example.com/cats.png)',
 		tokenize: [{ type: 'url', value: 'https://example.com/cats.png' }]
 	},
-	{
-		skip: true,
-		selector: 'uRl(what-a.crazy^URL~this\\ is!)',
-		tokenize: [{ type: 'url', value: 'what-a.crazy^URL~this is!' }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: 'uRl(what-a.crazy^URL~this\\ is!)',
+	// 	tokenize: [{ type: 'url', value: 'what-a.crazy^URL~this is!' }]
+	// },
 	{
 		selector: 'uRL(123#test)',
 		tokenize: [{ type: 'url', value: '123#test' }]
 	},
-	{
-		skip: true,
-		selector: 'Url(escapes\\ \\"\\\'\\)\\()',
-		tokenize: [{ type: 'url', value: 'escapes "\')(' }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: 'Url(escapes\\ \\"\\\'\\)\\()',
+	// 	tokenize: [{ type: 'url', value: 'escapes "\')(' }]
+	// },
 	{
 		selector: 'UrL(   whitespace   )',
 		tokenize: [{ type: 'url', value: 'whitespace' }]
 	},
-	{
-		skip: true,
-		selector: 'URl( whitespace-eof ',
-		tokenize: [{ type: 'url', value: 'whitespace-eof' }]
-	},
-	{
-		skip: true,
-		selector: 'URL(eof',
-		tokenize: [{ type: 'url', value: 'eof' }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: 'URl( whitespace-eof ',
+	// 	tokenize: [{ type: 'url', value: 'whitespace-eof' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'URL(eof',
+	// 	tokenize: [{ type: 'url', value: 'eof' }]
+	// },
 	{
 		selector: 'url(not/*a*/comment)',
 		tokenize: [{ type: 'url', value: 'not/*a*/comment' }]
@@ -586,60 +586,60 @@ export default [
 		tokenize: [{ type: 'url', value: '' }]
 	},
 
-	{
-		skip: true,
-		selector: 'uRl(white space),',
-		tokenize: [{ type: 'bad-url' }, { type: 'comma' }]
-	},
-	{
-		skip: true,
-		selector: 'Url(b(ad),',
-		tokenize: [{ type: 'bad-url' }, { type: 'comma' }]
-	},
-	{
-		skip: true,
-		selector: "uRl(ba'd):",
-		tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
-	},
-	{
-		skip: true,
-		selector: 'urL(b"ad):',
-		tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
-	},
-	{
-		skip: true,
-		selector: 'uRl(b"ad):',
-		tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
-	},
-	{
-		skip: true,
-		selector: 'Url(b\\\rad):',
-		tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
-	},
-	{
-		skip: true,
-		selector: 'url(b\\\nad):',
-		tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
-	},
-	{
-		skip: true,
-		selector: "url(/*'bad')*/",
-		tokenize: [
-			{ type: 'bad-url' },
-			{ type: 'delim', value: '*' },
-			{ type: 'delim', value: '/' }
-		]
-	},
-	{
-		skip: true,
-		selector: "url(ba'd\\))",
-		tokenize: [{ type: 'bad-url' }]
-	},
-	{
-		skip: true,
-		selector: "url(ba'd\\\\))",
-		tokenize: [{ type: 'bad-url' }, { type: ')' }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: 'uRl(white space),',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'comma' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'Url(b(ad),',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'comma' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "uRl(ba'd):",
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'urL(b"ad):',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'uRl(b"ad):',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'Url(b\\\rad):',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: 'url(b\\\nad):',
+	// 	tokenize: [{ type: 'bad-url' }, { type: 'colon' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "url(/*'bad')*/",
+	// 	tokenize: [
+	// 		{ type: 'bad-url' },
+	// 		{ type: 'delim', value: '*' },
+	// 		{ type: 'delim', value: '/' }
+	// 	]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "url(ba'd\\))",
+	// 	tokenize: [{ type: 'bad-url' }]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "url(ba'd\\\\))",
+	// 	tokenize: [{ type: 'bad-url' }, { type: ')' }]
+	// },
 
 	// -- StringToken
 	{
@@ -666,20 +666,20 @@ export default [
 		selector: '"\'quotes\'"',
 		tokenize: [{ type: 'string', value: "'quotes'" }]
 	},
-	{
-		skip: true,
-		selector: '"mismatch\'',
-		tokenize: [{ type: 'string', value: "mismatch'" }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: '"mismatch\'',
+	// 	tokenize: [{ type: 'string', value: "mismatch'" }]
+	// },
 	{
 		selector: "'text\x05\t\x13'",
 		tokenize: [{ type: 'string', value: 'text\x05\t\x13' }]
 	},
-	{
-		skip: true,
-		selector: '"end on eof',
-		tokenize: [{ type: 'string', value: 'end on eof' }]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: '"end on eof',
+	// 	tokenize: [{ type: 'string', value: 'end on eof' }]
+	// },
 	{
 		selector: "'esca\\\nped'",
 		tokenize: [{ type: 'string', value: 'escaped' }]
@@ -696,42 +696,42 @@ export default [
 		selector: '"new\\\r\nline"',
 		tokenize: [{ type: 'string', value: 'newline' }]
 	},
-	{
-		skip: true,
-		selector: "'bad\nstring",
-		tokenize: [
-			{ type: 'bad-string' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'string' }
-		]
-	},
-	{
-		skip: true,
-		selector: "'bad\rstring",
-		tokenize: [
-			{ type: 'bad-string' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'string' }
-		]
-	},
-	{
-		skip: true,
-		selector: "'bad\r\nstring",
-		tokenize: [
-			{ type: 'bad-string' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'string' }
-		]
-	},
-	{
-		skip: true,
-		selector: "'bad\fstring",
-		tokenize: [
-			{ type: 'bad-string' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'string' }
-		]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: "'bad\nstring",
+	// 	tokenize: [
+	// 		{ type: 'bad-string' },
+	// 		{ type: 'whitespace' },
+	// 		{ type: 'ident', value: 'string' }
+	// 	]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "'bad\rstring",
+	// 	tokenize: [
+	// 		{ type: 'bad-string' },
+	// 		{ type: 'whitespace' },
+	// 		{ type: 'ident', value: 'string' }
+	// 	]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "'bad\r\nstring",
+	// 	tokenize: [
+	// 		{ type: 'bad-string' },
+	// 		{ type: 'whitespace' },
+	// 		{ type: 'ident', value: 'string' }
+	// 	]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: "'bad\fstring",
+	// 	tokenize: [
+	// 		{ type: 'bad-string' },
+	// 		{ type: 'whitespace' },
+	// 		{ type: 'ident', value: 'string' }
+	// 	]
+	// },
 	{
 		selector: "'\0'",
 		tokenize: [{ type: 'string', value: '\uFFFD' }]
@@ -766,24 +766,24 @@ export default [
 		selector: '# ',
 		tokenize: [{ type: 'delim', value: '#' }, { type: 'whitespace' }]
 	},
-	{
-		skip: true,
-		selector: '#\\\n',
-		tokenize: [
-			{ type: 'delim', value: '#' },
-			{ type: 'delim', value: '\\' },
-			{ type: 'whitespace' }
-		]
-	},
-	{
-		skip: true,
-		selector: '#\\\r\n',
-		tokenize: [
-			{ type: 'delim', value: '#' },
-			{ type: 'delim', value: '\\' },
-			{ type: 'whitespace' }
-		]
-	},
+	// {
+	// 	skip: true,
+	// 	selector: '#\\\n',
+	// 	tokenize: [
+	// 		{ type: 'delim', value: '#' },
+	// 		{ type: 'delim', value: '\\' },
+	// 		{ type: 'whitespace' }
+	// 	]
+	// },
+	// {
+	// 	skip: true,
+	// 	selector: '#\\\r\n',
+	// 	tokenize: [
+	// 		{ type: 'delim', value: '#' },
+	// 		{ type: 'delim', value: '\\' },
+	// 		{ type: 'whitespace' }
+	// 	]
+	// },
 	{
 		selector: '#!',
 		tokenize: [
@@ -1198,10 +1198,10 @@ export default [
 	{
 		selector: '/**/*',
 		tokenize: [{ type: 'delim', value: '*' }]
-	},
-	{
-		skip: true,
-		selector: ';/******',
-		tokenize: [{ type: 'semicolon' }]
 	}
+	// {
+	// 	skip: true,
+	// 	selector: ';/******',
+	// 	tokenize: [{ type: 'semicolon' }]
+	// }
 ];
