@@ -6,7 +6,7 @@
 			"format": "esm"
 		},
 		"src/parse.js": {
-			"bytes": 13069,
+			"bytes": 13064,
 			"imports": [
 				{
 					"path": "src/tokenize.js",
@@ -33,7 +33,7 @@
 			"format": "esm"
 		},
 		"src/dom.js": {
-			"bytes": 7278,
+			"bytes": 7279,
 			"imports": [
 				{
 					"path": "src/parse.js",
@@ -91,7 +91,7 @@
 			"format": "esm"
 		},
 		"web/index.js": {
-			"bytes": 50,
+			"bytes": 51,
 			"imports": [
 				{
 					"path": "src/index.js",
