@@ -91,7 +91,7 @@
 			"format": "esm"
 		},
 		"web/index.js": {
-			"bytes": 51,
+			"bytes": 62,
 			"imports": [
 				{
 					"path": "src/index.js",
@@ -105,26 +105,29 @@
 	"outputs": {
 		"web/build/index.js": {
 			"imports": [],
-			"exports": ["parse", "tokenize"],
+			"exports": ["parse", "serialize", "tokenize"],
 			"entryPoint": "web/index.js",
 			"inputs": {
 				"src/tokenize.js": {
-					"bytesInOutput": 4839
+					"bytesInOutput": 10286
 				},
 				"src/index.js": {
 					"bytesInOutput": 0
 				},
 				"src/parse.js": {
-					"bytesInOutput": 4762
+					"bytesInOutput": 11006
 				},
 				"src/dom.js": {
-					"bytesInOutput": 3786
+					"bytesInOutput": 6551
+				},
+				"src/serialize.js": {
+					"bytesInOutput": 2998
 				},
 				"web/index.js": {
 					"bytesInOutput": 0
 				}
 			},
-			"bytes": 13768
+			"bytes": 31645
 		}
 	}
 }

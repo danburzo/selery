@@ -1,1 +1,1 @@
-export { tokenize, parse } from '../src/index.js';
+export { tokenize, parse, serialize } from '../src/index.js';

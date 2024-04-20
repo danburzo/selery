@@ -38,10 +38,20 @@
 				top: 0;
 			}
 
+			@media (max-width: 30em) {
+				#selector-input {
+					font-size: 1.25em;
+				}
+			}
+
 			.input-output {
 				display: flex;
 				flex-direction: column;
 				gap: 1rem;
+			}
+
+			.input-output > * {
+				margin: 0;
 			}
 
 			.output {
@@ -60,11 +70,15 @@
 				flex-basis: 0;
 			}
 
-			pre {
+			pre,
+			code {
 				tab-size: 2;
 				font-family: monospace, monospace;
 				line-height: 1.2;
 				white-space: pre-wrap;
+			}
+
+			pre {
 				width: 100%;
 			}
 
@@ -128,6 +142,7 @@
 
 		<div class="input-output">
 			<input id="selector-input" value="body:has(h1) > :first-child" />
+			<p><strong>Serializes as</strong> <code id="serialize-output"></code></p>
 			<div class="output">
 				<div>
 					<h2>Tokenize</h2>
@@ -149,9 +164,10 @@
 		</div>
 
 		<script type="module">
-			import { tokenize, parse } from './build/index.js';
+			import { tokenize, parse, serialize } from './build/index.js';
 
 			const selectorInput = document.getElementById('selector-input');
+			const serializeOutput = document.getElementById('serialize-output');
 			const tokenizeOutput = document.getElementById('tokenize-output');
 			const parseOutput = document.getElementById('parse-output');
 
@@ -165,6 +181,7 @@
 				if (!value) {
 					tokenizeOutput.textContent = '';
 					parseOutput.textContent = '';
+					serializeOutput.textContent = '';
 					return;
 				}
 				let tokens;
@@ -173,13 +190,24 @@
 				} catch (err) {
 					tokenizeOutput.textContent = `${err.name}: ${err.message}\n\n${err.stack}`;
 				}
-				if (tokens) {
-					tokenizeOutput.textContent = JSON.stringify(tokens, null, '\t');
-					try {
-						parseOutput.textContent = JSON.stringify(parse(tokens), null, '\t');
-					} catch (err) {
-						parseOutput.textContent = `${err.name}: ${err.message}\n\n${err.stack}`;
-					}
+				if (!tokens) {
+					return;
+				}
+				tokenizeOutput.textContent = JSON.stringify(tokens, null, '\t');
+				let ast;
+				try {
+					ast = parse(tokens);
+				} catch (err) {
+					parseOutput.textContent = `${err.name}: ${err.message}\n\n${err.stack}`;
+				}
+				if (!ast) {
+					return;
+				}
+				parseOutput.textContent = JSON.stringify(ast, null, '\t');
+				try {
+					serializeOutput.textContent = serialize(ast);
+				} catch (err) {
+					serializeOutput.textContent = `${err.name}: ${err.message}\n\n${err.stack}`;
 				}
 			}
 		</script>

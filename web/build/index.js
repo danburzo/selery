@@ -1,45 +1,56 @@
-var X = Object.defineProperty;
-var F = Object.getOwnPropertySymbols;
-var Y = Object.prototype.hasOwnProperty,
-	ee = Object.prototype.propertyIsEnumerable;
-var z = (n, e, t) =>
-		e in n
-			? X(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t })
-			: (n[e] = t),
-	U = (n, e) => {
-		for (var t in e || (e = {})) Y.call(e, t) && z(n, t, e[t]);
-		if (F) for (var t of F(e)) ee.call(e, t) && z(n, t, e[t]);
-		return n;
-	};
-var te = /[\x00-\x08\x0B\x0E-\x1F\x7F]/,
-	_ = /[0-9a-fA-F]/;
-function M(n) {
+var __defProp = Object.defineProperty;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) =>
+	key in obj
+		? __defProp(obj, key, {
+				enumerable: true,
+				configurable: true,
+				writable: true,
+				value
+			})
+		: (obj[key] = value);
+var __spreadValues = (a, b) => {
+	for (var prop in b || (b = {}))
+		if (__hasOwnProp.call(b, prop)) __defNormalProp(a, prop, b[prop]);
+	if (__getOwnPropSymbols)
+		for (var prop of __getOwnPropSymbols(b)) {
+			if (__propIsEnum.call(b, prop)) __defNormalProp(a, prop, b[prop]);
+		}
+	return a;
+};
+
+// src/tokenize.js
+var NonPrintableCodePoint = /[\x00-\x08\x0B\x0E-\x1F\x7F]/;
+var HexDigit = /[0-9a-fA-F]/;
+function nonascii(c) {
 	return (
-		n == 183 ||
-		(n >= 192 && n <= 214) ||
-		(n >= 216 && n <= 246) ||
-		(n >= 248 && n <= 893) ||
-		(n >= 895 && n <= 8191) ||
-		n == 8204 ||
-		n == 8205 ||
-		n == 8255 ||
-		n == 8256 ||
-		(n >= 895 && n <= 8191) ||
-		(n >= 8304 && n <= 8591) ||
-		(n >= 11264 && n <= 12271) ||
-		(n >= 12289 && n <= 55295) ||
-		(n >= 63744 && n <= 64975) ||
-		(n >= 65008 && n <= 65533) ||
-		n > 65536
+		c == 183 ||
+		(c >= 192 && c <= 214) ||
+		(c >= 216 && c <= 246) ||
+		(c >= 248 && c <= 893) ||
+		(c >= 895 && c <= 8191) ||
+		c == 8204 ||
+		c == 8205 ||
+		c == 8255 ||
+		c == 8256 ||
+		(c >= 895 && c <= 8191) ||
+		(c >= 8304 && c <= 8591) ||
+		(c >= 11264 && c <= 12271) ||
+		(c >= 12289 && c <= 55295) ||
+		(c >= 63744 && c <= 64975) ||
+		(c >= 65008 && c <= 65533) ||
+		c > 65536
 	);
 }
-function O(n) {
-	return n && (/[a-zA-Z_]/.test(n) || M(n.codePointAt(0)));
+function isIdentStartCodePoint(ch) {
+	return ch && (/[a-zA-Z_]/.test(ch) || nonascii(ch.codePointAt(0)));
 }
-function q(n) {
-	return n && (/[-\w]/.test(n) || M(n.codePointAt(0)));
+function isIdentCodePoint(ch) {
+	return ch && (/[-\w]/.test(ch) || nonascii(ch.codePointAt(0)));
 }
-var o = {
+var Tokens = {
 	AtKeyword: 'at-keyword',
 	BadString: 'bad-string',
 	BadUrl: 'bad-url',
@@ -66,724 +77,1167 @@ var o = {
 	Url: 'url',
 	Whitespace: 'whitespace'
 };
-function B(n) {
-	let e = Array.from(
-			n.replace(
-				/\f|\r\n?/g,
-				`
-`
-			)
-		).map(s => {
-			let f = s.codePointAt(0);
-			return !f || (f >= 55296 && f <= 57343) ? '\uFFFD' : s;
-		}),
-		t = 0,
-		r = [],
-		d,
-		l,
-		A;
-	function y() {
-		if (t >= e.length)
-			throw new Error('Unexpected end of input, unterminated escape sequence');
-		if (_.test(e[t] || '')) {
-			let s = e[t++];
-			for (; s.length < 6 && _.test(e[t] || ''); ) s += e[t++];
-			m() && t++;
-			let f = parseInt(s, 16);
-			return f === 0 || (f >= 55296 && f <= 57343) || f > 1114111
-				? '\uFFFD'
-				: String.fromCodePoint(f);
+function tokenize(str) {
+	let chars = Array.from(str.replace(/\f|\r\n?/g, '\n')).map(char => {
+		const c = char.codePointAt(0);
+		if (!c || (c >= 55296 && c <= 57343)) {
+			return '\uFFFD';
 		}
-		return e[t++];
+		return char;
+	});
+	let _i = 0;
+	let tokens = [],
+		token;
+	let ch, matching_ch;
+	function esc() {
+		if (_i >= chars.length) {
+			throw new Error('Unexpected end of input, unterminated escape sequence');
+		} else if (HexDigit.test(chars[_i] || '')) {
+			let hex = chars[_i++];
+			while (hex.length < 6 && HexDigit.test(chars[_i] || '')) {
+				hex += chars[_i++];
+			}
+			if (is_ws()) {
+				_i++;
+			}
+			let v = parseInt(hex, 16);
+			if (v === 0 || (v >= 55296 && v <= 57343) || v > 1114111) {
+				return '\uFFFD';
+			}
+			return String.fromCodePoint(v);
+		}
+		return chars[_i++];
 	}
-	let g = (s = 0) =>
-			e[t + s] === '\\' &&
-			e[t + s + 1] !==
-				`
-`,
-		c = () =>
-			l === '-' || l === '+'
-				? /\d/.test(e[t] || '') || (e[t] === '.' && /\d/.test(e[t + 1] || ''))
-				: l === '.'
-					? /\d/.test(e[t] || '')
-					: /\d/.test(l || ''),
-		w = () => {
-			let s = '';
+	const is_esc = (offset = 0) =>
+		chars[_i + offset] === '\\' && chars[_i + offset + 1] !== '\n';
+	const is_num = () => {
+		if (ch === '-' || ch === '+') {
 			return (
-				(e[t] === '+' || e[t] === '-') && (s += e[t++]),
-				(s += b()),
-				e[t] === '.' && /\d/.test(e[t + 1] || '') && (s += e[t++] + b()),
-				(e[t] === 'e' || e[t] === 'E') &&
-					((e[t + 1] === '+' || e[t + 1] === '-') && /\d/.test(e[t + 2] || '')
-						? (s += e[t++] + e[t++] + b())
-						: /\d/.test(e[t + 1] || '') && (s += e[t++] + b())),
-				E()
-					? { type: o.Dimension, value: +s, unit: P() }
-					: e[t] === '%'
-						? (t++, { type: o.Percentage, value: +s })
-						: { type: o.Number, value: +s }
+				/\d/.test(chars[_i] || '') ||
+				(chars[_i] === '.' && /\d/.test(chars[_i + 1] || ''))
 			);
-		},
-		b = () => {
-			let s = '';
-			for (; /\d/.test(e[t] || ''); ) s += e[t++];
-			return s;
-		};
-	function E(s = 0) {
-		return e[t + s] === '-'
-			? O(e[t + s + 1]) || e[t + s + 1] === '-'
-				? !0
-				: e[t + s + 1] === '\\'
-					? g(s + 1)
-					: !1
-			: O(e[t + s])
-				? !0
-				: e[t + s] === '\\'
-					? g(s)
-					: !1;
-	}
-	function P() {
-		let s = '';
-		for (; t < e.length; )
-			if (q(e[t])) s += e[t++];
-			else if (g()) t++, (s += y());
-			else return s;
-		return s;
-	}
-	function N() {
-		let s = P();
-		if (s.toLowerCase() === 'url' && e[t] === '(') {
-			for (t++; m() && m(1); ) t++;
+		}
+		if (ch === '.') {
+			return /\d/.test(chars[_i] || '');
+		}
+		return /\d/.test(ch || '');
+	};
+	const num = () => {
+		let value = '';
+		if (chars[_i] === '+' || chars[_i] === '-') {
+			value += chars[_i++];
+		}
+		value += digits();
+		if (chars[_i] === '.' && /\d/.test(chars[_i + 1] || '')) {
+			value += chars[_i++] + digits();
+		}
+		if (chars[_i] === 'e' || chars[_i] === 'E') {
 			if (
-				e[t] === '"' ||
-				e[t] === "'" ||
-				(m() && (e[t + 1] === '"' || e[t + 1] === "'"))
-			)
-				return { type: o.Function, value: s };
-			{
-				let f;
-				for (; m(); ) t++;
-				let v = { type: o.Url, value: '' };
-				for (; (f = e[t++]); ) {
-					if (f === ')') return v;
-					if (
-						f === ' ' ||
-						f ===
-							`
-` ||
-						f === '	'
-					) {
-						for (; m(); ) t++;
-						if (e[t] === ')') return t++, v;
-						throw t === e.length
-							? new Error('Unexpected end of input')
-							: new Error('Bad URL');
+				(chars[_i + 1] === '+' || chars[_i + 1] === '-') &&
+				/\d/.test(chars[_i + 2] || '')
+			) {
+				value += chars[_i++] + chars[_i++] + digits();
+			} else if (/\d/.test(chars[_i + 1] || '')) {
+				value += chars[_i++] + digits();
+			}
+		}
+		if (is_ident()) {
+			return {
+				type: Tokens.Dimension,
+				value: +value,
+				unit: ident()
+			};
+		}
+		if (chars[_i] === '%') {
+			_i++;
+			return {
+				type: Tokens.Percentage,
+				value: +value
+			};
+		}
+		return {
+			type: Tokens.Number,
+			value: +value
+		};
+	};
+	const digits = () => {
+		let v = '';
+		while (/\d/.test(chars[_i] || '')) {
+			v += chars[_i++];
+		}
+		return v;
+	};
+	function is_ident(offset = 0) {
+		if (chars[_i + offset] === '-') {
+			if (
+				isIdentStartCodePoint(chars[_i + offset + 1]) ||
+				chars[_i + offset + 1] === '-'
+			) {
+				return true;
+			}
+			if (chars[_i + offset + 1] === '\\') {
+				return is_esc(offset + 1);
+			}
+			return false;
+		}
+		if (isIdentStartCodePoint(chars[_i + offset])) {
+			return true;
+		}
+		if (chars[_i + offset] === '\\') {
+			return is_esc(offset);
+		}
+		return false;
+	}
+	function ident() {
+		let v = '';
+		while (_i < chars.length) {
+			if (isIdentCodePoint(chars[_i])) {
+				v += chars[_i++];
+			} else if (is_esc()) {
+				_i++;
+				v += esc();
+			} else {
+				return v;
+			}
+		}
+		return v;
+	}
+	function identlike() {
+		let v = ident();
+		if (v.toLowerCase() === 'url' && chars[_i] === '(') {
+			_i++;
+			while (is_ws() && is_ws(1)) {
+				_i++;
+			}
+			if (
+				chars[_i] === '"' ||
+				chars[_i] === "'" ||
+				(is_ws() && (chars[_i + 1] === '"' || chars[_i + 1] === "'"))
+			) {
+				return {
+					type: Tokens.Function,
+					value: v
+				};
+			} else {
+				let curr;
+				while (is_ws()) {
+					_i++;
+				}
+				let tok = { type: Tokens.Url, value: '' };
+				while ((curr = chars[_i++])) {
+					if (curr === ')') {
+						return tok;
+					}
+					if (curr === ' ' || curr === '\n' || curr === '	') {
+						while (is_ws()) {
+							_i++;
+						}
+						if (chars[_i] === ')') {
+							_i++;
+							return tok;
+						}
+						if (_i === chars.length) {
+							throw new Error('Unexpected end of input');
+						}
+						throw new Error('Bad URL');
 					}
 					if (
-						f === '"' ||
-						f === "'" ||
-						f === '(' ||
-						f === '' ||
-						te.test(f || '')
-					)
+						curr === '"' ||
+						curr === "'" ||
+						curr === '(' ||
+						curr === '' ||
+						NonPrintableCodePoint.test(curr || '')
+					) {
 						throw new Error('Invalid URL');
-					if (f === '\\')
-						if (g()) {
-							v.value += y();
+					}
+					if (curr === '\\') {
+						if (is_esc()) {
+							tok.value += esc();
 							continue;
-						} else throw new Error('Invalid escape sequence');
-					v.value += f;
+						} else {
+							throw new Error('Invalid escape sequence');
+						}
+					}
+					tok.value += curr;
 				}
 				throw new Error('Unexpected end of input');
 			}
 		}
-		return e[t] === '('
-			? (e[t++], { type: o.Function, value: s })
-			: { type: o.Ident, value: s };
+		if (chars[_i] === '(') {
+			chars[_i++];
+			return {
+				type: Tokens.Function,
+				value: v
+			};
+		}
+		return {
+			type: Tokens.Ident,
+			value: v
+		};
 	}
-	function m(s = 0) {
+	function is_ws(offset = 0) {
 		return (
-			e[t + s] === ' ' ||
-			e[t + s] ===
-				`
-` ||
-			e[t + s] === '	'
+			chars[_i + offset] === ' ' ||
+			chars[_i + offset] === '\n' ||
+			chars[_i + offset] === '	'
 		);
 	}
-	for (; t < e.length; ) {
-		if (e[t] === '/' && e[t + 1] === '*') {
-			for (t += 2; t < e.length && !(e[t] === '*' && e[t + 1] === '/'); ) t++;
-			if (t === e.length)
+	while (_i < chars.length) {
+		if (chars[_i] === '/' && chars[_i + 1] === '*') {
+			_i += 2;
+			while (
+				_i < chars.length &&
+				!(chars[_i] === '*' && chars[_i + 1] === '/')
+			) {
+				_i++;
+			}
+			if (_i === chars.length) {
 				throw new Error('Unexpected end of input, unterminated comment');
-			t += 2;
+			}
+			_i += 2;
 			continue;
 		}
-		if (
-			((l = e[t++]),
-			l === ' ' ||
-				l ===
-					`
-` ||
-				l === '	')
-		) {
-			for (; m(); ) t++;
-			r.push({ type: o.Whitespace });
+		ch = chars[_i++];
+		if (ch === ' ' || ch === '\n' || ch === '	') {
+			while (is_ws()) {
+				_i++;
+			}
+			tokens.push({ type: Tokens.Whitespace });
 			continue;
 		}
-		if (l === '"' || l === "'") {
-			for (
-				A = l, d = { type: o.String, value: '' };
-				t < e.length &&
-				(l = e[t++]) !== A &&
-				l !==
-					`
-`;
-
-			)
-				l === '\\'
-					? t === e.length ||
-						(e[t] ===
-						`
-`
-							? t++
-							: (d.value += y()))
-					: (d.value += l);
-			if (l === A) {
-				r.push(d);
+		if (ch === '"' || ch === "'") {
+			matching_ch = ch;
+			token = {
+				type: Tokens.String,
+				value: ''
+			};
+			while (
+				_i < chars.length &&
+				(ch = chars[_i++]) !== matching_ch &&
+				ch !== '\n'
+			) {
+				if (ch === '\\') {
+					if (_i === chars.length) {
+					} else if (chars[_i] === '\n') {
+						_i++;
+					} else {
+						token.value += esc();
+					}
+				} else {
+					token.value += ch;
+				}
+			}
+			if (ch === matching_ch) {
+				tokens.push(token);
 				continue;
 			}
-			if (
-				l ===
-				`
-`
-			)
+			if (ch === '\n') {
 				throw new Error('Unexpected newline character inside string');
-			if (t >= e.length)
+			}
+			if (_i >= chars.length) {
 				throw new Error(
-					`Unexpected end of input, unterminated string ${d.value}`
+					`Unexpected end of input, unterminated string ${token.value}`
 				);
+			}
 		}
-		if (l === '#') {
-			t < e.length && (q(e[t]) || g())
-				? ((d = { type: o.Hash }),
-					E() && (d.id = !0),
-					(d.value = P()),
-					r.push(d))
-				: r.push({ type: o.Delim, value: l });
+		if (ch === '#') {
+			if (_i < chars.length && (isIdentCodePoint(chars[_i]) || is_esc())) {
+				token = {
+					type: Tokens.Hash
+				};
+				if (is_ident()) {
+					token.id = true;
+				}
+				token.value = ident();
+				tokens.push(token);
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === '(') {
-			r.push({ type: o.ParenOpen });
+		if (ch === '(') {
+			tokens.push({ type: Tokens.ParenOpen });
 			continue;
 		}
-		if (l === ')') {
-			r.push({ type: o.ParenClose });
+		if (ch === ')') {
+			tokens.push({ type: Tokens.ParenClose });
 			continue;
 		}
-		if (l === '+') {
-			c() ? (t--, r.push(w())) : r.push({ type: o.Delim, value: l });
+		if (ch === '+') {
+			if (is_num()) {
+				_i--;
+				tokens.push(num());
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === ',') {
-			r.push({ type: o.Comma });
+		if (ch === ',') {
+			tokens.push({ type: Tokens.Comma });
 			continue;
 		}
-		if (l === '-') {
-			c()
-				? (t--, r.push(w()))
-				: e[t] === '-' && e[t + 1] === '>'
-					? ((t += 2), r.push({ type: o.CDC }))
-					: E(-1)
-						? (t--, r.push(N()))
-						: r.push({ type: o.Delim, value: l });
+		if (ch === '-') {
+			if (is_num()) {
+				_i--;
+				tokens.push(num());
+			} else if (chars[_i] === '-' && chars[_i + 1] === '>') {
+				_i += 2;
+				tokens.push({
+					type: Tokens.CDC
+				});
+			} else if (is_ident(-1)) {
+				_i--;
+				tokens.push(identlike());
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === '.') {
-			c() ? (t--, r.push(w())) : r.push({ type: o.Delim, value: l });
+		if (ch === '.') {
+			if (is_num()) {
+				_i--;
+				tokens.push(num());
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === ':') {
-			r.push({ type: o.Colon });
+		if (ch === ':') {
+			tokens.push({ type: Tokens.Colon });
 			continue;
 		}
-		if (l === ';') {
-			r.push({ type: o.Semicolon });
+		if (ch === ';') {
+			tokens.push({ type: Tokens.Semicolon });
 			continue;
 		}
-		if (l === '<') {
-			e[t] === '!' && e[t + 1] === '-' && e[t + 2] === '-'
-				? ((t += 3), r.push({ type: o.CDO }))
-				: r.push({ type: o.Delim, value: l });
+		if (ch === '<') {
+			if (chars[_i] === '!' && chars[_i + 1] === '-' && chars[_i + 2] === '-') {
+				_i += 3;
+				tokens.push({ type: Tokens.CDO });
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === '@') {
-			E()
-				? r.push({ type: o.AtKeyword, value: P() })
-				: r.push({ type: o.Delim, value: l });
+		if (ch === '@') {
+			if (is_ident()) {
+				tokens.push({
+					type: Tokens.AtKeyword,
+					value: ident()
+				});
+			} else {
+				tokens.push({ type: Tokens.Delim, value: ch });
+			}
 			continue;
 		}
-		if (l === '[') {
-			r.push({ type: o.BracketOpen });
+		if (ch === '[') {
+			tokens.push({ type: Tokens.BracketOpen });
 			continue;
 		}
-		if (l === '\\') {
-			if (g(-1)) {
-				t--, r.push(N());
+		if (ch === '\\') {
+			if (is_esc(-1)) {
+				_i--;
+				tokens.push(identlike());
 				continue;
 			}
 			throw new Error('Invalid escape');
 		}
-		if (l === ']') {
-			r.push({ type: o.BracketClose });
+		if (ch === ']') {
+			tokens.push({ type: Tokens.BracketClose });
 			continue;
 		}
-		if (l === '{') {
-			r.push({ type: o.BraceOpen });
+		if (ch === '{') {
+			tokens.push({ type: Tokens.BraceOpen });
 			continue;
 		}
-		if (l === '}') {
-			r.push({ type: o.BraceClose });
+		if (ch === '}') {
+			tokens.push({ type: Tokens.BraceClose });
 			continue;
 		}
-		if (/\d/.test(l || '')) {
-			t--, r.push(w());
+		if (/\d/.test(ch || '')) {
+			_i--;
+			tokens.push(num());
 			continue;
 		}
-		if (O(l)) {
-			t--, r.push(N());
+		if (isIdentStartCodePoint(ch)) {
+			_i--;
+			tokens.push(identlike());
 			continue;
 		}
-		r.push({ type: o.Delim, value: l });
+		tokens.push({ type: Tokens.Delim, value: ch });
 	}
-	return r;
+	return tokens;
 }
-var a = {
-		TypeSelector: 'TypeSelector',
-		IdSelector: 'IdSelector',
-		ClassSelector: 'ClassSelector',
-		AttributeSelector: 'AttributeSelector',
-		PseudoClassSelector: 'PseudoClassSelector',
-		PseudoElementSelector: 'PseudoElementSelector',
-		CompoundSelector: 'CompoundSelector',
-		ComplexSelector: 'ComplexSelector',
-		SelectorList: 'SelectorList'
-	},
-	h = { None: 'None', SelectorList: 'SelectorList', AnPlusB: 'AnPlusB' },
-	re = {
-		':is': h.SelectorList,
-		':matches': h.SelectorList,
-		':-moz-any': h.SelectorList,
-		':-webkit-any': h.SelectorList,
-		':where': h.SelectorList,
-		':not': h.SelectorList,
-		':has': h.SelectorList,
-		':nth-child': h.AnPlusB,
-		':nth-last-child': h.AnPlusB,
-		':nth-of-type': h.AnPlusB,
-		':nth-last-of-type': h.AnPlusB,
-		':nth-col': h.AnPlusB,
-		':nth-last-col': h.AnPlusB
-	},
-	ne = [' ', '>', '+', '~', '||'],
-	ie = ['=', '|=', '~=', '^=', '*=', '$='],
-	C = (n, e = {}) => {
-		let t = typeof n == 'string' ? B(n) : n,
-			r,
-			d = U(U({}, re), e.syntaxes || {}),
-			l = e.combinators || ne,
-			A = e.attrMatchers || ie;
-		function y(i, u) {
-			return (i == null ? void 0 : i.type) === o.Delim && i.value === u;
-		}
-		let g = () => !t.length,
-			c = () => t.shift(),
-			w = i => t[i || 0];
-		function b() {
-			let i = [],
-				u,
-				p = !0;
-			for (; (r = c()); ) {
-				if ((m(), p && ((u = E()), u))) {
-					if ((i.push(u), (p = !1), m(), !r)) continue;
-					if (r.type === o.Comma) {
-						p = !0;
+
+// src/parse.js
+var NodeTypes = {
+	/*
+  	Simple selectors.
+  */
+	TypeSelector: 'TypeSelector',
+	IdSelector: 'IdSelector',
+	ClassSelector: 'ClassSelector',
+	AttributeSelector: 'AttributeSelector',
+	PseudoClassSelector: 'PseudoClassSelector',
+	/* <pseudo-element-selector> */
+	PseudoElementSelector: 'PseudoElementSelector',
+	/*
+  		<compound-selector> is a concatenation of simple selectors,
+  		with the constraint that the TypeSelector, if any, must come
+  		first. At most one TypeSelector is allowed.
+  
+  		When involving pseudo-element, the construct is called a 
+  		pseudo-compound selector <pseudo-compound-selector>.
+  
+  		E.g.: main#content.wide
+  	*/
+	CompoundSelector: 'CompoundSelector',
+	/*
+  	<complex-selector> is a sequence of <compound-selector>s
+  	and <pseudo-compound-selector>s separated by combinators. 
+  */
+	ComplexSelector: 'ComplexSelector',
+	/*
+  	SelectorList is a list of comma-separated complex selectors.
+  	<complex-selector-list> = <complex-selector>#
+  */
+	SelectorList: 'SelectorList'
+};
+var Syntax = {
+	None: 'None',
+	SelectorList: 'SelectorList',
+	AnPlusB: 'AnPlusB'
+};
+var Syntaxes = {
+	':is': Syntax.SelectorList,
+	':matches': Syntax.SelectorList,
+	':-moz-any': Syntax.SelectorList,
+	':-webkit-any': Syntax.SelectorList,
+	':where': Syntax.SelectorList,
+	':not': Syntax.SelectorList,
+	':has': Syntax.SelectorList,
+	':nth-child': Syntax.AnPlusB,
+	':nth-last-child': Syntax.AnPlusB,
+	':nth-of-type': Syntax.AnPlusB,
+	':nth-last-of-type': Syntax.AnPlusB,
+	':nth-col': Syntax.AnPlusB,
+	':nth-last-col': Syntax.AnPlusB
+};
+var DefaultCombinators = [' ', '>', '+', '~', '||'];
+var DefaultAttrMatchers = ['=', '|=', '~=', '^=', '*=', '$='];
+var parse = (arg, options = {}) => {
+	const tokens = typeof arg === 'string' ? tokenize(arg) : arg;
+	let tok;
+	const syntaxes = __spreadValues(
+		__spreadValues({}, Syntaxes),
+		options.syntaxes || {}
+	);
+	const combinators = options.combinators || DefaultCombinators;
+	const attrMatchers = options.attrMatchers || DefaultAttrMatchers;
+	function isDelim(t, ch) {
+		return (t == null ? void 0 : t.type) === Tokens.Delim && t.value === ch;
+	}
+	const eoi = () => !tokens.length;
+	const next2 = () => tokens.shift();
+	const peek = ch => tokens[ch || 0];
+	function SelectorList() {
+		let selectors = [];
+		let sel;
+		let expect_sel = true;
+		while ((tok = next2())) {
+			WhiteSpace();
+			if (expect_sel) {
+				sel = ComplexSelector();
+				if (sel) {
+					selectors.push(sel);
+					expect_sel = false;
+					WhiteSpace();
+					if (!tok) {
+						continue;
+					}
+					if (tok.type === Tokens.Comma) {
+						expect_sel = true;
 						continue;
 					}
 				}
-				throw new Error(`Unexpected token ${r.type}`);
 			}
-			if (p) throw new Error('Unexpected end of input');
-			return { type: a.SelectorList, selectors: i };
+			throw new Error(`Unexpected token ${tok.type}`);
 		}
-		function E() {
-			let i, u, p;
-			for (; r; ) {
-				if (((u = P()), u))
-					if (!i) i = { type: a.ComplexSelector, left: u };
-					else if (i.combinator && !i.right)
-						(i.right = u), (i = { type: a.ComplexSelector, left: i });
-					else throw new Error(`Unexpected selector: ${u.type}`);
-				if (((p = N()), p)) {
-					if (l.indexOf(p) < 0) throw new Error(`Unsupported combinator: ${p}`);
-					if (
-						(i || (i = { type: a.ComplexSelector, left: null }), i.combinator)
-					)
-						throw new Error(`Extraneous combinator: ${p}`);
-					i.combinator = p;
-				}
-				if (!u && !p) break;
-			}
-			if (i) {
-				if (!i.right) {
-					if ((!i.combinator || i.combinator === ' ') && i.left !== null)
-						return i.left;
-					throw new Error(`Expected selector after combinator ${i.combinator}`);
-				}
-				return i;
-			}
+		if (expect_sel) {
+			throw new Error(`Unexpected end of input`);
 		}
-		function P() {
-			let i = [],
-				u = s();
-			for (u && i.push(u); (u = v() || T() || $() || D()); ) i.push(u);
-			if (((u = J()), u)) {
-				for (i.push(u); (u = D()); ) i.push(u);
-				if (s() || T() || v() || $())
-					throw new Error(
-						'Selector not allowed after pseudo-element selector.'
-					);
-			}
-			if (i.length)
-				return i.length > 1 ? { type: a.CompoundSelector, selectors: i } : i[0];
-		}
-		function N() {
-			if (!r) return;
-			let i = m() ? ' ' : '';
-			for (; (r == null ? void 0 : r.type) === o.Delim; )
-				(i += r.value), (r = c());
-			return m(), i.length > 1 ? i.trim() : i;
-		}
-		function m() {
-			let i = !1;
-			for (; (r == null ? void 0 : r.type) === o.Whitespace; )
-				(i = !0), (r = c());
-			return i;
-		}
-		function s() {
-			let i = f();
-			if ((r == null ? void 0 : r.type) === o.Ident || y(r, '*')) {
-				let u = { type: a.TypeSelector, identifier: r.value };
-				return i !== void 0 && (u.namespace = i), (r = c()), u;
-			}
-		}
-		function f() {
-			if (r) {
-				if (y(r, '|')) return (r = c()), '';
-				if (
-					((r == null ? void 0 : r.type) === o.Ident || y(r, '*')) &&
-					y(w(), '|')
-				) {
-					let i = r.value;
-					return (r = c()), (r = c()), i;
+		return {
+			type: NodeTypes.SelectorList,
+			selectors
+		};
+	}
+	function ComplexSelector() {
+		let node, sel, comb;
+		while (tok) {
+			sel = CompoundSelector();
+			if (sel) {
+				if (!node) {
+					node = {
+						type: NodeTypes.ComplexSelector,
+						left: sel
+					};
+				} else if (node.combinator && !node.right) {
+					node.right = sel;
+					node = {
+						type: NodeTypes.ComplexSelector,
+						left: node
+					};
+				} else {
+					throw new Error(`Unexpected selector: ${sel.type}`);
 				}
 			}
-		}
-		function v() {
-			if ((r == null ? void 0 : r.type) === o.Hash) {
-				let i = { type: a.IdSelector, identifier: r.value };
-				return (r = c()), i;
-			}
-		}
-		function T() {
-			var i;
-			if (y(r, '.') && ((i = w()) == null ? void 0 : i.type) === o.Ident) {
-				r = c();
-				let u = { type: a.ClassSelector, identifier: r.value };
-				return (r = c()), u;
-			}
-		}
-		function $() {
-			if ((r == null ? void 0 : r.type) === o.BracketOpen) {
-				(r = c()), m();
-				let i = f();
-				if ((r == null ? void 0 : r.type) !== o.Ident)
-					throw new Error('Invalid attribute name');
-				let u = { type: a.AttributeSelector, identifier: r.value };
-				i !== void 0 && (u.namespace = i), (r = c()), m();
-				let p = Z();
-				if (p) {
-					if (A.indexOf(p) < 0)
-						throw new Error(`Unsupported attribute matcher: ${p}`);
-					if (
-						((u.matcher = p),
-						m(),
-						(r == null ? void 0 : r.type) === o.String ||
-							(r == null ? void 0 : r.type) === o.Ident)
-					)
-						(u.value = r.value),
-							r.type === o.String && (u.quotes = !0),
-							(r = c());
-					else throw new Error('Expected attribute value');
-					m();
-					let x = G();
-					x && (u.modifier = x), m();
+			comb = Combinator();
+			if (comb) {
+				if (combinators.indexOf(comb) < 0) {
+					throw new Error(`Unsupported combinator: ${comb}`);
 				}
-				if (!r) return u;
-				if (r.type === o.BracketClose) return (r = c()), u;
-				throw new Error('Unclosed attribute selector');
-			}
-		}
-		function Z() {
-			if (y(r, '=')) {
-				let i = r.value;
-				return (r = c()), i;
-			}
-			if ((r == null ? void 0 : r.type) === o.Delim && y(w(), '=')) {
-				let i = r.value;
-				return (r = c()), (i += r.value), (r = c()), i;
-			}
-		}
-		function G() {
-			if (
-				(r == null ? void 0 : r.type) === o.Ident &&
-				/[iIsS]/.test(r.value || '')
-			) {
-				let i = r.value.toLowerCase();
-				return (r = c()), i;
-			}
-		}
-		function J() {
-			var i;
-			if (
-				(r == null ? void 0 : r.type) === o.Colon &&
-				((i = w()) == null ? void 0 : i.type) === o.Colon
-			) {
-				r = c();
-				let u = D(!0);
-				return (u.type = a.PseudoElementSelector), u;
-			}
-		}
-		function D(i = !1) {
-			var u, p;
-			if (
-				(r == null ? void 0 : r.type) === o.Colon &&
-				(((u = w()) == null ? void 0 : u.type) === o.Ident ||
-					((p = w()) == null ? void 0 : p.type) === o.Function)
-			) {
-				r = c();
-				let x = { type: a.PseudoClassSelector, identifier: r.value };
-				if (r.type === o.Function) {
-					x.argument = [];
-					let L = 1;
-					for (; !g() && L; )
-						(r = c()),
-							r.type === o.ParenClose
-								? (L -= 1)
-								: (r.type === o.Function || r.type === o.ParenOpen) && (L += 1),
-							L > 0 && x.argument.push(r);
-					let I = d[(i ? '::' : ':') + x.identifier];
-					if ((I && I !== h.None && (x.argument = Q(x.argument, I)), !r && L))
-						throw new Error('Parentheses mismatch');
+				if (!node) {
+					node = {
+						type: NodeTypes.ComplexSelector,
+						left: null
+					};
 				}
-				return (r = c()), x;
+				if (node.combinator) {
+					throw new Error(`Extraneous combinator: ${comb}`);
+				}
+				node.combinator = comb;
+			}
+			if (!sel && !comb) {
+				break;
 			}
 		}
-		function Q(i, u = h.None) {
-			if (typeof u == 'function') return u(i);
-			switch (u) {
-				case h.SelectorList:
-					return C(i, e);
-				case h.AnPlusB:
-					return i;
-				case h.None:
-					return i;
-			}
-			throw new Error(`Invalid argument syntax ${u}`);
+		if (!node) {
+			return void 0;
 		}
-		return b();
-	};
-var k = (n, e) => {
-		let t = typeof e == 'string' || Array.isArray(e) ? C(e) : e,
-			r = n;
-		for (; r && !S(r, t); ) r = r.parentElement;
-		return r;
-	},
-	S = (n, e) => {
-		let t = typeof e == 'string' || Array.isArray(e) ? C(e) : e;
-		if (R[t.type]) return R[t.type](n, t);
-		throw new Error(`Unsupported node type ${t.type}`);
-	},
-	V = (n, e) => {
-		let t = typeof e == 'string' || Array.isArray(e) ? C(e) : e;
-		return (n.ownerDocument || n)
-			.createNodeIterator(n, 1, d => d !== n && S(d, t))
-			.nextNode();
-	};
-var oe = (n, e) => e.selectors.some(t => S(n, t)),
-	se = (n, e) => {
-		if (!S(n, e.right)) return !1;
-		switch (e.combinator) {
-			case ' ':
-				return n.parentNode && k(n.parentNode, e.left);
-			case '>':
-				return n.parentNode && S(n.parentNode, e.left);
-			case '+':
-				return n.previousElementSibling && S(n.previousElementSibling, e.left);
-			case '~': {
-				let t = n;
-				for (; (t = t.previousElementSibling); ) if (S(t, e.left)) return !0;
-				return !1;
+		if (!node.right) {
+			if ((!node.combinator || node.combinator === ' ') && node.left !== null) {
+				return node.left;
 			}
-			default:
-				throw new Error(`Unsupported combinator ${e.combinator}`);
+			throw new Error(`Expected selector after combinator ${node.combinator}`);
 		}
-	},
-	ue = (n, e) => e.selectors.every(t => S(n, t)),
-	le = (n, e) => n.id === e.identifier,
-	ce = (n, e) => n.classList.contains(e.identifier),
-	ae = (n, e) => {
-		if (!e.matcher) return n.hasAttribute(e.identifier);
-		let t = n.getAttribute(e.identifier);
-		if (!t) return !1;
-		let r = e.value;
-		switch (
-			(e.modifier !== 's' && ((t = t.toLowerCase()), (r = r.toLowerCase())),
-			e.matcher)
+		return node;
+	}
+	function CompoundSelector() {
+		let selectors = [];
+		let sel = TypeSelector();
+		if (sel) {
+			selectors.push(sel);
+		}
+		while (
+			(sel =
+				IdSelector() ||
+				ClassSelector() ||
+				AttributeSelector() ||
+				PseudoClassSelector())
 		) {
-			case '=':
-				return t === r;
-			case '^=':
-				return t.length >= r.length && t.indexOf(r) === 0;
-			case '$=':
-				return t.length >= r.length && t.indexOf(r) === t.length - r.length;
-			case '*=':
-				return t.length >= r.length && t.indexOf(r) > -1;
-			case '~=':
-				return t.split(/\s+/).some(d => d === r);
-			case '|=':
-				return t === r || t.indexOf(r + '-') === 0;
-			default:
-				throw new Error(`Unsupported attribute matcher ${e.matcher}`);
+			selectors.push(sel);
 		}
-	},
-	fe = (n, e) => {
-		switch (e.identifier) {
-			case 'is':
-			case 'where':
-			case 'matches':
-			case '-moz-any':
-			case '-webkit-any':
-				if (!e.argument) return !1;
-				if (e.argument.type !== a.SelectorList)
-					throw new Error('Expected a SelectionList argument');
-				return e.argument.selectors.some(t => S(n, t));
-			case 'not':
-				if (!e.argument) return !0;
-				if (e.argument.type !== a.SelectorList)
-					throw new Error('Expected a SelectionList argument');
-				return e.argument.selectors.every(t => !S(n, t));
-			case 'has':
-				if (!e.argument) return !1;
-				if (e.argument.type !== a.SelectorList)
-					throw new Error('Expected a SelectionList argument');
-				return !!V(n, e.argument);
-			case 'first-child':
-				return H(n) === 0;
-			case 'first-of-type':
-				return j(n);
-			case 'last-child':
-				return W(n) === 0;
-			case 'last-of-type':
-				return K(n);
-			case 'only-child':
-				return !W(n) && !H(n);
-			case 'only-of-type':
-				return j(n) && K(n);
-			case 'root':
-				return n === (n.ownerDocument || n).documentElement;
-			case 'empty':
-				return (
-					!n.childNodes.length ||
-					(n.childNodes.length === 1 &&
-						n.childNodes[0].nodeType === 3 &&
-						n.childNodes[0].nodeValue.match(/^\s*$/))
-				);
-			case 'enabled':
-				return !n.disabled;
-			case 'disabled':
-				return n.disabled;
-			case 'link':
-				return (
-					(n.localName === 'a' ||
-						n.localName === 'area' ||
-						n.localName === 'link') &&
-					n.hasAttribute('href')
-				);
-			case 'visited':
-				return !1;
-			case 'checked':
-				return n.checked || n.selected;
-			case 'indeterminate':
-				return n.indeterminate;
-			case 'default':
-			case 'defined':
-			case 'active':
-			case 'hover':
-			case 'focus':
-			case 'target':
-			case 'nth-child':
-			case 'nth-of-type':
-			case 'nth-last-child':
-			case 'nth-last-of-type':
-			case 'scope':
-			default:
-				throw new Error(`Pseudo-class ${e.identifier} not implemented yet`);
+		sel = PseudoElementSelector();
+		if (sel) {
+			selectors.push(sel);
+			while ((sel = PseudoClassSelector())) {
+				selectors.push(sel);
+			}
+			if (
+				TypeSelector() ||
+				ClassSelector() ||
+				IdSelector() ||
+				AttributeSelector()
+			) {
+				throw new Error('Selector not allowed after pseudo-element selector.');
+			}
 		}
-	},
-	pe = () => {
-		throw new Error('Pseudo-elements are not supported.');
-	},
-	he = (n, e) =>
-		e.identifier !== '*' && n.localName !== e.identifier
-			? !1
-			: e.namespace === void 0 ||
-				  e.namespace === '*' ||
-				  (e.namespace === '' && n.prefix === null)
-				? !0
-				: n.prefix === e.namespace,
-	H = n => {
-		let e = 0,
-			t = n;
-		for (; (t = t.previousElementSibling); ) e++;
-		return e;
-	},
-	W = n => {
-		let e = 0,
-			t = n;
-		for (; (t = t.nextElementSibling); ) e++;
-		return e;
-	},
-	j = n => {
-		let e = n;
-		for (; (e = e.previousElementSibling); )
-			if (e.localName === n.localName && e.prefix === n.prefix) return !1;
-		return !0;
-	},
-	K = n => {
-		let e = n;
-		for (; (e = e.nextElementSibling); )
-			if (e.localName === n.localName && e.prefix === n.prefix) return !1;
-		return !0;
-	},
-	R = {
-		[a.SelectorList]: oe,
-		[a.ComplexSelector]: se,
-		[a.CompoundSelector]: ue,
-		[a.TypeSelector]: he,
-		[a.IdSelector]: le,
-		[a.ClassSelector]: ce,
-		[a.AttributeSelector]: ae,
-		[a.PseudoClassSelector]: fe,
-		[a.PseudoElementSelector]: pe
-	};
-export { C as parse, B as tokenize };
+		if (!selectors.length) {
+			return void 0;
+		}
+		if (selectors.length > 1) {
+			return {
+				type: NodeTypes.CompoundSelector,
+				selectors
+			};
+		}
+		return selectors[0];
+	}
+	function Combinator() {
+		if (!tok) {
+			return void 0;
+		}
+		let combinator = WhiteSpace() ? ' ' : '';
+		while ((tok == null ? void 0 : tok.type) === Tokens.Delim) {
+			combinator += tok.value;
+			tok = next2();
+		}
+		WhiteSpace();
+		return combinator.length > 1 ? combinator.trim() : combinator;
+	}
+	function WhiteSpace() {
+		let had_ws = false;
+		while ((tok == null ? void 0 : tok.type) === Tokens.Whitespace) {
+			had_ws = true;
+			tok = next2();
+		}
+		return had_ws;
+	}
+	function TypeSelector() {
+		let ns = NsPrefix();
+		if (
+			(tok == null ? void 0 : tok.type) === Tokens.Ident ||
+			isDelim(tok, '*')
+		) {
+			let node = {
+				type: NodeTypes.TypeSelector,
+				identifier: tok.value
+			};
+			if (ns !== void 0) {
+				node.namespace = ns;
+			}
+			tok = next2();
+			return node;
+		}
+		return void 0;
+	}
+	function NsPrefix() {
+		if (!tok) {
+			return void 0;
+		}
+		if (isDelim(tok, '|')) {
+			tok = next2();
+			return '';
+		}
+		if (
+			((tok == null ? void 0 : tok.type) === Tokens.Ident ||
+				isDelim(tok, '*')) &&
+			isDelim(peek(), '|')
+		) {
+			let ns = tok.value;
+			tok = next2();
+			tok = next2();
+			return ns;
+		}
+		return void 0;
+	}
+	function IdSelector() {
+		if ((tok == null ? void 0 : tok.type) === Tokens.Hash) {
+			let ret = {
+				type: NodeTypes.IdSelector,
+				identifier: tok.value
+			};
+			tok = next2();
+			return ret;
+		}
+		return void 0;
+	}
+	function ClassSelector() {
+		var _a;
+		if (
+			isDelim(tok, '.') &&
+			((_a = peek()) == null ? void 0 : _a.type) === Tokens.Ident
+		) {
+			tok = next2();
+			let ret = {
+				type: NodeTypes.ClassSelector,
+				identifier: tok.value
+			};
+			tok = next2();
+			return ret;
+		}
+		return void 0;
+	}
+	function AttributeSelector() {
+		if ((tok == null ? void 0 : tok.type) === Tokens.BracketOpen) {
+			tok = next2();
+			WhiteSpace();
+			let ns = NsPrefix();
+			if ((tok == null ? void 0 : tok.type) !== Tokens.Ident) {
+				throw new Error('Invalid attribute name');
+			}
+			let node = {
+				type: NodeTypes.AttributeSelector,
+				identifier: tok.value
+			};
+			if (ns !== void 0) {
+				node.namespace = ns;
+			}
+			tok = next2();
+			WhiteSpace();
+			let matcher = AttrMatcher();
+			if (matcher) {
+				if (attrMatchers.indexOf(matcher) < 0) {
+					throw new Error(`Unsupported attribute matcher: ${matcher}`);
+				}
+				node.matcher = matcher;
+				WhiteSpace();
+				if (
+					(tok == null ? void 0 : tok.type) === Tokens.String ||
+					(tok == null ? void 0 : tok.type) === Tokens.Ident
+				) {
+					node.value = tok.value;
+					if (tok.type === Tokens.String) {
+						node.quotes = true;
+					}
+					tok = next2();
+				} else {
+					throw new Error('Expected attribute value');
+				}
+				WhiteSpace();
+				let mod = AttrModifier();
+				if (mod) {
+					node.modifier = mod;
+				}
+				WhiteSpace();
+			}
+			if (!tok) {
+				return node;
+			}
+			if (tok.type === Tokens.BracketClose) {
+				tok = next2();
+				return node;
+			}
+			throw new Error('Unclosed attribute selector');
+		}
+		return void 0;
+	}
+	function AttrMatcher() {
+		if (isDelim(tok, '=')) {
+			let ret = tok.value;
+			tok = next2();
+			return ret;
+		}
+		if (
+			(tok == null ? void 0 : tok.type) === Tokens.Delim &&
+			isDelim(peek(), '=')
+		) {
+			let ret = tok.value;
+			tok = next2();
+			ret += tok.value;
+			tok = next2();
+			return ret;
+		}
+		return void 0;
+	}
+	function AttrModifier() {
+		if (
+			(tok == null ? void 0 : tok.type) === Tokens.Ident &&
+			/[iIsS]/.test(tok.value || '')
+		) {
+			let ret = tok.value.toLowerCase();
+			tok = next2();
+			return ret;
+		}
+		return void 0;
+	}
+	function PseudoElementSelector() {
+		var _a;
+		if (
+			(tok == null ? void 0 : tok.type) === Tokens.Colon &&
+			((_a = peek()) == null ? void 0 : _a.type) === Tokens.Colon
+		) {
+			tok = next2();
+			let node = PseudoClassSelector(true);
+			node.type = NodeTypes.PseudoElementSelector;
+			return node;
+		}
+		return void 0;
+	}
+	function PseudoClassSelector(is_actually_pseudo_elem = false) {
+		var _a, _b;
+		if ((tok == null ? void 0 : tok.type) === Tokens.Colon) {
+			if (
+				((_a = peek()) == null ? void 0 : _a.type) === Tokens.Ident ||
+				((_b = peek()) == null ? void 0 : _b.type) === Tokens.Function
+			) {
+				tok = next2();
+				let node = {
+					type: NodeTypes.PseudoClassSelector,
+					identifier: tok.value
+				};
+				if (tok.type === Tokens.Function) {
+					node.argument = [];
+					let fn_depth = 1;
+					while (!eoi() && fn_depth) {
+						tok = next2();
+						if (tok.type === Tokens.ParenClose) {
+							fn_depth -= 1;
+						} else if (
+							tok.type === Tokens.Function ||
+							tok.type === Tokens.ParenOpen
+						) {
+							fn_depth += 1;
+						}
+						if (fn_depth > 0) {
+							node.argument.push(tok);
+						}
+					}
+					let syntax =
+						syntaxes[(is_actually_pseudo_elem ? '::' : ':') + node.identifier];
+					if (syntax && syntax !== Syntax.None) {
+						node.argument = Argument(node.argument, syntax);
+					}
+					if (!tok && fn_depth) {
+						throw new Error('Parentheses mismatch');
+					}
+				}
+				tok = next2();
+				return node;
+			}
+		}
+	}
+	function Argument(tokens2, syntax = Syntax.None) {
+		if (typeof syntax === 'function') {
+			return syntax(tokens2);
+		}
+		switch (syntax) {
+			case Syntax.SelectorList:
+				return parse(tokens2, options);
+			case Syntax.AnPlusB:
+				return AnPlusB(tokens2);
+			case Syntax.None:
+				return tokens2;
+		}
+		throw new Error(`Invalid argument syntax ${syntax}`);
+	}
+	return SelectorList();
+};
+function AnPlusB(tokens) {
+	return tokens;
+}
+
+// src/dom.js
+var closest = (el, sel) => {
+	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+	let curr = el;
+	while (curr && !matches(curr, node)) {
+		curr = curr.parentElement;
+	}
+	return curr;
+};
+var matches = (el, sel) => {
+	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+	if (Matchers[node.type]) {
+		return Matchers[node.type](el, node);
+	}
+	throw new Error(`Unsupported node type ${node.type}`);
+};
+var querySelector = (el, sel) => {
+	const node = typeof sel === 'string' || Array.isArray(sel) ? parse(sel) : sel;
+	let it = (el.ownerDocument || el).createNodeIterator(
+		el,
+		1,
+		n => n !== el && matches(n, node)
+	);
+	return it.nextNode();
+};
+var matchSelectorList = (el, node) => node.selectors.some(s => matches(el, s));
+var matchComplexSelector = (el, node) => {
+	if (!matches(el, node.right)) {
+		return false;
+	}
+	switch (node.combinator) {
+		case ' ':
+			return el.parentNode && closest(el.parentNode, node.left);
+		case '>':
+			return el.parentNode && matches(el.parentNode, node.left);
+		case '+':
+			return (
+				el.previousElementSibling &&
+				matches(el.previousElementSibling, node.left)
+			);
+		case '~': {
+			let ref = el;
+			while ((ref = ref.previousElementSibling)) {
+				if (matches(ref, node.left)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		default:
+			throw new Error(`Unsupported combinator ${node.combinator}`);
+	}
+};
+var matchCompoundSelector = (el, node) =>
+	node.selectors.every(s => matches(el, s));
+var matchIdSelector = (el, node) => el.id === node.identifier;
+var matchClassSelector = (el, node) => el.classList.contains(node.identifier);
+var matchAttributeSelector = (el, node) => {
+	if (!node.matcher) {
+		return el.hasAttribute(node.identifier);
+	}
+	let haystack = el.getAttribute(node.identifier);
+	if (!haystack) {
+		return false;
+	}
+	let needle = node.value;
+	if (node.modifier !== 's') {
+		haystack = haystack.toLowerCase();
+		needle = needle.toLowerCase();
+	}
+	switch (node.matcher) {
+		case '=':
+			return haystack === needle;
+		case '^=':
+			return haystack.length >= needle.length && haystack.indexOf(needle) === 0;
+		case '$=':
+			return (
+				haystack.length >= needle.length &&
+				haystack.indexOf(needle) === haystack.length - needle.length
+			);
+		case '*=':
+			return haystack.length >= needle.length && haystack.indexOf(needle) > -1;
+		case '~=':
+			return haystack.split(/\s+/).some(part => part === needle);
+		case '|=':
+			return haystack === needle || haystack.indexOf(needle + '-') === 0;
+		default:
+			throw new Error(`Unsupported attribute matcher ${node.matcher}`);
+	}
+};
+var matchPseudoClassSelector = (el, node) => {
+	switch (node.identifier) {
+		case 'is':
+		case 'where':
+		case 'matches':
+		case '-moz-any':
+		case '-webkit-any':
+			if (!node.argument) {
+				return false;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
+			return node.argument.selectors.some(s => matches(el, s));
+		case 'not':
+			if (!node.argument) {
+				return true;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
+			return node.argument.selectors.every(s => !matches(el, s));
+		case 'has':
+			if (!node.argument) {
+				return false;
+			}
+			if (node.argument.type !== NodeTypes.SelectorList) {
+				throw new Error('Expected a SelectionList argument');
+			}
+			return !!querySelector(el, node.argument);
+		case 'first-child':
+			return previous(el) === 0;
+		case 'first-of-type':
+			return firstOfType(el);
+		case 'last-child':
+			return next(el) === 0;
+		case 'last-of-type':
+			return lastOfType(el);
+		case 'only-child':
+			return !next(el) && !previous(el);
+		case 'only-of-type':
+			return firstOfType(el) && lastOfType(el);
+		case 'root':
+			return el === (el.ownerDocument || el).documentElement;
+		case 'empty':
+			return (
+				!el.childNodes.length ||
+				(el.childNodes.length === 1 &&
+					el.childNodes[0].nodeType === 3 &&
+					el.childNodes[0].nodeValue.match(/^\s*$/))
+			);
+		case 'enabled':
+			return !el.disabled;
+		case 'disabled':
+			return el.disabled;
+		case 'link':
+			return (
+				(el.localName === 'a' ||
+					el.localName === 'area' ||
+					el.localName === 'link') &&
+				el.hasAttribute('href')
+			);
+		case 'visited':
+			return false;
+		case 'checked':
+			return el.checked || el.selected;
+		case 'indeterminate':
+			return el.indeterminate;
+		case 'default':
+		case 'defined':
+		case 'active':
+		case 'hover':
+		case 'focus':
+		case 'target':
+		case 'nth-child':
+		case 'nth-of-type':
+		case 'nth-last-child':
+		case 'nth-last-of-type':
+		case 'scope':
+		default:
+			throw new Error(`Pseudo-class ${node.identifier} not implemented yet`);
+	}
+};
+var matchPseudoElementSelector = () => {
+	throw new Error('Pseudo-elements are not supported.');
+};
+var matchTypeSelector = (el, node) => {
+	if (node.identifier !== '*' && el.localName !== node.identifier) {
+		return false;
+	}
+	if (node.namespace === void 0 || node.namespace === '*') {
+		return true;
+	}
+	if (node.namespace === '' && el.prefix === null) {
+		return true;
+	}
+	return el.prefix === node.namespace;
+};
+var previous = el => {
+	let count = 0,
+		ref = el;
+	while ((ref = ref.previousElementSibling)) count++;
+	return count;
+};
+var next = el => {
+	let count = 0,
+		ref = el;
+	while ((ref = ref.nextElementSibling)) count++;
+	return count;
+};
+var firstOfType = el => {
+	let ref = el;
+	while ((ref = ref.previousElementSibling)) {
+		if (ref.localName === el.localName && ref.prefix === el.prefix) {
+			return false;
+		}
+	}
+	return true;
+};
+var lastOfType = el => {
+	let ref = el;
+	while ((ref = ref.nextElementSibling)) {
+		if (ref.localName === el.localName && ref.prefix === el.prefix) {
+			return false;
+		}
+	}
+	return true;
+};
+var Matchers = {
+	[NodeTypes.SelectorList]: matchSelectorList,
+	[NodeTypes.ComplexSelector]: matchComplexSelector,
+	[NodeTypes.CompoundSelector]: matchCompoundSelector,
+	[NodeTypes.TypeSelector]: matchTypeSelector,
+	[NodeTypes.IdSelector]: matchIdSelector,
+	[NodeTypes.ClassSelector]: matchClassSelector,
+	[NodeTypes.AttributeSelector]: matchAttributeSelector,
+	[NodeTypes.PseudoClassSelector]: matchPseudoClassSelector,
+	[NodeTypes.PseudoElementSelector]: matchPseudoElementSelector
+};
+
+// src/serialize.js
+var serialize = (node, extra) => {
+	if (Array.isArray(node)) {
+		return node.map(serializeToken).join('');
+	}
+	let out;
+	switch (node.type) {
+		case NodeTypes.SelectorList:
+			return node.selectors.map(s => serialize(s, extra)).join(', ');
+		case NodeTypes.ComplexSelector:
+			out = node.left === null ? '' : serialize(node.left, extra);
+			if (node.combinator === ' ') {
+				out += ' ';
+			} else {
+				out += (node.left === null ? '' : ' ') + node.combinator + ' ';
+			}
+			return out + serialize(node.right, extra);
+		case NodeTypes.CompoundSelector:
+			return node.selectors.map(s => serialize(s, extra)).join('');
+		case NodeTypes.TypeSelector:
+			return (
+				(node.namespace === void 0 ? '' : node.namespace + '|') +
+				node.identifier
+			);
+		case NodeTypes.IdSelector:
+			return '#' + node.identifier;
+		case NodeTypes.ClassSelector:
+			return '.' + node.identifier;
+		case NodeTypes.AttributeSelector:
+			out = '[' + node.identifier;
+			if (node.matcher) {
+				out += node.matcher;
+				if (node.quotes) {
+					out += `"${node.value.replace(/"/g, '\\"')}"`;
+				} else {
+					out += node.value;
+				}
+				if (node.modifier) {
+					out += ' ' + node.modifier;
+				}
+			}
+			return out + ']';
+		case NodeTypes.PseudoClassSelector:
+			out = ':' + node.identifier;
+			if (node.argument !== void 0) {
+				out += '(' + serialize(node.argument, extra) + ')';
+			}
+			return out;
+		case NodeTypes.PseudoElementSelector:
+			out = '::' + node.identifier;
+			if (node.argument !== void 0) {
+				out += '(' + serialize(node.argument, extra) + ')';
+			}
+			return out;
+	}
+	if (typeof extra === 'function') {
+		return extra(node, extra);
+	}
+	if (extra && typeof extra[node.type] === 'function') {
+		return extra[node.type](node, extra);
+	}
+	throw new Error(`Unknown node type ${node.type}`);
+};
+var serializeToken = tok => {
+	switch (tok.type) {
+		case Tokens.Ident:
+			return tok.value;
+		case Tokens.Function:
+			return tok.value + '(';
+		case Tokens.AtKeyword:
+			return '@' + tok.value;
+		case Tokens.Hash:
+			return '#' + tok.value;
+		case Tokens.String:
+			return `"${tok.value.replace(/"/g, '\\"')}"`;
+		case Tokens.Dimension:
+			return tok.value + (/^e[+-]?\d/.test(tok.unit) ? '\\' : '') + tok.unit;
+		case Tokens.Number:
+		case Tokens.Delim:
+			return tok.value + (tok.value === '\\' ? '\n' : '');
+		case Tokens.Whitespace:
+			return ' ';
+		case Tokens.Colon:
+			return ':';
+		case Tokens.Semicolon:
+			return ';';
+		case Tokens.Comma:
+			return ',';
+		case Tokens.BracketOpen:
+			return '[';
+		case Tokens.BracketClose:
+			return ']';
+		case Tokens.ParenOpen:
+			return '(';
+		case Tokens.ParenClose:
+			return ')';
+		case Tokens.BraceOpen:
+			return '{';
+		case Tokens.BraceClose:
+			return '}';
+	}
+	throw new Error(`Unknown token type ${tok.type}`);
+};
+export { parse, serialize, tokenize };
