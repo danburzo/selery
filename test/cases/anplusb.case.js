@@ -25,7 +25,6 @@ export default [
 	{
 		selector: ':nth-last-of-type(2n+3)',
 		serialize: true,
-		skip: true,
 		parse: {
 			type: 'SelectorList',
 			selectors: [
@@ -34,7 +33,7 @@ export default [
 					identifier: 'nth-last-of-type',
 					argument: [
 						{ type: 'dimension', value: 2, unit: 'n' },
-						{ type: 'number', value: 3 }
+						{ type: 'number', value: 3, sign: '+' }
 					]
 				}
 			]

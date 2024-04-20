@@ -8,13 +8,13 @@ export default [
 		tokenize: [
 			{ type: 'number', value: 1 },
 			{ type: 'whitespace' },
-			{ type: 'number', value: -2 },
+			{ type: 'number', value: -2, sign: '-' },
 			{ type: 'whitespace' },
 			{ type: 'number', value: 0.3 },
 			{ type: 'whitespace' },
 			{ type: 'number', value: 0.4 },
 			{ type: 'whitespace' },
-			{ type: 'number', value: -2.5e10 },
+			{ type: 'number', value: -2.5e10, sign: '-' },
 			{ type: 'whitespace' },
 			{ type: 'number', value: 1e-5 },
 			{ type: 'whitespace' },
@@ -29,7 +29,7 @@ export default [
 			{ type: 'dimension', value: 2, unit: 'n-3' },
 			{ type: 'whitespace' },
 			{ type: 'dimension', value: 3, unit: 'n' },
-			{ type: 'number', value: 2 }
+			{ type: 'number', value: 2, sign: '+' }
 		]
 	}
 ];

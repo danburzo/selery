@@ -90,8 +90,16 @@ export const serializeToken = tok => {
 			return `"${tok.value.replace(/"/g, '\\"')}"`;
 		case Tokens.Dimension:
 			// Escape unit if it conflicts with the scientific number notation
-			return tok.value + (/^e[+-]?\d/.test(tok.unit) ? '\\' : '') + tok.unit;
+			return (
+				(tok.sign || '') +
+				tok.value +
+				(/^e[+-]?\d/.test(tok.unit) ? '\\' : '') +
+				tok.unit
+			);
 		case Tokens.Number:
+			return (tok.sign || '') + tok.value;
+		case Tokens.Percentage:
+			return (tok.sign || '') + tok.value + '%';
 		case Tokens.Delim:
 			return tok.value + (tok.value === '\\' ? '\n' : '');
 		case Tokens.Whitespace:

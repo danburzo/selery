@@ -140,7 +140,12 @@ export const Tokens = {
 };
 ```
 
-The following token types also include a `value` property: `at-keyword`, `bad-string`, `bad-url`, `delim`, `dimension`, `function`, `hash`, `ident`, `number`, `percentage`, `string`, `unicode`, `url`.
+The following token types include a `value` property: `at-keyword`, `bad-string`, `bad-url`, `delim`, `dimension`, `function`, `hash`, `ident`, `number`, `percentage`, `string`, `unicode`, `url`.
+
+Some token types may include specific properties:
+
+- `number` and `percentage` include a `sign` property;
+- `dimension` includes `sign` and `unit` properties;
 
 ## CSS selector AST reference
 

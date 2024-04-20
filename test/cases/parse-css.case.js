@@ -536,7 +536,7 @@ export default [
 		selector: '@-1',
 		tokenize: [
 			{ type: 'delim', value: '@' },
-			{ type: 'number', value: -1 }
+			{ type: 'number', value: -1, sign: '-' }
 		]
 	},
 
@@ -803,11 +803,11 @@ export default [
 	},
 	{
 		selector: '+45.6',
-		tokenize: [{ type: 'number', value: 45.6 }]
+		tokenize: [{ type: 'number', value: 45.6, sign: '+' }]
 	},
 	{
 		selector: '-7',
-		tokenize: [{ type: 'number', value: -7 }]
+		tokenize: [{ type: 'number', value: -7, sign: '-' }]
 	},
 	{
 		selector: '010',
@@ -835,15 +835,15 @@ export default [
 	},
 	{
 		selector: '-.3',
-		tokenize: [{ type: 'number', value: -0.3 }]
+		tokenize: [{ type: 'number', value: -0.3, sign: '-' }]
 	},
 	{
 		selector: '+637.54e-2',
-		tokenize: [{ type: 'number', value: 6.3754 }]
+		tokenize: [{ type: 'number', value: 6.3754, sign: '+' }]
 	},
 	{
 		selector: '-12.34E+2',
-		tokenize: [{ type: 'number', value: -1234 }]
+		tokenize: [{ type: 'number', value: -1234, sign: '-' }]
 	},
 	{
 		selector: '+ 5',
@@ -857,21 +857,21 @@ export default [
 		selector: '-+12',
 		tokenize: [
 			{ type: 'delim', value: '-' },
-			{ type: 'number', value: 12 }
+			{ type: 'number', value: 12, sign: '+' }
 		]
 	},
 	{
 		selector: '+-21',
 		tokenize: [
 			{ type: 'delim', value: '+' },
-			{ type: 'number', value: -21 }
+			{ type: 'number', value: -21, sign: '-' }
 		]
 	},
 	{
 		selector: '++22',
 		tokenize: [
 			{ type: 'delim', value: '+' },
-			{ type: 'number', value: 22 }
+			{ type: 'number', value: 22, sign: '+' }
 		]
 	},
 	{
@@ -919,11 +919,11 @@ export default [
 	},
 	{
 		selector: '-12.0em',
-		tokenize: [{ type: 'dimension', value: -12, unit: 'em' }]
+		tokenize: [{ type: 'dimension', value: -12, unit: 'em', sign: '-' }]
 	},
 	{
 		selector: '+45.6__qem',
-		tokenize: [{ type: 'dimension', value: 45.6, unit: '__qem' }]
+		tokenize: [{ type: 'dimension', value: 45.6, unit: '__qem', sign: '+' }]
 	},
 	{
 		selector: '5e',
@@ -978,7 +978,7 @@ export default [
 		selector: '2e+.5',
 		tokenize: [
 			{ type: 'dimension', value: 2, unit: 'e' },
-			{ type: 'number', value: 0.5 }
+			{ type: 'number', value: 0.5, sign: '+' }
 		]
 	},
 
@@ -989,11 +989,11 @@ export default [
 	},
 	{
 		selector: '+12.0%',
-		tokenize: [{ type: 'percentage', value: 12 }]
+		tokenize: [{ type: 'percentage', value: 12, sign: '+' }]
 	},
 	{
 		selector: '-48.99%',
-		tokenize: [{ type: 'percentage', value: -48.99 }]
+		tokenize: [{ type: 'percentage', value: -48.99, sign: '-' }]
 	},
 	{
 		selector: '6e-1%',
@@ -1012,24 +1012,24 @@ export default [
 		selector: 'u+012345-123456',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 12345 },
-			{ type: 'number', value: -123456 }
+			{ type: 'number', value: 12345, sign: '+' },
+			{ type: 'number', value: -123456, sign: '-' }
 		]
 	},
 	{
 		selector: 'U+1234-2345',
 		tokenize: [
 			{ type: 'ident', value: 'U' },
-			{ type: 'number', value: 1234 },
-			{ type: 'number', value: -2345 }
+			{ type: 'number', value: 1234, sign: '+' },
+			{ type: 'number', value: -2345, sign: '-' }
 		]
 	},
 	{
 		selector: 'u+222-111',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 222 },
-			{ type: 'number', value: -111 }
+			{ type: 'number', value: 222, sign: '+' },
+			{ type: 'number', value: -111, sign: '-' }
 		]
 	},
 	{
@@ -1044,7 +1044,7 @@ export default [
 		selector: 'U+2??',
 		tokenize: [
 			{ type: 'ident', value: 'U' },
-			{ type: 'number', value: 2 },
+			{ type: 'number', value: 2, sign: '+' },
 			{ type: 'delim', value: '?' },
 			{ type: 'delim', value: '?' }
 		]
@@ -1085,23 +1085,23 @@ export default [
 		selector: 'u+222+111',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 222 },
-			{ type: 'number', value: 111 }
+			{ type: 'number', value: 222, sign: '+' },
+			{ type: 'number', value: 111, sign: '+' }
 		]
 	},
 	{
 		selector: 'u+12345678',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 12345678 }
+			{ type: 'number', value: 12345678, sign: '+' }
 		]
 	},
 	{
 		selector: 'u+123-12345678',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 123 },
-			{ type: 'number', value: -12345678 }
+			{ type: 'number', value: 123, sign: '+' },
+			{ type: 'number', value: -12345678, sign: '-' }
 		]
 	},
 	{
@@ -1116,7 +1116,7 @@ export default [
 		selector: 'u+1234-gggg',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'dimension', value: 1234, unit: '-gggg' }
+			{ type: 'dimension', value: 1234, unit: '-gggg', sign: '+' }
 		]
 	},
 	{
@@ -1137,14 +1137,14 @@ export default [
 			{ type: 'delim', value: '+' },
 			{ type: 'ident', value: 'a1' },
 			{ type: 'delim', value: '?' },
-			{ type: 'number', value: -123 }
+			{ type: 'number', value: -123, sign: '-' }
 		]
 	},
 	{
 		selector: 'u+1??4',
 		tokenize: [
 			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 1 },
+			{ type: 'number', value: 1, sign: '+' },
 			{ type: 'delim', value: '?' },
 			{ type: 'delim', value: '?' },
 			{ type: 'number', value: 4 }
@@ -1170,7 +1170,7 @@ export default [
 		tokenize: [
 			{ type: 'ident', value: 'u' },
 			{ type: 'delim', value: '+' },
-			{ type: 'number', value: -543 }
+			{ type: 'number', value: -543, sign: '-' }
 		]
 	},
 

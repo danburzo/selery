@@ -156,43 +156,38 @@ export function tokenize(str) {
 		https://drafts.csswg.org/css-syntax/#consume-numeric-token
 	 */
 	const num = () => {
-		let value = '';
+		let num_token = {
+			value: ''
+		};
 		if (chars[_i] === '+' || chars[_i] === '-') {
-			value += chars[_i++];
+			num_token.sign = chars[_i];
+			num_token.value += chars[_i++];
 		}
-		value += digits();
+		num_token.value += digits();
 		if (chars[_i] === '.' && /\d/.test(chars[_i + 1] || '')) {
-			value += chars[_i++] + digits();
+			num_token.value += chars[_i++] + digits();
 		}
 		if (chars[_i] === 'e' || chars[_i] === 'E') {
 			if (
 				(chars[_i + 1] === '+' || chars[_i + 1] === '-') &&
 				/\d/.test(chars[_i + 2] || '')
 			) {
-				value += chars[_i++] + chars[_i++] + digits();
+				num_token.value += chars[_i++] + chars[_i++] + digits();
 			} else if (/\d/.test(chars[_i + 1] || '')) {
-				value += chars[_i++] + digits();
+				num_token.value += chars[_i++] + digits();
 			}
 		}
+		num_token.value = +num_token.value;
 		if (is_ident()) {
-			return {
-				type: Tokens.Dimension,
-				value: +value,
-				unit: ident()
-			};
-		}
-
-		if (chars[_i] === '%') {
+			num_token.type = Tokens.Dimension;
+			num_token.unit = ident();
+		} else if (chars[_i] === '%') {
 			_i++;
-			return {
-				type: Tokens.Percentage,
-				value: +value
-			};
+			num_token.type = Tokens.Percentage;
+		} else {
+			num_token.type = Tokens.Number;
 		}
-		return {
-			type: Tokens.Number,
-			value: +value
-		};
+		return num_token;
 	};
 
 	/*
