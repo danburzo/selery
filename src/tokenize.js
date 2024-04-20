@@ -14,7 +14,7 @@
 
 // https://drafts.csswg.org/css-syntax/#non-printable-code-point
 const NonPrintableCodePoint = /[\x00-\x08\x0B\x0E-\x1F\x7F]/;
-const HexDigit = /[0-9a-zA-Z]/;
+const HexDigit = /[0-9a-fA-F]/;
 
 function nonascii(c) {
 	return (
@@ -37,11 +37,11 @@ function nonascii(c) {
 	);
 }
 
-function isIdentStart(ch) {
+function isIdentStartCodePoint(ch) {
 	return ch && (/[a-zA-Z_]/.test(ch) || nonascii(ch.codePointAt(0)));
 }
 
-function isIdent(ch) {
+function isIdentCodePoint(ch) {
 	return ch && (/[-\w]/.test(ch) || nonascii(ch.codePointAt(0)));
 }
 
@@ -84,10 +84,22 @@ export function tokenize(str) {
 	/*
 		§ 3.3. Preprocessing the input stream
 		https://drafts.csswg.org/css-syntax/#input-preprocessing
+
+		We split the string into an Array based on Unicode codepoints,
+		rather than iterating on the string itself. 
+
+		Eg: 
+		
+		'\u{12345}'.length = 2, but 
+		Array.from('\u{12345}').length = 1.
 	 */
-	let chars = str
-		.replace(/\f|\r\n?/g, '\n')
-		.replace(/[\u0000\uD800-\uDFFF]/g, '\uFFFD');
+	let chars = Array.from(str.replace(/\f|\r\n?/g, '\n')).map(char => {
+		const c = char.codePointAt(0);
+		if (!c || (c >= 0xd800 && c <= 0xdfff)) {
+			return '\uFFFD';
+		}
+		return char;
+	});
 	let _i = 0;
 	let tokens = [],
 		token;
@@ -96,13 +108,13 @@ export function tokenize(str) {
 	/* 
 		§ 4.3.7. Consume an escaped code point
 	*/
-	const esc = () => {
+	function esc() {
 		if (_i >= chars.length) {
 			throw new Error('Unexpected end of input, unterminated escape sequence');
 		} else if (HexDigit.test(chars[_i] || '')) {
 			let hex = chars[_i++];
 			while (hex.length < 6 && HexDigit.test(chars[_i] || '')) {
-				hex += chars[_i];
+				hex += chars[_i++];
 			}
 			// consume following whitespace
 			if (is_ws()) {
@@ -115,7 +127,7 @@ export function tokenize(str) {
 			return String.fromCodePoint(v);
 		}
 		return chars[_i++]; // Consume escaped character
-	};
+	}
 
 	// § 4.3.8. Check if two code points are a valid escape
 	const is_esc = (offset = 0) =>
@@ -202,7 +214,10 @@ export function tokenize(str) {
 
 	const is_ident = (offset = 0) => {
 		if (chars[_i + offset] === '-') {
-			if (isIdent(chars[_i + offset + 1]) || chars[_i + offset + 1] === '-') {
+			if (
+				isIdentCodePoint(chars[_i + offset + 1]) ||
+				chars[_i + offset + 1] === '-'
+			) {
 				return true;
 			}
 			if (chars[_i + offset + 1] === '\\') {
@@ -210,7 +225,7 @@ export function tokenize(str) {
 			}
 			return false;
 		}
-		if (isIdentStart(chars[_i + offset])) {
+		if (isIdentStartCodePoint(chars[_i + offset])) {
 			return true;
 		}
 		if (chars[_i + offset] === '\\') {
@@ -222,10 +237,10 @@ export function tokenize(str) {
 	/*
 		§ 4.3.12. Consume an ident sequence
 	 */
-	const ident = () => {
+	function ident() {
 		let v = '';
 		while (_i < chars.length) {
-			if (isIdent(chars[_i])) {
+			if (isIdentCodePoint(chars[_i])) {
 				v += chars[_i++];
 			} else if (is_esc()) {
 				_i++; // consume solidus
@@ -235,13 +250,13 @@ export function tokenize(str) {
 			}
 		}
 		return v;
-	};
+	}
 
 	/*
 		§ 4.3.4. Consume an ident-like token
 		https://drafts.csswg.org/css-syntax/#consume-an-ident-like-token
 	 */
-	const identlike = () => {
+	function identlike() {
 		let v = ident();
 		if (v.toLowerCase() === 'url' && chars[_i] === '(') {
 			_i++; // consume parenthesis
@@ -318,12 +333,15 @@ export function tokenize(str) {
 			type: Tokens.Ident,
 			value: v
 		};
-	};
+	}
 
-	const is_ws = (offset = 0) =>
-		chars[_i + offset] === ' ' ||
-		chars[_i + offset] === '\n' ||
-		chars[_i + offset] === '\t';
+	function is_ws(offset = 0) {
+		return (
+			chars[_i + offset] === ' ' ||
+			chars[_i + offset] === '\n' ||
+			chars[_i + offset] === '\t'
+		);
+	}
 
 	while (_i < chars.length) {
 		// § 4.3.2. Consume comments
@@ -397,7 +415,7 @@ export function tokenize(str) {
 			Consume a hash token
 		*/
 		if (ch === '#') {
-			if (_i < chars.length && (isIdent(chars[_i]) || is_esc())) {
+			if (_i < chars.length && (isIdentCodePoint(chars[_i]) || is_esc())) {
 				token = {
 					type: Tokens.Hash
 				};
@@ -503,7 +521,7 @@ export function tokenize(str) {
 		}
 
 		if (ch === '\\') {
-			if (is_esc()) {
+			if (is_esc(-1)) {
 				_i--;
 				tokens.push(identlike());
 				continue;
@@ -534,7 +552,7 @@ export function tokenize(str) {
 
 		// TODO: handle unicode ranges (u)
 
-		if (isIdentStart(ch)) {
+		if (isIdentStartCodePoint(ch)) {
 			_i--;
 			tokens.push(identlike());
 			continue;
