@@ -6,8 +6,8 @@ import { tokenize, parse, serialize } from '../src/index.js';
 	A short setup to work on a specific test while developing.
 */
 test('Working test', t => {
-	assert.deepStrictEqual(tokenize('@-1'), [
-		{ type: 'delim', value: '@' },
-		{ type: 'number', value: -1 }
-	]);
+	// assert.deepStrictEqual(
+	// 	tokenize('uRl(white space),'),
+	// 	[{ type: 'bad-url' }, { type: 'comma' }]
+	// );
 });

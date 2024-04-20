@@ -212,10 +212,10 @@ export function tokenize(str) {
 		case offset = -1, but usually offset = 0;
 	 */
 
-	const is_ident = (offset = 0) => {
+	function is_ident(offset = 0) {
 		if (chars[_i + offset] === '-') {
 			if (
-				isIdentCodePoint(chars[_i + offset + 1]) ||
+				isIdentStartCodePoint(chars[_i + offset + 1]) ||
 				chars[_i + offset + 1] === '-'
 			) {
 				return true;
@@ -232,7 +232,7 @@ export function tokenize(str) {
 			return is_esc(offset);
 		}
 		return false;
-	};
+	}
 
 	/*
 		§ 4.3.12. Consume an ident sequence
@@ -296,6 +296,7 @@ export function tokenize(str) {
 							throw new Error('Unexpected end of input');
 						}
 						// TODO: consume remnants of bad URL
+						throw new Error('Bad URL');
 					}
 					if (
 						curr === '"' ||

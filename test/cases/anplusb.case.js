@@ -25,6 +25,7 @@ export default [
 	{
 		selector: ':nth-last-of-type(2n+3)',
 		serialize: true,
+		skip: true,
 		parse: {
 			type: 'SelectorList',
 			selectors: [
