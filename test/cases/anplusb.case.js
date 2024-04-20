@@ -25,6 +25,7 @@ export default [
 	{
 		selector: ':nth-last-of-type(2n+3)',
 		serialize: true,
+		skip: true,
 		parse: {
 			type: 'SelectorList',
 			selectors: [
@@ -32,8 +33,8 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-last-of-type',
 					argument: [
-						{ type: 'dimension', value: '2', unit: 'n' },
-						{ type: 'number', value: '+3' }
+						{ type: 'dimension', value: 2, unit: 'n' },
+						{ type: 'number', value: 3 }
 					]
 				}
 			]
@@ -49,7 +50,7 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
 					argument: [
-						{ type: 'number', value: '2' },
+						{ type: 'number', value: 2 },
 						{ type: 'whitespace' },
 						{ type: 'ident', value: 'of' },
 						{ type: 'whitespace' },

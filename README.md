@@ -242,13 +242,16 @@ TODO
 
 ## See also
 
-- [qsx](https://github.com/danburzo/qsx) and [hred](https://github.com/danburzo/hred)
-- [parsel](https://github.com/LeaVerou/parsel)
-- [scalpel](https://github.com/gajus/scalpel)
-- [csstree](https://github.com/csstree/csstree)
-- [parse-css](https://github.com/tabatkins/parse-css)
-- [domSelector](https://github.com/asamuzaK/domSelector)
+Selery is planned to power [qsx](https://github.com/danburzo/qsx), the query language based on CSS selectors, and [hred](https://github.com/danburzo/hred), the command-line tool to extract data from HTML and XML.
 
-## Colophon
+You may also want to check out these other CSS parsing projects:
 
-The selery logo is typeset in [Manicotti](https://djr.com/manicotti/) by David Jonathan Ross.
+- [LeaVerou/parsel](https://github.com/LeaVerou/parsel)
+- [gajus/scalpel](https://github.com/gajus/scalpel)
+- [csstree/csstree](https://github.com/csstree/csstree)
+- [tabatkins/parse-css](https://github.com/tabatkins/parse-css)
+- [asamuzaK/domSelector](https://github.com/asamuzaK/domSelector)
+
+## Acknowledgements
+
+Selery’s tokenizer is much more robust thanks to the test suite imported from [parse-css](https://github.com/tabatkins/parse-css).
