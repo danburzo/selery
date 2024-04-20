@@ -1,6 +1,6 @@
 {
 	"name": "selery",
-	"version": "0.0.10",
+	"version": "0.1.0",
 	"description": "A CSS selector parser",
 	"main": "src/index.js",
 	"type": "module",
