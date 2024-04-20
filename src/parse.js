@@ -124,7 +124,9 @@ export const parse = (arg, options = {}) => {
 					}
 				}
 			}
-			throw new Error(`Unexpected token ${tok.type}`);
+			if (tok) {
+				throw new Error(`Unexpected token ${tok.type}`);
+			}
 		}
 		// handle trailing comma
 		if (expect_sel) {
@@ -315,6 +317,9 @@ export const parse = (arg, options = {}) => {
 			}
 			tok = next();
 			return node;
+		}
+		if (ns) {
+			throw new Error('Namespace prefix requires element name');
 		}
 		return undefined;
 	}

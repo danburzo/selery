@@ -1,12 +1,12 @@
 {
 	"inputs": {
 		"src/tokenize.js": {
-			"bytes": 12010,
+			"bytes": 12118,
 			"imports": [],
 			"format": "esm"
 		},
 		"src/parse.js": {
-			"bytes": 13064,
+			"bytes": 13162,
 			"imports": [
 				{
 					"path": "src/tokenize.js",
@@ -44,7 +44,7 @@
 			"format": "esm"
 		},
 		"src/serialize.js": {
-			"bytes": 3109,
+			"bytes": 3263,
 			"imports": [
 				{
 					"path": "src/parse.js",
@@ -109,25 +109,25 @@
 			"entryPoint": "web/index.js",
 			"inputs": {
 				"src/tokenize.js": {
-					"bytesInOutput": 10286
+					"bytesInOutput": 10377
 				},
 				"src/index.js": {
 					"bytesInOutput": 0
 				},
 				"src/parse.js": {
-					"bytesInOutput": 11006
+					"bytesInOutput": 11118
 				},
 				"src/dom.js": {
 					"bytesInOutput": 6551
 				},
 				"src/serialize.js": {
-					"bytesInOutput": 2998
+					"bytesInOutput": 3137
 				},
 				"web/index.js": {
 					"bytesInOutput": 0
 				}
 			},
-			"bytes": 31645
+			"bytes": 31987
 		}
 	}
 }
