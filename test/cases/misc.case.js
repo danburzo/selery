@@ -211,11 +211,6 @@ export default [
 	},
 
 	{
-		selector: 'a => b',
-		parse: /Unsupported combinator/
-	},
-
-	{
 		selector: 'svg|path',
 		parse: {
 			type: 'SelectorList',

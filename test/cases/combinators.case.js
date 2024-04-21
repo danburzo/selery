@@ -142,5 +142,30 @@ export default [
 				}
 			]
 		}
+	},
+	{
+		selector: 'a => b',
+		parse: /Unexpected token/
+	},
+	// issue #22
+	{
+		selector: 'body>.a',
+		parse: {
+			type: 'SelectorList',
+			selectors: [
+				{
+					type: 'ComplexSelector',
+					combinator: '>',
+					left: {
+						type: 'TypeSelector',
+						identifier: 'body'
+					},
+					right: {
+						type: 'ClassSelector',
+						identifier: 'a'
+					}
+				}
+			]
+		}
 	}
 ];

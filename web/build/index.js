@@ -519,6 +519,8 @@ var Syntaxes = {
 	':nth-col': Syntax.AnPlusB,
 	':nth-last-col': Syntax.AnPlusB
 };
+var IS_VALID = 1;
+var IS_PREFIX = 2;
 var DefaultCombinators = [' ', '>', '+', '~', '||'];
 var DefaultAttrMatchers = ['=', '|=', '~=', '^=', '*=', '$='];
 var parse = (arg, options = {}) => {
@@ -528,7 +530,7 @@ var parse = (arg, options = {}) => {
 		__spreadValues({}, Syntaxes),
 		options.syntaxes || {}
 	);
-	const combinators = options.combinators || DefaultCombinators;
+	const combinators = mapCombinators(options.combinators);
 	const attrMatchers = options.attrMatchers || DefaultAttrMatchers;
 	function isDelim(t, ch) {
 		return (t == null ? void 0 : t.type) === Tokens.Delim && t.value === ch;
@@ -558,7 +560,7 @@ var parse = (arg, options = {}) => {
 				}
 			}
 			if (tok) {
-				throw new Error(`Unexpected token ${tok.type}`);
+				throw new Error(`Unexpected token: ${tok.type}`);
 			}
 		}
 		if (expect_sel) {
@@ -591,9 +593,6 @@ var parse = (arg, options = {}) => {
 			}
 			comb = Combinator();
 			if (comb) {
-				if (combinators.indexOf(comb) < 0) {
-					throw new Error(`Unsupported combinator: ${comb}`);
-				}
 				if (!node) {
 					node = {
 						type: NodeTypes.ComplexSelector,
@@ -665,13 +664,23 @@ var parse = (arg, options = {}) => {
 		if (!tok) {
 			return void 0;
 		}
-		let combinator = WhiteSpace() ? ' ' : '';
-		while ((tok == null ? void 0 : tok.type) === Tokens.Delim) {
-			combinator += tok.value;
+		let had_preceding_ws = WhiteSpace();
+		let comb = '';
+		while (
+			(tok == null ? void 0 : tok.type) === Tokens.Delim &&
+			combinators[comb + tok.value] & (IS_VALID | IS_PREFIX)
+		) {
+			comb += tok.value;
 			tok = next2();
 		}
 		WhiteSpace();
-		return combinator.length > 1 ? combinator.trim() : combinator;
+		if (!comb) {
+			return had_preceding_ws ? ' ' : '';
+		}
+		if (combinators[comb] & IS_VALID) {
+			return comb;
+		}
+		throw new Error(`Unsupported combinator: ${comb}`);
 	}
 	function WhiteSpace() {
 		let had_ws = false;
@@ -906,6 +915,20 @@ var parse = (arg, options = {}) => {
 };
 function AnPlusB(tokens) {
 	return tokens;
+}
+function mapCombinators(combinators) {
+	return (combinators || DefaultCombinators).reduce((dict, comb) => {
+		dict[comb] = (dict[comb] || 0) | IS_VALID;
+		if (comb.length > 1) {
+			let comb_chars = Array.from(comb),
+				prefix;
+			while (comb_chars.pop()) {
+				prefix = comb_chars.join('');
+				dict[prefix] = (dict[prefix] || 0) | IS_PREFIX;
+			}
+		}
+		return dict;
+	}, {});
 }
 
 // src/dom.js
