@@ -100,7 +100,8 @@ export function tokenize(str) {
 		}
 		return char;
 	});
-	let _i = 0;
+	let _i = 0,
+		start; // indexes
 	let tokens = [],
 		token;
 	let ch, matching_ch;
@@ -155,9 +156,10 @@ export function tokenize(str) {
 		§ 4.3.3. Consume a numeric token
 		https://drafts.csswg.org/css-syntax/#consume-numeric-token
 	 */
-	const num = () => {
+	function num() {
 		let num_token = {
-			value: ''
+			value: '',
+			start
 		};
 		if (chars[_i] === '+' || chars[_i] === '-') {
 			num_token.sign = chars[_i];
@@ -187,8 +189,9 @@ export function tokenize(str) {
 		} else {
 			num_token.type = Tokens.Number;
 		}
+		num_token.end = _i - 1;
 		return num_token;
-	};
+	}
 
 	/*
 		Consume digits
@@ -252,6 +255,7 @@ export function tokenize(str) {
 		https://drafts.csswg.org/css-syntax/#consume-an-ident-like-token
 	 */
 	function identlike() {
+		let _start = start;
 		let v = ident();
 		if (v.toLowerCase() === 'url' && chars[_i] === '(') {
 			_i++; // consume parenthesis
@@ -265,7 +269,9 @@ export function tokenize(str) {
 			) {
 				return {
 					type: Tokens.Function,
-					value: v
+					value: v,
+					start: _start,
+					end: _i - 1
 				};
 			} else {
 				// § 4.3.6. Consume a url token
@@ -274,9 +280,10 @@ export function tokenize(str) {
 				while (is_ws()) {
 					_i++;
 				}
-				let tok = { type: Tokens.Url, value: '' };
+				let tok = { type: Tokens.Url, value: '', start: _start };
 				while ((curr = chars[_i++])) {
 					if (curr === ')') {
+						tok.end = _i - 1;
 						return tok;
 					}
 					if (curr === ' ' || curr === '\n' || curr === '\t') {
@@ -285,6 +292,7 @@ export function tokenize(str) {
 						}
 						if (chars[_i] === ')') {
 							_i++; // consume right parenthesis
+							tok.end = _i - 1;
 							return tok;
 						}
 						if (_i === chars.length) {
@@ -322,12 +330,16 @@ export function tokenize(str) {
 			chars[_i++]; // consume parenthesis
 			return {
 				type: Tokens.Function,
-				value: v
+				value: v,
+				start: _start,
+				end: _i - 1
 			};
 		}
 		return {
 			type: Tokens.Ident,
-			value: v
+			value: v,
+			start: _start,
+			end: _i - 1
 		};
 	}
 
@@ -357,6 +369,7 @@ export function tokenize(str) {
 		}
 
 		// Consume the next input code point.
+		start = _i;
 		ch = chars[_i++];
 
 		// Consume whitespace
@@ -364,7 +377,11 @@ export function tokenize(str) {
 			while (is_ws()) {
 				_i++;
 			}
-			tokens.push({ type: Tokens.Whitespace });
+			tokens.push({
+				type: Tokens.Whitespace,
+				start,
+				end: _i - 1
+			});
 			continue;
 		}
 
@@ -373,6 +390,7 @@ export function tokenize(str) {
 			matching_ch = ch;
 			token = {
 				type: Tokens.String,
+				start,
 				value: ''
 			};
 			while (
@@ -393,6 +411,7 @@ export function tokenize(str) {
 				}
 			}
 			if (ch === matching_ch) {
+				token.end = _i - 1;
 				tokens.push(token);
 				continue;
 			}
@@ -413,26 +432,33 @@ export function tokenize(str) {
 		if (ch === '#') {
 			if (_i < chars.length && (isIdentCodePoint(chars[_i]) || is_esc())) {
 				token = {
-					type: Tokens.Hash
+					type: Tokens.Hash,
+					start
 				};
 				if (is_ident()) {
 					token.id = true;
 				}
 				token.value = ident();
+				token.end = _i - 1;
 				tokens.push(token);
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({
+					type: Tokens.Delim,
+					value: ch,
+					start,
+					end: start
+				});
 			}
 			continue;
 		}
 
 		if (ch === '(') {
-			tokens.push({ type: Tokens.ParenOpen });
+			tokens.push({ type: Tokens.ParenOpen, start, end: start });
 			continue;
 		}
 
 		if (ch === ')') {
-			tokens.push({ type: Tokens.ParenClose });
+			tokens.push({ type: Tokens.ParenClose, start, end: start });
 			continue;
 		}
 
@@ -441,13 +467,13 @@ export function tokenize(str) {
 				_i--;
 				tokens.push(num());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 
 		if (ch === ',') {
-			tokens.push({ type: Tokens.Comma });
+			tokens.push({ type: Tokens.Comma, start, end: start });
 			continue;
 		}
 
@@ -458,13 +484,15 @@ export function tokenize(str) {
 			} else if (chars[_i] === '-' && chars[_i + 1] === '>') {
 				_i += 2;
 				tokens.push({
-					type: Tokens.CDC
+					type: Tokens.CDC,
+					start,
+					end: _i - 1
 				});
 			} else if (is_ident(-1)) {
 				_i--;
 				tokens.push(identlike());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
@@ -474,27 +502,27 @@ export function tokenize(str) {
 				_i--;
 				tokens.push(num());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 
 		if (ch === ':') {
-			tokens.push({ type: Tokens.Colon });
+			tokens.push({ type: Tokens.Colon, start, end: start });
 			continue;
 		}
 
 		if (ch === ';') {
-			tokens.push({ type: Tokens.Semicolon });
+			tokens.push({ type: Tokens.Semicolon, start, end: start });
 			continue;
 		}
 
 		if (ch === '<') {
 			if (chars[_i] === '!' && chars[_i + 1] === '-' && chars[_i + 2] === '-') {
 				_i += 3;
-				tokens.push({ type: Tokens.CDO });
+				tokens.push({ type: Tokens.CDO, start, end: _i - 1 });
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
@@ -503,16 +531,18 @@ export function tokenize(str) {
 			if (is_ident()) {
 				tokens.push({
 					type: Tokens.AtKeyword,
-					value: ident()
+					value: ident(),
+					start,
+					end: _i - 1
 				});
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 
 		if (ch === '[') {
-			tokens.push({ type: Tokens.BracketOpen });
+			tokens.push({ type: Tokens.BracketOpen, start, end: start });
 			continue;
 		}
 
@@ -526,17 +556,17 @@ export function tokenize(str) {
 		}
 
 		if (ch === ']') {
-			tokens.push({ type: Tokens.BracketClose });
+			tokens.push({ type: Tokens.BracketClose, start, end: start });
 			continue;
 		}
 
 		if (ch === '{') {
-			tokens.push({ type: Tokens.BraceOpen });
+			tokens.push({ type: Tokens.BraceOpen, start, end: start });
 			continue;
 		}
 
 		if (ch === '}') {
-			tokens.push({ type: Tokens.BraceClose });
+			tokens.push({ type: Tokens.BraceClose, start, end: start });
 			continue;
 		}
 
@@ -558,7 +588,7 @@ export function tokenize(str) {
 			Treat everything not already handled
 			as a delimiter.
 		 */
-		tokens.push({ type: Tokens.Delim, value: ch });
+		tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 	}
 
 	return tokens;

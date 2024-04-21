@@ -5,29 +5,29 @@ export default [
 	{
 		selector: 'div.primary > span',
 		tokenize: [
-			{ type: 'ident', value: 'div' },
-			{ type: 'delim', value: '.' },
-			{ type: 'ident', value: 'primary' },
-			{ type: 'whitespace' },
-			{ type: 'delim', value: '>' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'span' }
+			{ type: 'ident', value: 'div', start: 0, end: 2 },
+			{ type: 'delim', value: '.', start: 3, end: 3 },
+			{ type: 'ident', value: 'primary', start: 4, end: 10 },
+			{ type: 'whitespace', start: 11, end: 11 },
+			{ type: 'delim', value: '>', start: 12, end: 12 },
+			{ type: 'whitespace', start: 13, end: 13 },
+			{ type: 'ident', value: 'span', start: 14, end: 17 }
 		]
 	},
 	{
 		selector: '#hello',
-		tokenize: [{ type: 'hash', id: true, value: 'hello' }]
+		tokenize: [{ type: 'hash', id: true, value: 'hello', start: 0, end: 5 }]
 	},
 	{
 		selector: '#he\\#llo',
-		tokenize: [{ type: 'hash', id: true, value: 'he#llo' }]
+		tokenize: [{ type: 'hash', id: true, value: 'he#llo', start: 0, end: 7 }]
 	},
 	{
 		selector: '# hello',
 		tokenize: [
-			{ type: 'delim', value: '#' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'hello' }
+			{ type: 'delim', value: '#', start: 0, end: 0 },
+			{ type: 'whitespace', start: 1, end: 1 },
+			{ type: 'ident', value: 'hello', start: 2, end: 6 }
 		]
 	},
 	{

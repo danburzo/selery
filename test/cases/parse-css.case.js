@@ -11,226 +11,258 @@ export default [
 	// -- SingleCharacterTokens
 	{
 		selector: '(',
-		tokenize: [{ type: '(' }]
+		tokenize: [{ type: '(', start: 0, end: 0 }]
 	},
 	{
 		selector: ')',
-		tokenize: [{ type: ')' }]
+		tokenize: [{ type: ')', start: 0, end: 0 }]
 	},
 	{
 		selector: '[',
-		tokenize: [{ type: '[' }]
+		tokenize: [{ type: '[', start: 0, end: 0 }]
 	},
 	{
 		selector: ']',
-		tokenize: [{ type: ']' }]
+		tokenize: [{ type: ']', start: 0, end: 0 }]
 	},
 	{
 		selector: ',',
-		tokenize: [{ type: 'comma' }]
+		tokenize: [{ type: 'comma', start: 0, end: 0 }]
 	},
 	{
 		selector: ':',
-		tokenize: [{ type: 'colon' }]
+		tokenize: [{ type: 'colon', start: 0, end: 0 }]
 	},
 	{
 		selector: ';',
-		tokenize: [{ type: 'semicolon' }]
+		tokenize: [{ type: 'semicolon', start: 0, end: 0 }]
 	},
 	{
 		selector: ')[',
-		tokenize: [{ type: ')' }, { type: '[' }]
+		tokenize: [
+			{ type: ')', start: 0, end: 0 },
+			{ type: '[', start: 1, end: 1 }
+		]
 	},
 	{
 		selector: '[)',
-		tokenize: [{ type: '[' }, { type: ')' }]
+		tokenize: [
+			{ type: '[', start: 0, end: 0 },
+			{ type: ')', start: 1, end: 1 }
+		]
 	},
 	{
 		selector: '{}',
-		tokenize: [{ type: '{' }, { type: '}' }]
+		tokenize: [
+			{ type: '{', start: 0, end: 0 },
+			{ type: '}', start: 1, end: 1 }
+		]
 	},
 	{
 		selector: ',,',
-		tokenize: [{ type: 'comma' }, { type: 'comma' }]
+		tokenize: [
+			{ type: 'comma', start: 0, end: 0 },
+			{ type: 'comma', start: 1, end: 1 }
+		]
 	},
 
 	// -- MultipleCharacterTokens
 	{
 		selector: '~=',
 		tokenize: [
-			{ type: 'delim', value: '~' },
-			{ type: 'delim', value: '=' }
+			{ type: 'delim', value: '~', start: 0, end: 0 },
+			{ type: 'delim', value: '=', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '|=',
 		tokenize: [
-			{ type: 'delim', value: '|' },
-			{ type: 'delim', value: '=' }
+			{ type: 'delim', value: '|', start: 0, end: 0 },
+			{ type: 'delim', value: '=', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '^=',
 		tokenize: [
-			{ type: 'delim', value: '^' },
-			{ type: 'delim', value: '=' }
+			{ type: 'delim', value: '^', start: 0, end: 0 },
+			{ type: 'delim', value: '=', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '$=',
 		tokenize: [
-			{ type: 'delim', value: '$' },
-			{ type: 'delim', value: '=' }
+			{ type: 'delim', value: '$', start: 0, end: 0 },
+			{ type: 'delim', value: '=', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '*=',
 		tokenize: [
-			{ type: 'delim', value: '*' },
-			{ type: 'delim', value: '=' }
+			{ type: 'delim', value: '*', start: 0, end: 0 },
+			{ type: 'delim', value: '=', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '||',
 		tokenize: [
-			{ type: 'delim', value: '|' },
-			{ type: 'delim', value: '|' }
+			{ type: 'delim', value: '|', start: 0, end: 0 },
+			{ type: 'delim', value: '|', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '|||',
 		tokenize: [
-			{ type: 'delim', value: '|' },
-			{ type: 'delim', value: '|' },
-			{ type: 'delim', value: '|' }
+			{ type: 'delim', value: '|', start: 0, end: 0 },
+			{ type: 'delim', value: '|', start: 1, end: 1 },
+			{ type: 'delim', value: '|', start: 2, end: 2 }
 		]
 	},
 	{
 		selector: '<!--',
-		tokenize: [{ type: 'cdo' }]
+		tokenize: [{ type: 'cdo', start: 0, end: 3 }]
 	},
 	{
 		selector: '<!---',
-		tokenize: [{ type: 'cdo' }, { type: 'delim', value: '-' }]
+		tokenize: [
+			{ type: 'cdo', start: 0, end: 3 },
+			{ type: 'delim', value: '-', start: 4, end: 4 }
+		]
 	},
 	{
 		selector: '-->',
-		tokenize: [{ type: 'cdc' }]
+		tokenize: [{ type: 'cdc', start: 0, end: 2 }]
 	},
 
 	// -- DelimiterToken
 	{
 		selector: '^',
-		tokenize: [{ type: 'delim', value: '^' }]
+		tokenize: [{ type: 'delim', value: '^', start: 0, end: 0 }]
 	},
 	{
 		selector: '*',
-		tokenize: [{ type: 'delim', value: '*' }]
+		tokenize: [{ type: 'delim', value: '*', start: 0, end: 0 }]
 	},
 	{
 		selector: '%',
-		tokenize: [{ type: 'delim', value: '%' }]
+		tokenize: [{ type: 'delim', value: '%', start: 0, end: 0 }]
 	},
 	{
 		selector: '~',
-		tokenize: [{ type: 'delim', value: '~' }]
+		tokenize: [{ type: 'delim', value: '~', start: 0, end: 0 }]
 	},
 	{
 		selector: '&',
-		tokenize: [{ type: 'delim', value: '&' }]
+		tokenize: [{ type: 'delim', value: '&', start: 0, end: 0 }]
 	},
 	{
 		selector: '|',
-		tokenize: [{ type: 'delim', value: '|' }]
+		tokenize: [{ type: 'delim', value: '|', start: 0, end: 0 }]
 	},
 	{
 		selector: '\x7f',
-		tokenize: [{ type: 'delim', value: '\x7f' }]
+		tokenize: [{ type: 'delim', value: '\x7f', start: 0, end: 0 }]
 	},
 	{
 		selector: '\x01',
-		tokenize: [{ type: 'delim', value: '\x01' }]
+		tokenize: [{ type: 'delim', value: '\x01', start: 0, end: 0 }]
 	},
 	{
 		selector: '~-',
 		tokenize: [
-			{ type: 'delim', value: '~' },
-			{ type: 'delim', value: '-' }
+			{ type: 'delim', value: '~', start: 0, end: 0 },
+			{ type: 'delim', value: '-', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '^|',
 		tokenize: [
-			{ type: 'delim', value: '^' },
-			{ type: 'delim', value: '|' }
+			{ type: 'delim', value: '^', start: 0, end: 0 },
+			{ type: 'delim', value: '|', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '$~',
 		tokenize: [
-			{ type: 'delim', value: '$' },
-			{ type: 'delim', value: '~' }
+			{ type: 'delim', value: '$', start: 0, end: 0 },
+			{ type: 'delim', value: '~', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '*^',
 		tokenize: [
-			{ type: 'delim', value: '*' },
-			{ type: 'delim', value: '^' }
+			{ type: 'delim', value: '*', start: 0, end: 0 },
+			{ type: 'delim', value: '^', start: 1, end: 1 }
 		]
 	},
 
 	// -- WhitespaceTokens
 	{
 		selector: '   ',
-		tokenize: [{ type: 'whitespace' }]
+		tokenize: [{ type: 'whitespace', start: 0, end: 2 }]
 	},
 	{
 		selector: '\n\rS',
-		tokenize: [{ type: 'whitespace' }, { type: 'ident', value: 'S' }]
+		tokenize: [
+			{ type: 'whitespace', start: 0, end: 1 },
+			{ type: 'ident', value: 'S', start: 2, end: 2 }
+		]
 	},
 	{
 		selector: '   *',
-		tokenize: [{ type: 'whitespace' }, { type: 'delim', value: '*' }]
+		tokenize: [
+			{ type: 'whitespace', start: 0, end: 2 },
+			{ type: 'delim', value: '*', start: 3, end: 3 }
+		]
 	},
 	{
 		selector: '\r\n\f\t2',
-		tokenize: [{ type: 'whitespace' }, { type: 'number', value: 2 }]
+		tokenize: [
+			{ type: 'whitespace', start: 0, end: 2 },
+			{ type: 'number', value: 2, start: 3, end: 3 }
+		]
 	},
 
 	// -- Escapes
 	{
 		selector: 'hel\\6Co',
-		tokenize: [{ type: 'ident', value: 'hello' }]
+		tokenize: [{ type: 'ident', value: 'hello', start: 0, end: 6 }]
 	},
 	{
 		selector: '\\26 B',
-		tokenize: [{ type: 'ident', value: '&B' }]
+		tokenize: [{ type: 'ident', value: '&B', start: 0, end: 4 }]
 	},
 	{
 		selector: "'hel\\6c o'",
-		tokenize: [{ type: 'string', value: 'hello' }]
+		tokenize: [{ type: 'string', value: 'hello', start: 0, end: 9 }]
 	},
 	{
 		selector: "'spac\\65\r\ns'",
-		tokenize: [{ type: 'string', value: 'spaces' }]
+		tokenize: [{ type: 'string', value: 'spaces', start: 0, end: 10 }]
 	},
 	{
 		selector: 'spac\\65\r\ns',
-		tokenize: [{ type: 'ident', value: 'spaces' }]
+		tokenize: [{ type: 'ident', value: 'spaces', start: 0, end: 8 }]
 	},
+
+	{
+		selector: 'spac\\65',
+		tokenize: [{ type: 'ident', value: 'space', start: 0, end: 6 }]
+	},
+
 	{
 		selector: 'spac\\65\n\rs',
 		tokenize: [
-			{ type: 'ident', value: 'space' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 's' }
+			{ type: 'ident', value: 'space', start: 0, end: 7 },
+			{ type: 'whitespace', start: 8, end: 8 },
+			{ type: 'ident', value: 's', start: 9, end: 9 }
 		]
 	},
 	{
 		selector: 'sp\\61\tc\\65\fs',
-		tokenize: [{ type: 'ident', value: 'spaces' }]
+		tokenize: [{ type: 'ident', value: 'spaces', start: 0, end: 11 }]
 	},
+
+	// @TODO
 	{
 		selector: 'hel\\6c  o',
 		tokenize: [
@@ -985,25 +1017,27 @@ export default [
 	// -- PercentageToken
 	{
 		selector: '10%',
-		tokenize: [{ type: 'percentage', value: 10 }]
+		tokenize: [{ type: 'percentage', value: 10, start: 0, end: 2 }]
 	},
 	{
 		selector: '+12.0%',
-		tokenize: [{ type: 'percentage', value: 12, sign: '+' }]
+		tokenize: [{ type: 'percentage', value: 12, sign: '+', start: 0, end: 5 }]
 	},
 	{
 		selector: '-48.99%',
-		tokenize: [{ type: 'percentage', value: -48.99, sign: '-' }]
+		tokenize: [
+			{ type: 'percentage', value: -48.99, sign: '-', start: 0, end: 6 }
+		]
 	},
 	{
 		selector: '6e-1%',
-		tokenize: [{ type: 'percentage', value: 0.6 }]
+		tokenize: [{ type: 'percentage', value: 0.6, start: 0, end: 4 }]
 	},
 	{
 		selector: '5%%',
 		tokenize: [
-			{ type: 'percentage', value: 5 },
-			{ type: 'delim', value: '%' }
+			{ type: 'percentage', value: 5, start: 0, end: 1 },
+			{ type: 'delim', value: '%', start: 2, end: 2 }
 		]
 	},
 
@@ -1115,89 +1149,99 @@ export default [
 	{
 		selector: 'u+1234-gggg',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'dimension', value: 1234, unit: '-gggg', sign: '+' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{
+				type: 'dimension',
+				value: 1234,
+				unit: '-gggg',
+				sign: '+',
+				start: 1,
+				end: 10
+			}
 		]
 	},
 	{
 		selector: 'U+ab12???',
 		tokenize: [
-			{ type: 'ident', value: 'U' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'ab12' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' }
+			{ type: 'ident', value: 'U', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'ab12', start: 2, end: 5 },
+			{ type: 'delim', value: '?', start: 6, end: 6 },
+			{ type: 'delim', value: '?', start: 7, end: 7 },
+			{ type: 'delim', value: '?', start: 8, end: 8 }
 		]
 	},
 	{
 		selector: 'u+a1?-123',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'a1' },
-			{ type: 'delim', value: '?' },
-			{ type: 'number', value: -123, sign: '-' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'a1', start: 2, end: 3 },
+			{ type: 'delim', value: '?', start: 4, end: 4 },
+			{ type: 'number', value: -123, sign: '-', start: 5, end: 8 }
 		]
 	},
 	{
 		selector: 'u+1??4',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 1, sign: '+' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'number', value: 4 }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 1, sign: '+', start: 1, end: 2 },
+			{ type: 'delim', value: '?', start: 3, end: 3 },
+			{ type: 'delim', value: '?', start: 4, end: 4 },
+			{ type: 'number', value: 4, start: 5, end: 5 }
 		]
 	},
 	{
 		selector: 'u+z',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'z' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'z', start: 2, end: 2 }
 		]
 	},
 	{
 		selector: 'u+',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: 'u+-543',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'number', value: -543, sign: '-' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'number', value: -543, sign: '-', start: 2, end: 5 }
 		]
 	},
 
 	// -- CommentToken
 	{
 		selector: '/*comment*/a',
-		tokenize: [{ type: 'ident', value: 'a' }]
+		tokenize: [{ type: 'ident', value: 'a', start: 11, end: 11 }]
 	},
 	{
 		selector: '/**\\2f**//',
-		tokenize: [{ type: 'delim', value: '/' }]
+		tokenize: [{ type: 'delim', value: '/', start: 9, end: 9 }]
 	},
 	{
 		selector: '/**y*a*y**/ ',
-		tokenize: [{ type: 'whitespace' }]
+		tokenize: [{ type: 'whitespace', start: 11, end: 11 }]
 	},
 	{
 		selector: ',/* \n :) \n */)',
-		tokenize: [{ type: 'comma' }, { type: ')' }]
+		tokenize: [
+			{ type: 'comma', start: 0, end: 0 },
+			{ type: ')', start: 13, end: 13 }
+		]
 	},
 	{
 		selector: ':/*/*/',
-		tokenize: [{ type: 'colon' }]
+		tokenize: [{ type: 'colon', start: 0, end: 0 }]
 	},
 	{
 		selector: '/**/*',
-		tokenize: [{ type: 'delim', value: '*' }]
+		tokenize: [{ type: 'delim', value: '*', start: 4, end: 4 }]
 	}
 	// {
 	// 	skip: true,
