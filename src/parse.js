@@ -291,7 +291,10 @@ export const parse = (arg, options = {}) => {
 		}
 		WhiteSpace(); // consume trailing whitespace
 		if (!comb) {
-			return had_preceding_ws ? ' ' : '';
+			if (!had_preceding_ws) {
+				return undefined;
+			}
+			comb = ' ';
 		}
 		if (combinators[comb] & IS_VALID) {
 			return comb;

@@ -675,7 +675,10 @@ var parse = (arg, options = {}) => {
 		}
 		WhiteSpace();
 		if (!comb) {
-			return had_preceding_ws ? ' ' : '';
+			if (!had_preceding_ws) {
+				return void 0;
+			}
+			comb = ' ';
 		}
 		if (combinators[comb] & IS_VALID) {
 			return comb;
