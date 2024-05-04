@@ -262,13 +262,13 @@ export default [
 		tokenize: [{ type: 'ident', value: 'spaces', start: 0, end: 11 }]
 	},
 
-	// @TODO
+	// first whitespace after escaped codepoint is part of ident
 	{
 		selector: 'hel\\6c  o',
 		tokenize: [
-			{ type: 'ident', value: 'hell' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'o' }
+			{ type: 'ident', value: 'hell', start: 0, end: 6 },
+			{ type: 'whitespace', start: 7, end: 7 },
+			{ type: 'ident', value: 'o', start: 8, end: 8 }
 		]
 	},
 	// {
@@ -282,23 +282,23 @@ export default [
 	// },
 	{
 		selector: 'test\\D799',
-		tokenize: [{ type: 'ident', value: 'test\uD799' }]
+		tokenize: [{ type: 'ident', value: 'test\uD799', start: 0, end: 8 }]
 	},
 	{
 		selector: '\\E000',
-		tokenize: [{ type: 'ident', value: '\uE000' }]
+		tokenize: [{ type: 'ident', value: '\uE000', start: 0, end: 4 }]
 	},
 	{
 		selector: 'te\\s\\t',
-		tokenize: [{ type: 'ident', value: 'test' }]
+		tokenize: [{ type: 'ident', value: 'test', start: 0, end: 5 }]
 	},
 	{
 		selector: 'spaces\\ in\\\tident',
-		tokenize: [{ type: 'ident', value: 'spaces in\tident' }]
+		tokenize: [{ type: 'ident', value: 'spaces in\tident', start: 0, end: 16 }]
 	},
 	{
 		selector: '\\.\\,\\:\\!',
-		tokenize: [{ type: 'ident', value: '.,:!' }]
+		tokenize: [{ type: 'ident', value: '.,:!', start: 0, end: 7 }]
 	},
 	// {
 	// 	selector: '\\\r',
@@ -317,55 +317,55 @@ export default [
 	// },
 	{
 		selector: 'null\\\0',
-		tokenize: [{ type: 'ident', value: 'null\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'null\uFFFD', start: 0, end: 5 }]
 	},
 	{
 		selector: 'null\\\0\0',
-		tokenize: [{ type: 'ident', value: 'null\uFFFD\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'null\uFFFD\uFFFD', start: 0, end: 6 }]
 	},
 	{
 		selector: 'null\\0',
-		tokenize: [{ type: 'ident', value: 'null\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'null\uFFFD', start: 0, end: 5 }]
 	},
 	{
 		selector: 'null\\0',
-		tokenize: [{ type: 'ident', value: 'null\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'null\uFFFD', start: 0, end: 5 }]
 	},
 	{
 		selector: 'null\\0000',
-		tokenize: [{ type: 'ident', value: 'null\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'null\uFFFD', start: 0, end: 8 }]
 	},
 	{
 		selector: 'large\\110000',
-		tokenize: [{ type: 'ident', value: 'large\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'large\uFFFD', start: 0, end: 11 }]
 	},
 	{
 		selector: 'large\\23456a',
-		tokenize: [{ type: 'ident', value: 'large\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'large\uFFFD', start: 0, end: 11 }]
 	},
 	{
 		selector: 'surrogate\\D800',
-		tokenize: [{ type: 'ident', value: 'surrogate\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'surrogate\uFFFD', start: 0, end: 13 }]
 	},
 	{
 		selector: 'surrogate\\0DABC',
-		tokenize: [{ type: 'ident', value: 'surrogate\uFFFD' }]
+		tokenize: [{ type: 'ident', value: 'surrogate\uFFFD', start: 0, end: 14 }]
 	},
 	{
 		selector: '\\00DFFFsurrogate',
-		tokenize: [{ type: 'ident', value: '\uFFFDsurrogate' }]
+		tokenize: [{ type: 'ident', value: '\uFFFDsurrogate', start: 0, end: 15 }]
 	},
 	{
 		selector: '\\10fFfF',
-		tokenize: [{ type: 'ident', value: '\u{10ffff}' }]
+		tokenize: [{ type: 'ident', value: '\u{10ffff}', start: 0, end: 6 }]
 	},
 	{
 		selector: '\\10fFfF0',
-		tokenize: [{ type: 'ident', value: '\u{10ffff}0' }]
+		tokenize: [{ type: 'ident', value: '\u{10ffff}0', start: 0, end: 7 }]
 	},
 	{
 		selector: '\\10000000',
-		tokenize: [{ type: 'ident', value: '\u{100000}00' }]
+		tokenize: [{ type: 'ident', value: '\u{100000}00', start: 0, end: 8 }]
 	},
 	// {
 	// 	selector: 'eof\\',
@@ -376,117 +376,113 @@ export default [
 	// -- identToken
 	{
 		selector: 'simple-ident',
-		tokenize: [{ type: 'ident', value: 'simple-ident' }]
+		tokenize: [{ type: 'ident', value: 'simple-ident', start: 0, end: 11 }]
 	},
 	{
 		selector: 'testing123',
-		tokenize: [{ type: 'ident', value: 'testing123' }]
+		tokenize: [{ type: 'ident', value: 'testing123', start: 0, end: 9 }]
 	},
 	{
 		selector: 'hello!',
 		tokenize: [
-			{ type: 'ident', value: 'hello' },
-			{ type: 'delim', value: '!' }
+			{ type: 'ident', value: 'hello', start: 0, end: 4 },
+			{ type: 'delim', value: '!', start: 5, end: 5 }
 		]
 	},
 	{
 		selector: 'world\x05',
 		tokenize: [
-			{ type: 'ident', value: 'world' },
-			{ type: 'delim', value: '\x05' }
+			{ type: 'ident', value: 'world', start: 0, end: 4 },
+			{ type: 'delim', value: '\x05', start: 5, end: 5 }
 		]
 	},
 	{
 		selector: '_under score',
 		tokenize: [
-			{ type: 'ident', value: '_under' },
-			{ type: 'whitespace' },
-			{ type: 'ident', value: 'score' }
+			{ type: 'ident', value: '_under', start: 0, end: 5 },
+			{ type: 'whitespace', start: 6, end: 6 },
+			{ type: 'ident', value: 'score', start: 7, end: 11 }
 		]
 	},
 	{
 		selector: '-_underscore',
-		tokenize: [{ type: 'ident', value: '-_underscore' }]
+		tokenize: [{ type: 'ident', value: '-_underscore', start: 0, end: 11 }]
 	},
 	{
 		selector: '-text',
-		tokenize: [{ type: 'ident', value: '-text' }]
+		tokenize: [{ type: 'ident', value: '-text', start: 0, end: 4 }]
 	},
 	{
 		selector: '-\\6d',
-		tokenize: [{ type: 'ident', value: '-m' }]
+		tokenize: [{ type: 'ident', value: '-m', start: 0, end: 3 }]
 	},
 	{
 		selector: '--abc',
-		tokenize: [{ type: 'ident', value: '--abc' }]
+		tokenize: [{ type: 'ident', value: '--abc', start: 0, end: 4 }]
 	},
 	{
 		selector: '--',
-		tokenize: [{ type: 'ident', value: '--' }]
+		tokenize: [{ type: 'ident', value: '--', start: 0, end: 1 }]
 	},
 	{
 		selector: '--11',
-		tokenize: [{ type: 'ident', value: '--11' }]
+		tokenize: [{ type: 'ident', value: '--11', start: 0, end: 3 }]
 	},
 	{
 		selector: '---',
-		tokenize: [{ type: 'ident', value: '---' }]
+		tokenize: [{ type: 'ident', value: '---', start: 0, end: 2 }]
 	},
 	{
 		selector: '\u2003', // em-space
-		tokenize: [{ type: 'delim', value: '\u2003' }]
+		tokenize: [{ type: 'delim', value: '\u2003', start: 0, end: 0 }]
 	},
 	{
 		selector: '\u{A0}', // non-breaking space
-		tokenize: [{ type: 'delim', value: '\u{A0}' }]
+		tokenize: [{ type: 'delim', value: '\u{A0}', start: 0, end: 0 }]
 	},
 	{
 		selector: '\u1234',
-		tokenize: [{ type: 'ident', value: '\u1234' }]
+		tokenize: [{ type: 'ident', value: '\u1234', start: 0, end: 0 }]
 	},
 	{
 		selector: '\u{12345}',
-		tokenize: [{ type: 'ident', value: '\u{12345}' }]
+		tokenize: [{ type: 'ident', value: '\u{12345}', start: 0, end: 0 }]
 	},
 	{
 		selector: '\0',
-		tokenize: [{ type: 'ident', value: '\uFFFD' }]
+		tokenize: [{ type: 'ident', value: '\uFFFD', start: 0, end: 0 }]
 	},
 	{
 		selector: 'ab\0c',
-		tokenize: [{ type: 'ident', value: 'ab\uFFFDc' }]
-	},
-	{
-		selector: 'ab\0c',
-		tokenize: [{ type: 'ident', value: 'ab\uFFFDc' }]
+		tokenize: [{ type: 'ident', value: 'ab\uFFFDc', start: 0, end: 3 }]
 	},
 
 	// -- FunctionToken
 	{
 		selector: 'scale(2)',
 		tokenize: [
-			{ type: 'function', value: 'scale' },
-			{ type: 'number', value: 2 },
-			{ type: ')' }
+			{ type: 'function', value: 'scale', start: 0, end: 5 },
+			{ type: 'number', value: 2, start: 6, end: 6 },
+			{ type: ')', start: 7, end: 7 }
 		]
 	},
 	{
 		selector: 'foo-bar\\ baz(',
-		tokenize: [{ type: 'function', value: 'foo-bar baz' }]
+		tokenize: [{ type: 'function', value: 'foo-bar baz', start: 0, end: 13 }]
 	},
 	{
 		selector: 'fun\\(ction(',
-		tokenize: [{ type: 'function', value: 'fun(ction' }]
+		tokenize: [{ type: 'function', value: 'fun(ction', start: 0, end: 11 }]
 	},
 	{
 		selector: '-foo(',
-		tokenize: [{ type: 'function', value: '-foo' }]
+		tokenize: [{ type: 'function', value: '-foo', start: 0, end: 4 }]
 	},
 	{
 		selector: 'url("foo.gif"',
 		tokenize: [
-			{ type: 'function', value: 'url' },
-			{ type: 'string', value: 'foo.gif' }
+			{ type: 'function', value: 'url', start: 0, end: 3 },
+			{ type: 'string', value: 'foo.gif', start: 4, end: 12 }
 		]
 	},
 	{
