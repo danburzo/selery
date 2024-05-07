@@ -8,17 +8,25 @@ import { parse } from '../src/index.js';
 test('Extend combinators', () => {
 	assert.deepStrictEqual(parse('a => b', { combinators: ['=>'] }), {
 		type: 'SelectorList',
+		start: 0,
+		end: 5,
 		selectors: [
 			{
 				type: 'ComplexSelector',
+				start: 0,
+				end: 5,
 				combinator: '=>',
 				left: {
 					type: 'TypeSelector',
-					identifier: 'a'
+					identifier: 'a',
+					start: 0,
+					end: 0
 				},
 				right: {
 					type: 'TypeSelector',
-					identifier: 'b'
+					identifier: 'b',
+					start: 5,
+					end: 5
 				}
 			}
 		]

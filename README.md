@@ -32,14 +32,14 @@ A token is a plain object having a `type` property, along with other optional pr
 
 ```js
 [
-	{ type: 'ident', value: 'article' },
-	{ type: 'whitespace' },
-	{ type: 'ident', value: 'a' },
-	{ type: '[' },
-	{ type: 'ident', value: 'href' },
-	{ type: 'delim', value: '=' },
-	{ type: 'string', value: '#' },
-	{ type: ']' }
+	{ type: 'ident', value: 'article', start: 0, end: 6 },
+	{ type: 'whitespace', start: 7, end: 7 },
+	{ type: 'ident', value: 'a', start: 8, end: 8 },
+	{ type: '[', start: 9, end: 9 },
+	{ type: 'ident', value: 'href', start: 10, end: 13 },
+	{ type: 'delim', value: '=', start: 14, end: 14 },
+	{ type: 'string', value: '#', start: 15, end: 17 },
+	{ type: ']', start: 18, end: 18 }
 ];
 ```
 
@@ -147,9 +147,13 @@ Some token types may include specific properties:
 - `number` and `percentage` include a `sign` property;
 - `dimension` includes `sign` and `unit` properties;
 
+All tokens include the positional `start` and `end` properties that delimit the token’s locarion in the input string.
+
 ## CSS selector AST reference
 
 All nodes in the AST contain a `type` property, and additional properties for each specific type, listed below.
+
+All nodes also include the positional `start` and `end` properties that delimit the selector’s location in the input string.
 
 #### `SelectorList`
 

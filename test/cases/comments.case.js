@@ -3,11 +3,15 @@ export default [
 		selector: '/* A comment */ a',
 		tokenize: [
 			{
-				type: 'whitespace'
+				type: 'whitespace',
+				start: 15,
+				end: 15
 			},
 			{
 				type: 'ident',
-				value: 'a'
+				value: 'a',
+				start: 16,
+				end: 16
 			}
 		],
 		parse: {
@@ -15,9 +19,13 @@ export default [
 			selectors: [
 				{
 					type: 'TypeSelector',
-					identifier: 'a'
+					identifier: 'a',
+					start: 16,
+					end: 16
 				}
-			]
+			],
+			start: 16,
+			end: 16
 		},
 		serialize: 'a'
 	},
@@ -29,11 +37,15 @@ export default [
 		selector: '/* A comment \\*/ a',
 		tokenize: [
 			{
-				type: 'whitespace'
+				type: 'whitespace',
+				start: 16,
+				end: 16
 			},
 			{
 				type: 'ident',
-				value: 'a'
+				value: 'a',
+				start: 17,
+				end: 17
 			}
 		],
 		serialize: 'a'

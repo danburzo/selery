@@ -11,8 +11,8 @@
 		"prepare": "git config core.hooksPath .git-hooks",
 		"test": "node --test 'test/**/*.test.js'",
 		"lint": "eslint '{src,test}/**/*.js'",
-		"start:web": "npx esbuild --servedir=web --watch --outdir=web/build --metafile=web/build/meta.json --bundle --format=esm --target=es6 web/index.js",
-		"build:web": "npx esbuild --outdir=web/build --metafile=web/build/meta.json --bundle --format=esm --target=es6 web/index.js"
+		"web:start": "npx esbuild --servedir=web --watch --outdir=web/build --metafile=web/build/meta.json --bundle --format=esm --target=es6 web/index.js",
+		"web:build": "npx esbuild --outdir=web/build --metafile=web/build/meta.json --bundle --format=esm --target=es6 web/index.js"
 	},
 	"repository": {
 		"type": "git",

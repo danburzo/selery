@@ -137,7 +137,9 @@ export const parse = (arg, options = {}) => {
 		}
 		return {
 			type: NodeTypes.SelectorList,
-			selectors
+			selectors,
+			start: selectors[0].start,
+			end: selectors[selectors.length - 1].end
 		};
 	}
 
@@ -156,25 +158,32 @@ export const parse = (arg, options = {}) => {
 					// first compound selector
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: sel
+						left: sel,
+						start: sel.start,
+						end: sel.end
 					};
 				} else if (node.combinator && !node.right) {
 					node.right = sel;
+					node.end = sel.end;
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: node
+						left: node,
+						start: node.start,
+						end: node.end
 					};
 				} else {
 					throw new Error(`Unexpected selector: ${sel.type}`);
 				}
 			}
+			let comb_start = tok?.start;
 			comb = Combinator();
 			if (comb) {
 				if (!node) {
 					// Relative selector, eg `> a`.
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: null
+						left: null,
+						start: comb_start
 					};
 				}
 				if (node.combinator) {
@@ -263,7 +272,9 @@ export const parse = (arg, options = {}) => {
 		if (selectors.length > 1) {
 			return {
 				type: NodeTypes.CompoundSelector,
-				selectors
+				selectors,
+				start: selectors[0].start,
+				end: selectors[selectors.length - 1].end
 			};
 		}
 		return selectors[0];
@@ -319,11 +330,14 @@ export const parse = (arg, options = {}) => {
 		preceding whitespace has already been consumed.
 	*/
 	function TypeSelector() {
+		let start = tok?.start;
 		let ns = NsPrefix();
 		if (tok?.type === Tokens.Ident || isDelim(tok, '*')) {
 			let node = {
 				type: NodeTypes.TypeSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start,
+				end: tok.end
 			};
 			if (ns !== undefined) {
 				node.namespace = ns;
@@ -369,7 +383,9 @@ export const parse = (arg, options = {}) => {
 		if (tok?.type === Tokens.Hash) {
 			let ret = {
 				type: NodeTypes.IdSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start: tok.start,
+				end: tok.end
 			};
 			tok = next();
 			return ret;
@@ -383,11 +399,13 @@ export const parse = (arg, options = {}) => {
 	*/
 	function ClassSelector() {
 		if (isDelim(tok, '.') && peek()?.type === Tokens.Ident) {
-			tok = next(); // skip dot
 			let ret = {
 				type: NodeTypes.ClassSelector,
-				identifier: tok.value
+				start: tok.start
 			};
+			tok = next(); // skip dot
+			ret.identifier = tok.value;
+			ret.end = tok.end;
 			tok = next(); // skip class name
 			return ret;
 		}
@@ -403,6 +421,7 @@ export const parse = (arg, options = {}) => {
 	 */
 	function AttributeSelector() {
 		if (tok?.type === Tokens.BracketOpen) {
+			let start = tok.start;
 			tok = next(); // consume '['
 			WhiteSpace();
 
@@ -412,7 +431,9 @@ export const parse = (arg, options = {}) => {
 			}
 			let node = {
 				type: NodeTypes.AttributeSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start,
+				end: tok.end
 			};
 			if (ns !== undefined) {
 				node.namespace = ns;
@@ -431,13 +452,16 @@ export const parse = (arg, options = {}) => {
 					if (tok.type === Tokens.String) {
 						node.quotes = true;
 					}
+					node.end = tok.end;
 					tok = next();
 				} else {
 					throw new Error('Expected attribute value');
 				}
 				WhiteSpace();
+				let modifier_end = tok?.end;
 				let mod = AttrModifier();
 				if (mod) {
+					node.end = modifier_end;
 					node.modifier = mod;
 				}
 				WhiteSpace();
@@ -450,6 +474,7 @@ export const parse = (arg, options = {}) => {
 				return node;
 			}
 			if (tok.type === Tokens.BracketClose) {
+				node.end = tok.end;
 				tok = next();
 				return node;
 			}
@@ -497,10 +522,14 @@ export const parse = (arg, options = {}) => {
 	*/
 	function PseudoElementSelector() {
 		if (tok?.type === Tokens.Colon && peek()?.type === Tokens.Colon) {
+			let pseudo_element_start = tok.start;
 			tok = next(); // consume first colon
 			let node = PseudoClassSelector(true);
-			node.type = NodeTypes.PseudoElementSelector;
-			return node;
+			if (node) {
+				node.start = pseudo_element_start;
+				node.type = NodeTypes.PseudoElementSelector;
+				return node;
+			}
 		}
 		return undefined;
 	}
@@ -508,11 +537,12 @@ export const parse = (arg, options = {}) => {
 	function PseudoClassSelector(is_actually_pseudo_elem = false) {
 		if (tok?.type === Tokens.Colon) {
 			if (peek()?.type === Tokens.Ident || peek()?.type === Tokens.Function) {
-				tok = next();
 				let node = {
 					type: NodeTypes.PseudoClassSelector,
-					identifier: tok.value
+					start: tok.start
 				};
+				tok = next();
+				node.identifier = tok.value;
 				if (tok.type === Tokens.Function) {
 					node.argument = [];
 					let fn_depth = 1;
@@ -541,6 +571,7 @@ export const parse = (arg, options = {}) => {
 						throw new Error('Parentheses mismatch');
 					}
 				}
+				node.end = tok.end;
 				tok = next();
 				return node;
 			}

@@ -1,12 +1,12 @@
 {
 	"inputs": {
 		"src/tokenize.js": {
-			"bytes": 12118,
+			"bytes": 12892,
 			"imports": [],
 			"format": "esm"
 		},
 		"src/parse.js": {
-			"bytes": 13691,
+			"bytes": 14479,
 			"imports": [
 				{
 					"path": "src/tokenize.js",
@@ -109,13 +109,13 @@
 			"entryPoint": "web/index.js",
 			"inputs": {
 				"src/tokenize.js": {
-					"bytesInOutput": 10377
+					"bytesInOutput": 11260
 				},
 				"src/index.js": {
 					"bytesInOutput": 0
 				},
 				"src/parse.js": {
-					"bytesInOutput": 11658
+					"bytesInOutput": 12640
 				},
 				"src/dom.js": {
 					"bytesInOutput": 6551
@@ -127,7 +127,7 @@
 					"bytesInOutput": 0
 				}
 			},
-			"bytes": 32527
+			"bytes": 34392
 		}
 	}
 }
