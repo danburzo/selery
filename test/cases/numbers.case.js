@@ -10,15 +10,15 @@ export default [
 			{ type: 'whitespace', start: 1, end: 1 },
 			{ type: 'number', value: -2, sign: '-', start: 2, end: 3 },
 			{ type: 'whitespace', start: 4, end: 4 },
-			{ type: 'number', value: 0.3, start: 5, end: 7 },
-			{ type: 'whitespace', start: 8, end: 8 },
-			{ type: 'number', value: 0.4, start: 9, end: 11 },
-			{ type: 'whitespace', start: 12, end: 12 },
-			{ type: 'number', value: -2.5e10, sign: '-', start: 13, end: 19 },
-			{ type: 'whitespace', start: 20, end: 20 },
-			{ type: 'number', value: 1e-5, start: 21, end: 24 },
-			{ type: 'whitespace', start: 25, end: 25 },
-			{ type: 'number', value: 1e7, start: 26, end: 28 }
+			{ type: 'number', value: 0.3, start: 5, end: 6 },
+			{ type: 'whitespace', start: 7, end: 7 },
+			{ type: 'number', value: 0.4, start: 8, end: 10 },
+			{ type: 'whitespace', start: 11, end: 11 },
+			{ type: 'number', value: -2.5e10, sign: '-', start: 12, end: 18 },
+			{ type: 'whitespace', start: 19, end: 19 },
+			{ type: 'number', value: 1e-5, start: 20, end: 23 },
+			{ type: 'whitespace', start: 24, end: 24 },
+			{ type: 'number', value: 1e7, start: 25, end: 28 }
 		]
 	},
 	{

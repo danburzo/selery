@@ -12,12 +12,12 @@ export default [
 				{
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
-					argument: [{ type: 'ident', value: 'odd' }]
+					argument: [{ type: 'ident', value: 'odd', start: 11, end: 13 }]
 				},
 				{
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
-					argument: [{ type: 'ident', value: 'even' }]
+					argument: [{ type: 'ident', value: 'even', start: 28, end: 31 }]
 				}
 			]
 		}
@@ -32,8 +32,8 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-last-of-type',
 					argument: [
-						{ type: 'dimension', value: 2, unit: 'n' },
-						{ type: 'number', value: 3, sign: '+' }
+						{ type: 'dimension', value: 2, unit: 'n', start: 18, end: 19 },
+						{ type: 'number', value: 3, sign: '+', start: 20, end: 21 }
 					]
 				}
 			]
@@ -49,14 +49,14 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
 					argument: [
-						{ type: 'number', value: 2 },
-						{ type: 'whitespace' },
-						{ type: 'ident', value: 'of' },
-						{ type: 'whitespace' },
-						{ type: 'colon' },
-						{ type: 'function', value: 'is' },
-						{ type: 'ident', value: 'wow' },
-						{ type: ')' }
+						{ type: 'number', value: 2, start: 11, end: 11 },
+						{ type: 'whitespace', start: 12, end: 12 },
+						{ type: 'ident', value: 'of', start: 13, end: 14 },
+						{ type: 'whitespace', start: 15, end: 15 },
+						{ type: 'colon', start: 16, end: 16 },
+						{ type: 'function', value: 'is', start: 17, end: 19 },
+						{ type: 'ident', value: 'wow', start: 20, end: 22 },
+						{ type: ')', start: 23, end: 23 }
 					]
 				}
 			]

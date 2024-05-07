@@ -468,11 +468,11 @@ export default [
 	},
 	{
 		selector: 'foo-bar\\ baz(',
-		tokenize: [{ type: 'function', value: 'foo-bar baz', start: 0, end: 13 }]
+		tokenize: [{ type: 'function', value: 'foo-bar baz', start: 0, end: 12 }]
 	},
 	{
 		selector: 'fun\\(ction(',
-		tokenize: [{ type: 'function', value: 'fun(ction', start: 0, end: 11 }]
+		tokenize: [{ type: 'function', value: 'fun(ction', start: 0, end: 10 }]
 	},
 	{
 		selector: '-foo(',
@@ -488,94 +488,96 @@ export default [
 	{
 		selector: "foo(  'bar.gif'",
 		tokenize: [
-			{ type: 'function', value: 'foo' },
-			{ type: 'whitespace' },
-			{ type: 'string', value: 'bar.gif' }
+			{ type: 'function', value: 'foo', start: 0, end: 3 },
+			{ type: 'whitespace', start: 4, end: 5 },
+			{ type: 'string', value: 'bar.gif', start: 6, end: 14 }
 		]
 	},
 	{
 		selector: "url(  'bar.gif'",
 		tokenize: [
-			{ type: 'function', value: 'url' },
-			{ type: 'whitespace' },
-			{ type: 'string', value: 'bar.gif' }
+			{ type: 'function', value: 'url', start: 0, end: 4 },
+			{ type: 'whitespace', start: 5, end: 5 },
+			{ type: 'string', value: 'bar.gif', start: 6, end: 14 }
 		]
 	},
 
 	// -- AtKeywordToken
 	{
 		selector: '@at-keyword',
-		tokenize: [{ type: 'at-keyword', value: 'at-keyword' }]
+		tokenize: [{ type: 'at-keyword', value: 'at-keyword', start: 0, end: 10 }]
 	},
 	{
 		selector: '@testing123',
-		tokenize: [{ type: 'at-keyword', value: 'testing123' }]
+		tokenize: [{ type: 'at-keyword', value: 'testing123', start: 0, end: 10 }]
 	},
 	{
 		selector: '@hello!',
 		tokenize: [
-			{ type: 'at-keyword', value: 'hello' },
-			{ type: 'delim', value: '!' }
+			{ type: 'at-keyword', value: 'hello', start: 0, end: 5 },
+			{ type: 'delim', value: '!', start: 6, end: 6 }
 		]
 	},
 	{
 		selector: '@-text',
-		tokenize: [{ type: 'at-keyword', value: '-text' }]
+		tokenize: [{ type: 'at-keyword', value: '-text', start: 0, end: 5 }]
 	},
 	{
 		selector: '@--abc',
-		tokenize: [{ type: 'at-keyword', value: '--abc' }]
+		tokenize: [{ type: 'at-keyword', value: '--abc', start: 0, end: 5 }]
 	},
 	{
 		selector: '@--',
-		tokenize: [{ type: 'at-keyword', value: '--' }]
+		tokenize: [{ type: 'at-keyword', value: '--', start: 0, end: 2 }]
 	},
 	{
 		selector: '@--11',
-		tokenize: [{ type: 'at-keyword', value: '--11' }]
+		tokenize: [{ type: 'at-keyword', value: '--11', start: 0, end: 4 }]
 	},
 	{
 		selector: '@---',
-		tokenize: [{ type: 'at-keyword', value: '---' }]
+		tokenize: [{ type: 'at-keyword', value: '---', start: 0, end: 3 }]
 	},
 	{
 		selector: '@\\ ',
-		tokenize: [{ type: 'at-keyword', value: ' ' }]
+		tokenize: [{ type: 'at-keyword', value: ' ', start: 0, end: 2 }]
 	},
 	{
 		selector: '@-\\ ',
-		tokenize: [{ type: 'at-keyword', value: '- ' }]
+		tokenize: [{ type: 'at-keyword', value: '- ', start: 0, end: 3 }]
 	},
 	{
 		selector: '@@',
 		tokenize: [
-			{ type: 'delim', value: '@' },
-			{ type: 'delim', value: '@' }
+			{ type: 'delim', value: '@', start: 0, end: 0 },
+			{ type: 'delim', value: '@', start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '@2',
 		tokenize: [
-			{ type: 'delim', value: '@' },
-			{ type: 'number', value: 2 }
+			{ type: 'delim', value: '@', start: 0, end: 0 },
+			{ type: 'number', value: 2, start: 1, end: 1 }
 		]
 	},
 	{
 		selector: '@-1',
 		tokenize: [
-			{ type: 'delim', value: '@' },
-			{ type: 'number', value: -1, sign: '-' }
+			{ type: 'delim', value: '@', start: 0, end: 0 },
+			{ type: 'number', value: -1, sign: '-', start: 1, end: 2 }
 		]
 	},
 
 	// -- UrlToken
 	{
 		selector: 'url(foo.gif)',
-		tokenize: [{ type: 'url', value: 'foo.gif' }]
+		tokenize: [{ type: 'url', value: 'foo.gif', start: 0, end: 11 }]
 	},
 	{
 		selector: 'urL(https://example.com/cats.png)',
-		tokenize: [{ type: 'url', value: 'https://example.com/cats.png' }]
+		tokenize: [
+			{ type: 'url', value: 'https://example.com/cats.png', start: 0, end: 32 }
+		]
 	},
 	// {
 	// 	skip: true,
@@ -584,7 +586,7 @@ export default [
 	// },
 	{
 		selector: 'uRL(123#test)',
-		tokenize: [{ type: 'url', value: '123#test' }]
+		tokenize: [{ type: 'url', value: '123#test', start: 0, end: 12 }]
 	},
 	// {
 	// 	skip: true,
@@ -593,7 +595,7 @@ export default [
 	// },
 	{
 		selector: 'UrL(   whitespace   )',
-		tokenize: [{ type: 'url', value: 'whitespace' }]
+		tokenize: [{ type: 'url', value: 'whitespace', start: 0, end: 20 }]
 	},
 	// {
 	// 	skip: true,
@@ -607,11 +609,11 @@ export default [
 	// },
 	{
 		selector: 'url(not/*a*/comment)',
-		tokenize: [{ type: 'url', value: 'not/*a*/comment' }]
+		tokenize: [{ type: 'url', value: 'not/*a*/comment', start: 0, end: 19 }]
 	},
 	{
 		selector: 'urL()',
-		tokenize: [{ type: 'url', value: '' }]
+		tokenize: [{ type: 'url', value: '', start: 0, end: 4 }]
 	},
 
 	// {
@@ -672,27 +674,27 @@ export default [
 	// -- StringToken
 	{
 		selector: "'text'",
-		tokenize: [{ type: 'string', value: 'text' }]
+		tokenize: [{ type: 'string', value: 'text', start: 0, end: 5 }]
 	},
 	{
 		selector: '"text"',
-		tokenize: [{ type: 'string', value: 'text' }]
+		tokenize: [{ type: 'string', value: 'text', start: 0, end: 5 }]
 	},
 	{
 		selector: "'testing, 123!'",
-		tokenize: [{ type: 'string', value: 'testing, 123!' }]
+		tokenize: [{ type: 'string', value: 'testing, 123!', start: 0, end: 14 }]
 	},
 	{
 		selector: "'es\\'ca\\\"pe'",
-		tokenize: [{ type: 'string', value: 'es\'ca"pe' }]
+		tokenize: [{ type: 'string', value: 'es\'ca"pe', start: 0, end: 11 }]
 	},
 	{
 		selector: '\'"quotes"\'',
-		tokenize: [{ type: 'string', value: '"quotes"' }]
+		tokenize: [{ type: 'string', value: '"quotes"', start: 0, end: 9 }]
 	},
 	{
 		selector: '"\'quotes\'"',
-		tokenize: [{ type: 'string', value: "'quotes'" }]
+		tokenize: [{ type: 'string', value: "'quotes'", start: 0, end: 9 }]
 	},
 	// {
 	// 	skip: true,
@@ -701,7 +703,7 @@ export default [
 	// },
 	{
 		selector: "'text\x05\t\x13'",
-		tokenize: [{ type: 'string', value: 'text\x05\t\x13' }]
+		tokenize: [{ type: 'string', value: 'text\x05\t\x13', start: 0, end: 8 }]
 	},
 	// {
 	// 	skip: true,
@@ -710,19 +712,19 @@ export default [
 	// },
 	{
 		selector: "'esca\\\nped'",
-		tokenize: [{ type: 'string', value: 'escaped' }]
+		tokenize: [{ type: 'string', value: 'escaped', start: 0, end: 10 }]
 	},
 	{
 		selector: '"esc\\\faped"',
-		tokenize: [{ type: 'string', value: 'escaped' }]
+		tokenize: [{ type: 'string', value: 'escaped', start: 0, end: 10 }]
 	},
 	{
 		selector: "'new\\\rline'",
-		tokenize: [{ type: 'string', value: 'newline' }]
+		tokenize: [{ type: 'string', value: 'newline', start: 0, end: 10 }]
 	},
 	{
 		selector: '"new\\\r\nline"',
-		tokenize: [{ type: 'string', value: 'newline' }]
+		tokenize: [{ type: 'string', value: 'newline', start: 0, end: 10 }]
 	},
 	// {
 	// 	skip: true,
@@ -762,37 +764,42 @@ export default [
 	// },
 	{
 		selector: "'\0'",
-		tokenize: [{ type: 'string', value: '\uFFFD' }]
+		tokenize: [{ type: 'string', value: '\uFFFD', start: 0, end: 2 }]
 	},
 	{
 		selector: "'hel\0lo'",
-		tokenize: [{ type: 'string', value: 'hel\uFFFDlo' }]
+		tokenize: [{ type: 'string', value: 'hel\uFFFDlo', start: 0, end: 7 }]
 	},
 	{
 		selector: "'h\\65l\0lo'",
-		tokenize: [{ type: 'string', value: 'hel\uFFFDlo' }]
+		tokenize: [{ type: 'string', value: 'hel\uFFFDlo', start: 0, end: 9 }]
 	},
 
 	// -- HashToken
 	{
 		selector: '#id-selector',
-		tokenize: [{ type: 'hash', value: 'id-selector', id: true }]
+		tokenize: [
+			{ type: 'hash', value: 'id-selector', id: true, start: 0, end: 11 }
+		]
 	},
 	{
 		selector: '#FF7700',
-		tokenize: [{ type: 'hash', value: 'FF7700', id: true }]
+		tokenize: [{ type: 'hash', value: 'FF7700', id: true, start: 0, end: 6 }]
 	},
 	{
 		selector: '#3377FF',
-		tokenize: [{ type: 'hash', value: '3377FF' }]
+		tokenize: [{ type: 'hash', value: '3377FF', start: 0, end: 6 }]
 	},
 	{
 		selector: '#\\ ',
-		tokenize: [{ type: 'hash', value: ' ', id: true }]
+		tokenize: [{ type: 'hash', value: ' ', id: true, start: 0, end: 2 }]
 	},
 	{
 		selector: '# ',
-		tokenize: [{ type: 'delim', value: '#' }, { type: 'whitespace' }]
+		tokenize: [
+			{ type: 'delim', value: '#', start: 0, end: 0 },
+			{ type: 'whitespace', start: 1, end: 1 }
+		]
 	},
 	// {
 	// 	skip: true,
@@ -815,198 +822,211 @@ export default [
 	{
 		selector: '#!',
 		tokenize: [
-			{ type: 'delim', value: '#' },
-			{ type: 'delim', value: '!' }
+			{ type: 'delim', value: '#', start: 0, end: 0 },
+			{ type: 'delim', value: '!', start: 1, end: 1 }
 		]
 	},
 
 	// -- NumberToken
 	{
 		selector: '10',
-		tokenize: [{ type: 'number', value: 10 }]
+		tokenize: [{ type: 'number', value: 10, start: 0, end: 1 }]
 	},
 	{
 		selector: '12.0',
-		tokenize: [{ type: 'number', value: 12 }]
+		tokenize: [{ type: 'number', value: 12, start: 0, end: 3 }]
 	},
 	{
 		selector: '+45.6',
-		tokenize: [{ type: 'number', value: 45.6, sign: '+' }]
+		tokenize: [{ type: 'number', value: 45.6, sign: '+', start: 0, end: 4 }]
 	},
 	{
 		selector: '-7',
-		tokenize: [{ type: 'number', value: -7, sign: '-' }]
+		tokenize: [{ type: 'number', value: -7, sign: '-', start: 0, end: 1 }]
 	},
 	{
 		selector: '010',
-		tokenize: [{ type: 'number', value: 10 }]
+		tokenize: [{ type: 'number', value: 10, start: 0, end: 2 }]
 	},
 	{
 		selector: '10e0',
-		tokenize: [{ type: 'number', value: 10 }]
+		tokenize: [{ type: 'number', value: 10, start: 0, end: 3 }]
 	},
 	{
 		selector: '12e3',
-		tokenize: [{ type: 'number', value: 12000 }]
+		tokenize: [{ type: 'number', value: 12000, start: 0, end: 3 }]
 	},
 	{
 		selector: '3e+1',
-		tokenize: [{ type: 'number', value: 30 }]
+		tokenize: [{ type: 'number', value: 30, start: 0, end: 3 }]
 	},
 	{
 		selector: '12E-1',
-		tokenize: [{ type: 'number', value: 1.2 }]
+		tokenize: [{ type: 'number', value: 1.2, start: 0, end: 4 }]
 	},
 	{
 		selector: '.7',
-		tokenize: [{ type: 'number', value: 0.7 }]
+		tokenize: [{ type: 'number', value: 0.7, start: 0, end: 1 }]
 	},
 	{
 		selector: '-.3',
-		tokenize: [{ type: 'number', value: -0.3, sign: '-' }]
+		tokenize: [{ type: 'number', value: -0.3, sign: '-', start: 0, end: 2 }]
 	},
 	{
 		selector: '+637.54e-2',
-		tokenize: [{ type: 'number', value: 6.3754, sign: '+' }]
+		tokenize: [{ type: 'number', value: 6.3754, sign: '+', start: 0, end: 9 }]
 	},
 	{
 		selector: '-12.34E+2',
-		tokenize: [{ type: 'number', value: -1234, sign: '-' }]
+		tokenize: [{ type: 'number', value: -1234, sign: '-', start: 0, end: 8 }]
 	},
 	{
 		selector: '+ 5',
 		tokenize: [
-			{ type: 'delim', value: '+' },
-			{ type: 'whitespace' },
-			{ type: 'number', value: 5 }
+			{ type: 'delim', value: '+', start: 0, end: 0 },
+			{ type: 'whitespace', start: 1, end: 1 },
+			{ type: 'number', value: 5, start: 2, end: 2 }
 		]
 	},
 	{
 		selector: '-+12',
 		tokenize: [
-			{ type: 'delim', value: '-' },
-			{ type: 'number', value: 12, sign: '+' }
+			{ type: 'delim', value: '-', start: 0, end: 0 },
+			{ type: 'number', value: 12, sign: '+', start: 1, end: 3 }
 		]
 	},
 	{
 		selector: '+-21',
 		tokenize: [
-			{ type: 'delim', value: '+' },
-			{ type: 'number', value: -21, sign: '-' }
+			{ type: 'delim', value: '+', start: 0, end: 0 },
+			{ type: 'number', value: -21, sign: '-', start: 1, end: 3 }
 		]
 	},
 	{
 		selector: '++22',
 		tokenize: [
-			{ type: 'delim', value: '+' },
-			{ type: 'number', value: 22, sign: '+' }
+			{ type: 'delim', value: '+', start: 0, end: 0 },
+			{ type: 'number', value: 22, sign: '+', start: 1, end: 3 }
 		]
 	},
 	{
 		selector: '13.',
 		tokenize: [
-			{ type: 'number', value: 13 },
-			{ type: 'delim', value: '.' }
+			{ type: 'number', value: 13, start: 0, end: 1 },
+			{ type: 'delim', value: '.', start: 2, end: 2 }
 		]
 	},
 	{
 		selector: '1.e2',
 		tokenize: [
-			{ type: 'number', value: 1 },
-			{ type: 'delim', value: '.' },
-			{ type: 'ident', value: 'e2' }
+			{ type: 'number', value: 1, start: 0, end: 0 },
+			{ type: 'delim', value: '.', start: 1, end: 1 },
+			{ type: 'ident', value: 'e2', start: 2, end: 3 }
 		]
 	},
 	{
 		selector: '2e3.5',
 		tokenize: [
-			{ type: 'number', value: 2000 },
-			{ type: 'number', value: 0.5 }
+			{ type: 'number', value: 2000, start: 0, end: 2 },
+			{ type: 'number', value: 0.5, start: 3, end: 4 }
 		]
 	},
 	{
 		selector: '2e3.',
 		tokenize: [
-			{ type: 'number', value: 2000 },
-			{ type: 'delim', value: '.' }
+			{ type: 'number', value: 2000, start: 0, end: 2 },
+			{ type: 'delim', value: '.', start: 3, end: 3 }
 		]
 	},
 	{
 		selector: '1000000000000000000000000',
-		tokenize: [{ type: 'number', value: 1e24 }]
+		tokenize: [{ type: 'number', value: 1e24, start: 0, end: 24 }]
 	},
 
 	// -- DimensionToken
 	{
 		selector: '10px',
-		tokenize: [{ type: 'dimension', value: 10, unit: 'px' }]
+		tokenize: [{ type: 'dimension', value: 10, unit: 'px', start: 0, end: 3 }]
 	},
 	{
 		selector: '12.0em',
-		tokenize: [{ type: 'dimension', value: 12, unit: 'em' }]
+		tokenize: [{ type: 'dimension', value: 12, unit: 'em', start: 0, end: 5 }]
 	},
 	{
 		selector: '-12.0em',
-		tokenize: [{ type: 'dimension', value: -12, unit: 'em', sign: '-' }]
+		tokenize: [
+			{ type: 'dimension', value: -12, unit: 'em', sign: '-', start: 0, end: 6 }
+		]
 	},
 	{
 		selector: '+45.6__qem',
-		tokenize: [{ type: 'dimension', value: 45.6, unit: '__qem', sign: '+' }]
+		tokenize: [
+			{
+				type: 'dimension',
+				value: 45.6,
+				unit: '__qem',
+				sign: '+',
+				start: 0,
+				end: 9
+			}
+		]
 	},
 	{
 		selector: '5e',
-		tokenize: [{ type: 'dimension', value: 5, unit: 'e' }]
+		tokenize: [{ type: 'dimension', value: 5, unit: 'e', start: 0, end: 1 }]
 	},
 	{
 		selector: '5px-2px',
-		tokenize: [{ type: 'dimension', value: 5, unit: 'px-2px' }]
+		tokenize: [
+			{ type: 'dimension', value: 5, unit: 'px-2px', start: 0, end: 6 }
+		]
 	},
 	{
 		selector: '5e-',
-		tokenize: [{ type: 'dimension', value: 5, unit: 'e-' }]
+		tokenize: [{ type: 'dimension', value: 5, unit: 'e-', start: 0, end: 2 }]
 	},
 	{
 		selector: '5\\ ',
-		tokenize: [{ type: 'dimension', value: 5, unit: ' ' }]
+		tokenize: [{ type: 'dimension', value: 5, unit: ' ', start: 0, end: 2 }]
 	},
 	{
 		selector: '40\\70\\78',
-		tokenize: [{ type: 'dimension', value: 40, unit: 'px' }]
+		tokenize: [{ type: 'dimension', value: 40, unit: 'px', start: 0, end: 7 }]
 	},
 	{
 		selector: '4e3e2',
-		tokenize: [{ type: 'dimension', value: 4000, unit: 'e2' }]
+		tokenize: [{ type: 'dimension', value: 4000, unit: 'e2', start: 0, end: 4 }]
 	},
 	{
 		selector: '0x10px',
-		tokenize: [{ type: 'dimension', value: 0, unit: 'x10px' }]
+		tokenize: [{ type: 'dimension', value: 0, unit: 'x10px', start: 0, end: 5 }]
 	},
 	{
 		selector: '4unit ',
 		tokenize: [
-			{ type: 'dimension', value: 4, unit: 'unit' },
-			{ type: 'whitespace' }
+			{ type: 'dimension', value: 4, unit: 'unit', start: 0, end: 4 },
+			{ type: 'whitespace', start: 5, end: 5 }
 		]
 	},
 	{
 		selector: '5e+',
 		tokenize: [
-			{ type: 'dimension', value: 5, unit: 'e' },
-			{ type: 'delim', value: '+' }
+			{ type: 'dimension', value: 5, unit: 'e', start: 0, end: 1 },
+			{ type: 'delim', value: '+', start: 2, end: 2 }
 		]
 	},
 	{
 		selector: '2e.5',
 		tokenize: [
-			{ type: 'dimension', value: 2, unit: 'e' },
-			{ type: 'number', value: 0.5 }
+			{ type: 'dimension', value: 2, unit: 'e', start: 0, end: 1 },
+			{ type: 'number', value: 0.5, start: 2, end: 3 }
 		]
 	},
 	{
 		selector: '2e+.5',
 		tokenize: [
-			{ type: 'dimension', value: 2, unit: 'e' },
-			{ type: 'number', value: 0.5, sign: '+' }
+			{ type: 'dimension', value: 2, unit: 'e', start: 0, end: 1 },
+			{ type: 'number', value: 0.5, sign: '+', start: 2, end: 4 }
 		]
 	},
 
@@ -1041,105 +1061,105 @@ export default [
 	{
 		selector: 'u+012345-123456',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 12345, sign: '+' },
-			{ type: 'number', value: -123456, sign: '-' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 12345, sign: '+', start: 1, end: 7 },
+			{ type: 'number', value: -123456, sign: '-', start: 8, end: 14 }
 		]
 	},
 	{
 		selector: 'U+1234-2345',
 		tokenize: [
-			{ type: 'ident', value: 'U' },
-			{ type: 'number', value: 1234, sign: '+' },
-			{ type: 'number', value: -2345, sign: '-' }
+			{ type: 'ident', value: 'U', start: 0, end: 0 },
+			{ type: 'number', value: 1234, sign: '+', start: 1, end: 5 },
+			{ type: 'number', value: -2345, sign: '-', start: 6, end: 10 }
 		]
 	},
 	{
 		selector: 'u+222-111',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 222, sign: '+' },
-			{ type: 'number', value: -111, sign: '-' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 222, sign: '+', start: 1, end: 4 },
+			{ type: 'number', value: -111, sign: '-', start: 5, end: 8 }
 		]
 	},
 	{
 		selector: 'U+CafE-d00D',
 		tokenize: [
-			{ type: 'ident', value: 'U' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'CafE-d00D' }
+			{ type: 'ident', value: 'U', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'CafE-d00D', start: 2, end: 10 }
 		]
 	},
 	{
 		selector: 'U+2??',
 		tokenize: [
-			{ type: 'ident', value: 'U' },
-			{ type: 'number', value: 2, sign: '+' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' }
+			{ type: 'ident', value: 'U', start: 0, end: 0 },
+			{ type: 'number', value: 2, sign: '+', start: 1, end: 2 },
+			{ type: 'delim', value: '?', start: 3, end: 3 },
+			{ type: 'delim', value: '?', start: 4, end: 4 }
 		]
 	},
 	{
 		selector: 'U+ab12??',
 		tokenize: [
-			{ type: 'ident', value: 'U' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'ab12' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' }
+			{ type: 'ident', value: 'U', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'ab12', start: 2, end: 5 },
+			{ type: 'delim', value: '?', start: 6, end: 6 },
+			{ type: 'delim', value: '?', start: 7, end: 7 }
 		]
 	},
 	{
 		selector: 'u+??????',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'delim', value: '?', start: 2, end: 2 },
+			{ type: 'delim', value: '?', start: 3, end: 3 },
+			{ type: 'delim', value: '?', start: 4, end: 4 },
+			{ type: 'delim', value: '?', start: 5, end: 5 },
+			{ type: 'delim', value: '?', start: 6, end: 6 },
+			{ type: 'delim', value: '?', start: 7, end: 7 }
 		]
 	},
 	{
 		selector: 'u+??',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'delim', value: '?' },
-			{ type: 'delim', value: '?' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'delim', value: '?', start: 2, end: 2 },
+			{ type: 'delim', value: '?', start: 3, end: 3 }
 		]
 	},
 	{
 		selector: 'u+222+111',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 222, sign: '+' },
-			{ type: 'number', value: 111, sign: '+' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 222, sign: '+', start: 1, end: 4 },
+			{ type: 'number', value: 111, sign: '+', start: 5, end: 8 }
 		]
 	},
 	{
 		selector: 'u+12345678',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 12345678, sign: '+' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 12345678, sign: '+', start: 1, end: 9 }
 		]
 	},
 	{
 		selector: 'u+123-12345678',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'number', value: 123, sign: '+' },
-			{ type: 'number', value: -12345678, sign: '-' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'number', value: 123, sign: '+', start: 1, end: 4 },
+			{ type: 'number', value: -12345678, sign: '-', start: 5, end: 13 }
 		]
 	},
 	{
 		selector: 'u+cake',
 		tokenize: [
-			{ type: 'ident', value: 'u' },
-			{ type: 'delim', value: '+' },
-			{ type: 'ident', value: 'cake' }
+			{ type: 'ident', value: 'u', start: 0, end: 0 },
+			{ type: 'delim', value: '+', start: 1, end: 1 },
+			{ type: 'ident', value: 'cake', start: 2, end: 5 }
 		]
 	},
 	{
