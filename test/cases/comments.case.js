@@ -19,9 +19,13 @@ export default [
 			selectors: [
 				{
 					type: 'TypeSelector',
-					identifier: 'a'
+					identifier: 'a',
+					start: 16,
+					end: 16
 				}
-			]
+			],
+			start: 16,
+			end: 16
 		},
 		serialize: 'a'
 	},

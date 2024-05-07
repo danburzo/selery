@@ -9,14 +9,22 @@ export default [
 					combinator: ' ',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'A'
+						identifier: 'A',
+						start: 0,
+						end: 0
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 2,
+						end: 2
+					},
+					start: 0,
+					end: 2
 				}
-			]
+			],
+			start: 0,
+			end: 2
 		}
 	},
 	{
@@ -29,14 +37,22 @@ export default [
 					combinator: '>',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'A'
+						identifier: 'A',
+						start: 0,
+						end: 0
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 3,
+						end: 3
+					},
+					start: 0,
+					end: 3
 				}
-			]
+			],
+			start: 0,
+			end: 3
 		}
 	},
 	{
@@ -49,14 +65,22 @@ export default [
 					combinator: '+',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'A'
+						identifier: 'A',
+						start: 0,
+						end: 0
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 2,
+						end: 2
+					},
+					start: 0,
+					end: 2
 				}
-			]
+			],
+			start: 0,
+			end: 2
 		}
 	},
 	{
@@ -69,14 +93,22 @@ export default [
 					combinator: '~',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'A'
+						identifier: 'A',
+						start: 0,
+						end: 0
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 3,
+						end: 3
+					},
+					start: 0,
+					end: 3
 				}
-			]
+			],
+			start: 0,
+			end: 3
 		}
 	},
 	{
@@ -97,14 +129,22 @@ export default [
 					combinator: '||',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'A'
+						identifier: 'A',
+						start: 0,
+						end: 0
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 5,
+						end: 5
+					},
+					start: 0,
+					end: 5
 				}
-			]
+			],
+			start: 0,
+			end: 5
 		}
 	},
 	{
@@ -137,10 +177,16 @@ export default [
 					left: null,
 					right: {
 						type: 'TypeSelector',
-						identifier: 'B'
-					}
+						identifier: 'B',
+						start: 15,
+						end: 15
+					},
+					start: 13,
+					end: 15
 				}
-			]
+			],
+			start: 13,
+			end: 15
 		}
 	},
 	{
@@ -158,14 +204,22 @@ export default [
 					combinator: '>',
 					left: {
 						type: 'TypeSelector',
-						identifier: 'body'
+						identifier: 'body',
+						start: 0,
+						end: 3
 					},
 					right: {
 						type: 'ClassSelector',
-						identifier: 'a'
-					}
+						identifier: 'a',
+						start: 5,
+						end: 6
+					},
+					start: 0,
+					end: 6
 				}
-			]
+			],
+			start: 0,
+			end: 6
 		}
 	}
 ];

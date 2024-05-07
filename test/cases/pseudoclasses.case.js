@@ -29,27 +29,51 @@ export default [
 		],
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 62,
 			selectors: [
 				{
 					type: 'CompoundSelector',
+					start: 0,
+					end: 62,
 					selectors: [
 						{
 							type: 'PseudoClassSelector',
+							start: 0,
+							end: 39,
 							identifier: 'is',
 							argument: {
 								type: 'SelectorList',
+								start: 4,
+								end: 38,
 								selectors: [
 									{
 										type: 'CompoundSelector',
+										start: 4,
+										end: 20,
 										selectors: [
-											{ type: 'TypeSelector', identifier: 'a' },
+											{
+												type: 'TypeSelector',
+												identifier: 'a',
+												start: 4,
+												end: 4
+											},
 											{
 												type: 'PseudoClassSelector',
+												start: 5,
+												end: 20,
 												identifier: 'where',
 												argument: {
 													type: 'SelectorList',
+													start: 12,
+													end: 19,
 													selectors: [
-														{ type: 'ClassSelector', identifier: 'primary' }
+														{
+															type: 'ClassSelector',
+															identifier: 'primary',
+															start: 12,
+															end: 19
+														}
 													]
 												}
 											}
@@ -58,10 +82,19 @@ export default [
 									{
 										type: 'PseudoClassSelector',
 										identifier: 'not',
+										start: 23,
+										end: 38,
 										argument: {
 											type: 'SelectorList',
+											start: 28,
+											end: 37,
 											selectors: [
-												{ type: 'ClassSelector', identifier: 'secondary' }
+												{
+													type: 'ClassSelector',
+													identifier: 'secondary',
+													start: 28,
+													end: 37
+												}
 											]
 										}
 									}
@@ -70,20 +103,36 @@ export default [
 						},
 						{
 							type: 'PseudoClassSelector',
+							start: 40,
+							end: 50,
 							identifier: 'has',
 							argument: {
 								type: 'SelectorList',
+								start: 45,
+								end: 49,
 								selectors: [
 									{
 										type: 'ComplexSelector',
+										start: 45,
+										end: 49,
 										left: null,
 										combinator: '>',
-										right: { type: 'TypeSelector', identifier: 'img' }
+										right: {
+											type: 'TypeSelector',
+											identifier: 'img',
+											start: 47,
+											end: 49
+										}
 									}
 								]
 							}
 						},
-						{ type: 'PseudoClassSelector', identifier: 'first-child' }
+						{
+							type: 'PseudoClassSelector',
+							identifier: 'first-child',
+							start: 51,
+							end: 62
+						}
 					]
 				}
 			]

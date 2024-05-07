@@ -41,35 +41,51 @@ export default [
 			selectors: [
 				{
 					type: 'TypeSelector',
-					identifier: 'div'
+					identifier: 'div',
+					start: 0,
+					end: 2
 				}
-			]
+			],
+			start: 0,
+			end: 2
 		}
 	},
 	{
 		selector: 'article a[href="#"]',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 18,
 			selectors: [
 				{
 					type: 'ComplexSelector',
+					start: 0,
+					end: 18,
 					left: {
 						type: 'TypeSelector',
-						identifier: 'article'
+						identifier: 'article',
+						start: 0,
+						end: 6
 					},
 					right: {
 						type: 'CompoundSelector',
+						start: 8,
+						end: 18,
 						selectors: [
 							{
 								type: 'TypeSelector',
-								identifier: 'a'
+								identifier: 'a',
+								start: 8,
+								end: 8
 							},
 							{
 								type: 'AttributeSelector',
 								identifier: 'href',
 								value: '#',
 								quotes: true,
-								matcher: '='
+								matcher: '=',
+								start: 9,
+								end: 18
 							}
 						]
 					},
@@ -82,6 +98,8 @@ export default [
 		selector: 'article > p span',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 15,
 			selectors: [
 				{
 					type: 'ComplexSelector',
@@ -89,19 +107,29 @@ export default [
 						type: 'ComplexSelector',
 						left: {
 							type: 'TypeSelector',
-							identifier: 'article'
+							identifier: 'article',
+							start: 0,
+							end: 6
 						},
 						right: {
 							type: 'TypeSelector',
-							identifier: 'p'
+							identifier: 'p',
+							start: 10,
+							end: 10
 						},
-						combinator: '>'
+						combinator: '>',
+						start: 0,
+						end: 10
 					},
 					right: {
 						type: 'TypeSelector',
-						identifier: 'span'
+						identifier: 'span',
+						start: 12,
+						end: 15
 					},
-					combinator: ' '
+					combinator: ' ',
+					start: 0,
+					end: 15
 				}
 			]
 		}
@@ -110,29 +138,43 @@ export default [
 		selector: 'div:is(.primary, #main)',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 22,
 			selectors: [
 				{
 					type: 'CompoundSelector',
+					start: 0,
+					end: 22,
 					selectors: [
 						{
 							type: 'TypeSelector',
-							identifier: 'div'
+							identifier: 'div',
+							start: 0,
+							end: 2
 						},
 						{
 							type: 'PseudoClassSelector',
+							start: 3,
+							end: 22,
 							identifier: 'is',
 							argument: {
 								type: 'SelectorList',
 								selectors: [
 									{
 										type: 'ClassSelector',
-										identifier: 'primary'
+										identifier: 'primary',
+										start: 7,
+										end: 14
 									},
 									{
 										type: 'IdSelector',
-										identifier: 'main'
+										identifier: 'main',
+										start: 17,
+										end: 21
 									}
-								]
+								],
+								start: 7,
+								end: 21
 							}
 						}
 					]
@@ -144,22 +186,34 @@ export default [
 		selector: ':not(:where(#main))',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 18,
 			selectors: [
 				{
 					type: 'PseudoClassSelector',
+					start: 0,
+					end: 18,
 					identifier: 'not',
 					argument: {
 						type: 'SelectorList',
+						start: 5,
+						end: 17,
 						selectors: [
 							{
 								type: 'PseudoClassSelector',
+								start: 5,
+								end: 17,
 								identifier: 'where',
 								argument: {
 									type: 'SelectorList',
+									start: 12,
+									end: 16,
 									selectors: [
 										{
 											type: 'IdSelector',
-											identifier: 'main'
+											identifier: 'main',
+											start: 12,
+											end: 16
 										}
 									]
 								}
@@ -174,12 +228,16 @@ export default [
 		selector: '[id^=featured]',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 13,
 			selectors: [
 				{
 					type: 'AttributeSelector',
 					identifier: 'id',
 					matcher: '^=',
-					value: 'featured'
+					value: 'featured',
+					start: 0,
+					end: 13
 				}
 			]
 		}
@@ -214,11 +272,15 @@ export default [
 		selector: 'svg|path',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 7,
 			selectors: [
 				{
 					type: 'TypeSelector',
 					identifier: 'path',
-					namespace: 'svg'
+					namespace: 'svg',
+					start: 0,
+					end: 7
 				}
 			]
 		}
@@ -228,11 +290,15 @@ export default [
 		selector: '*|path',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 5,
 			selectors: [
 				{
 					type: 'TypeSelector',
 					identifier: 'path',
-					namespace: '*'
+					namespace: '*',
+					start: 0,
+					end: 5
 				}
 			]
 		}
@@ -242,11 +308,15 @@ export default [
 		selector: '|path',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 4,
 			selectors: [
 				{
 					type: 'TypeSelector',
 					identifier: 'path',
-					namespace: ''
+					namespace: '',
+					start: 0,
+					end: 4
 				}
 			]
 		}
@@ -256,10 +326,14 @@ export default [
 		selector: 'path',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 3,
 			selectors: [
 				{
 					type: 'TypeSelector',
-					identifier: 'path'
+					identifier: 'path',
+					start: 0,
+					end: 3
 				}
 			]
 		}
@@ -269,13 +343,17 @@ export default [
 		selector: '[name=val I]',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 11,
 			selectors: [
 				{
 					type: 'AttributeSelector',
 					identifier: 'name',
 					matcher: '=',
 					value: 'val',
-					modifier: 'i'
+					modifier: 'i',
+					start: 0,
+					end: 11
 				}
 			]
 		}
@@ -285,6 +363,8 @@ export default [
 		selector: '[name="val"I]',
 		parse: {
 			type: 'SelectorList',
+			start: 0,
+			end: 12,
 			selectors: [
 				{
 					type: 'AttributeSelector',
@@ -292,7 +372,9 @@ export default [
 					matcher: '=',
 					value: 'val',
 					quotes: true,
-					modifier: 'i'
+					modifier: 'i',
+					start: 0,
+					end: 12
 				}
 			]
 		}

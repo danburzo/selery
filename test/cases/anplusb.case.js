@@ -12,14 +12,20 @@ export default [
 				{
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
-					argument: [{ type: 'ident', value: 'odd', start: 11, end: 13 }]
+					argument: [{ type: 'ident', value: 'odd', start: 11, end: 13 }],
+					start: 0,
+					end: 14
 				},
 				{
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
-					argument: [{ type: 'ident', value: 'even', start: 28, end: 31 }]
+					argument: [{ type: 'ident', value: 'even', start: 28, end: 31 }],
+					start: 17,
+					end: 32
 				}
-			]
+			],
+			start: 0,
+			end: 32
 		}
 	},
 	{
@@ -34,9 +40,13 @@ export default [
 					argument: [
 						{ type: 'dimension', value: 2, unit: 'n', start: 18, end: 19 },
 						{ type: 'number', value: 3, sign: '+', start: 20, end: 21 }
-					]
+					],
+					start: 0,
+					end: 22
 				}
-			]
+			],
+			start: 0,
+			end: 22
 		}
 	},
 	{
@@ -57,9 +67,13 @@ export default [
 						{ type: 'function', value: 'is', start: 17, end: 19 },
 						{ type: 'ident', value: 'wow', start: 20, end: 22 },
 						{ type: ')', start: 23, end: 23 }
-					]
+					],
+					start: 0,
+					end: 24
 				}
-			]
+			],
+			start: 0,
+			end: 24
 		}
 	}
 ];
