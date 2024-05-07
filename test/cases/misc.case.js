@@ -378,5 +378,21 @@ export default [
 				}
 			]
 		}
+	},
+	{
+		selector: '::selection',
+		parse: {
+			type: 'SelectorList',
+			start: 0,
+			end: 10,
+			selectors: [
+				{
+					type: 'PseudoElementSelector',
+					start: 0,
+					end: 10,
+					identifier: 'selection'
+				}
+			]
+		}
 	}
 ];

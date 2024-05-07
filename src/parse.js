@@ -522,9 +522,10 @@ export const parse = (arg, options = {}) => {
 	*/
 	function PseudoElementSelector() {
 		if (tok?.type === Tokens.Colon && peek()?.type === Tokens.Colon) {
+			let pseudo_element_start = tok.start;
 			tok = next(); // consume first colon
-			// @todo
 			let node = PseudoClassSelector(true);
+			node.start = pseudo_element_start;
 			node.type = NodeTypes.PseudoElementSelector;
 			return node;
 		}
