@@ -85,7 +85,8 @@ function tokenize(str) {
 		}
 		return char;
 	});
-	let _i = 0;
+	let _i = 0,
+		start;
 	let tokens = [],
 		token;
 	let ch, matching_ch;
@@ -122,9 +123,10 @@ function tokenize(str) {
 		}
 		return /\d/.test(ch || '');
 	};
-	const num = () => {
+	function num() {
 		let num_token = {
-			value: ''
+			value: '',
+			start
 		};
 		if (chars[_i] === '+' || chars[_i] === '-') {
 			num_token.sign = chars[_i];
@@ -154,8 +156,9 @@ function tokenize(str) {
 		} else {
 			num_token.type = Tokens.Number;
 		}
+		num_token.end = _i - 1;
 		return num_token;
-	};
+	}
 	const digits = () => {
 		let v = '';
 		while (/\d/.test(chars[_i] || '')) {
@@ -199,6 +202,7 @@ function tokenize(str) {
 		return v;
 	}
 	function identlike() {
+		let _start = start;
 		let v = ident();
 		if (v.toLowerCase() === 'url' && chars[_i] === '(') {
 			_i++;
@@ -212,16 +216,19 @@ function tokenize(str) {
 			) {
 				return {
 					type: Tokens.Function,
-					value: v
+					value: v,
+					start: _start,
+					end: _i - 1
 				};
 			} else {
 				let curr;
 				while (is_ws()) {
 					_i++;
 				}
-				let tok = { type: Tokens.Url, value: '' };
+				let tok = { type: Tokens.Url, value: '', start: _start };
 				while ((curr = chars[_i++])) {
 					if (curr === ')') {
+						tok.end = _i - 1;
 						return tok;
 					}
 					if (curr === ' ' || curr === '\n' || curr === '	') {
@@ -230,6 +237,7 @@ function tokenize(str) {
 						}
 						if (chars[_i] === ')') {
 							_i++;
+							tok.end = _i - 1;
 							return tok;
 						}
 						if (_i === chars.length) {
@@ -263,12 +271,16 @@ function tokenize(str) {
 			chars[_i++];
 			return {
 				type: Tokens.Function,
-				value: v
+				value: v,
+				start: _start,
+				end: _i - 1
 			};
 		}
 		return {
 			type: Tokens.Ident,
-			value: v
+			value: v,
+			start: _start,
+			end: _i - 1
 		};
 	}
 	function is_ws(offset = 0) {
@@ -293,18 +305,24 @@ function tokenize(str) {
 			_i += 2;
 			continue;
 		}
+		start = _i;
 		ch = chars[_i++];
 		if (ch === ' ' || ch === '\n' || ch === '	') {
 			while (is_ws()) {
 				_i++;
 			}
-			tokens.push({ type: Tokens.Whitespace });
+			tokens.push({
+				type: Tokens.Whitespace,
+				start,
+				end: _i - 1
+			});
 			continue;
 		}
 		if (ch === '"' || ch === "'") {
 			matching_ch = ch;
 			token = {
 				type: Tokens.String,
+				start,
 				value: ''
 			};
 			while (
@@ -324,6 +342,7 @@ function tokenize(str) {
 				}
 			}
 			if (ch === matching_ch) {
+				token.end = _i - 1;
 				tokens.push(token);
 				continue;
 			}
@@ -339,24 +358,31 @@ function tokenize(str) {
 		if (ch === '#') {
 			if (_i < chars.length && (isIdentCodePoint(chars[_i]) || is_esc())) {
 				token = {
-					type: Tokens.Hash
+					type: Tokens.Hash,
+					start
 				};
 				if (is_ident()) {
 					token.id = true;
 				}
 				token.value = ident();
+				token.end = _i - 1;
 				tokens.push(token);
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({
+					type: Tokens.Delim,
+					value: ch,
+					start,
+					end: start
+				});
 			}
 			continue;
 		}
 		if (ch === '(') {
-			tokens.push({ type: Tokens.ParenOpen });
+			tokens.push({ type: Tokens.ParenOpen, start, end: start });
 			continue;
 		}
 		if (ch === ')') {
-			tokens.push({ type: Tokens.ParenClose });
+			tokens.push({ type: Tokens.ParenClose, start, end: start });
 			continue;
 		}
 		if (ch === '+') {
@@ -364,12 +390,12 @@ function tokenize(str) {
 				_i--;
 				tokens.push(num());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 		if (ch === ',') {
-			tokens.push({ type: Tokens.Comma });
+			tokens.push({ type: Tokens.Comma, start, end: start });
 			continue;
 		}
 		if (ch === '-') {
@@ -379,13 +405,15 @@ function tokenize(str) {
 			} else if (chars[_i] === '-' && chars[_i + 1] === '>') {
 				_i += 2;
 				tokens.push({
-					type: Tokens.CDC
+					type: Tokens.CDC,
+					start,
+					end: _i - 1
 				});
 			} else if (is_ident(-1)) {
 				_i--;
 				tokens.push(identlike());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
@@ -394,24 +422,24 @@ function tokenize(str) {
 				_i--;
 				tokens.push(num());
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 		if (ch === ':') {
-			tokens.push({ type: Tokens.Colon });
+			tokens.push({ type: Tokens.Colon, start, end: start });
 			continue;
 		}
 		if (ch === ';') {
-			tokens.push({ type: Tokens.Semicolon });
+			tokens.push({ type: Tokens.Semicolon, start, end: start });
 			continue;
 		}
 		if (ch === '<') {
 			if (chars[_i] === '!' && chars[_i + 1] === '-' && chars[_i + 2] === '-') {
 				_i += 3;
-				tokens.push({ type: Tokens.CDO });
+				tokens.push({ type: Tokens.CDO, start, end: _i - 1 });
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
@@ -419,15 +447,17 @@ function tokenize(str) {
 			if (is_ident()) {
 				tokens.push({
 					type: Tokens.AtKeyword,
-					value: ident()
+					value: ident(),
+					start,
+					end: _i - 1
 				});
 			} else {
-				tokens.push({ type: Tokens.Delim, value: ch });
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
 			continue;
 		}
 		if (ch === '[') {
-			tokens.push({ type: Tokens.BracketOpen });
+			tokens.push({ type: Tokens.BracketOpen, start, end: start });
 			continue;
 		}
 		if (ch === '\\') {
@@ -439,15 +469,15 @@ function tokenize(str) {
 			throw new Error('Invalid escape');
 		}
 		if (ch === ']') {
-			tokens.push({ type: Tokens.BracketClose });
+			tokens.push({ type: Tokens.BracketClose, start, end: start });
 			continue;
 		}
 		if (ch === '{') {
-			tokens.push({ type: Tokens.BraceOpen });
+			tokens.push({ type: Tokens.BraceOpen, start, end: start });
 			continue;
 		}
 		if (ch === '}') {
-			tokens.push({ type: Tokens.BraceClose });
+			tokens.push({ type: Tokens.BraceClose, start, end: start });
 			continue;
 		}
 		if (/\d/.test(ch || '')) {
@@ -460,7 +490,7 @@ function tokenize(str) {
 			tokens.push(identlike());
 			continue;
 		}
-		tokens.push({ type: Tokens.Delim, value: ch });
+		tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 	}
 	return tokens;
 }
@@ -568,7 +598,9 @@ var parse = (arg, options = {}) => {
 		}
 		return {
 			type: NodeTypes.SelectorList,
-			selectors
+			selectors,
+			start: selectors[0].start,
+			end: selectors[selectors.length - 1].end
 		};
 	}
 	function ComplexSelector() {
@@ -579,24 +611,31 @@ var parse = (arg, options = {}) => {
 				if (!node) {
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: sel
+						left: sel,
+						start: sel.start,
+						end: sel.end
 					};
 				} else if (node.combinator && !node.right) {
 					node.right = sel;
+					node.end = sel.end;
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: node
+						left: node,
+						start: node.start,
+						end: node.end
 					};
 				} else {
 					throw new Error(`Unexpected selector: ${sel.type}`);
 				}
 			}
+			let comb_start = tok == null ? void 0 : tok.start;
 			comb = Combinator();
 			if (comb) {
 				if (!node) {
 					node = {
 						type: NodeTypes.ComplexSelector,
-						left: null
+						left: null,
+						start: comb_start
 					};
 				}
 				if (node.combinator) {
@@ -655,7 +694,9 @@ var parse = (arg, options = {}) => {
 		if (selectors.length > 1) {
 			return {
 				type: NodeTypes.CompoundSelector,
-				selectors
+				selectors,
+				start: selectors[0].start,
+				end: selectors[selectors.length - 1].end
 			};
 		}
 		return selectors[0];
@@ -694,6 +735,7 @@ var parse = (arg, options = {}) => {
 		return had_ws;
 	}
 	function TypeSelector() {
+		let start = tok == null ? void 0 : tok.start;
 		let ns = NsPrefix();
 		if (
 			(tok == null ? void 0 : tok.type) === Tokens.Ident ||
@@ -701,7 +743,9 @@ var parse = (arg, options = {}) => {
 		) {
 			let node = {
 				type: NodeTypes.TypeSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start,
+				end: tok.end
 			};
 			if (ns !== void 0) {
 				node.namespace = ns;
@@ -738,7 +782,9 @@ var parse = (arg, options = {}) => {
 		if ((tok == null ? void 0 : tok.type) === Tokens.Hash) {
 			let ret = {
 				type: NodeTypes.IdSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start: tok.start,
+				end: tok.end
 			};
 			tok = next2();
 			return ret;
@@ -751,11 +797,13 @@ var parse = (arg, options = {}) => {
 			isDelim(tok, '.') &&
 			((_a = peek()) == null ? void 0 : _a.type) === Tokens.Ident
 		) {
-			tok = next2();
 			let ret = {
 				type: NodeTypes.ClassSelector,
-				identifier: tok.value
+				start: tok.start
 			};
+			tok = next2();
+			ret.identifier = tok.value;
+			ret.end = tok.end;
 			tok = next2();
 			return ret;
 		}
@@ -763,6 +811,7 @@ var parse = (arg, options = {}) => {
 	}
 	function AttributeSelector() {
 		if ((tok == null ? void 0 : tok.type) === Tokens.BracketOpen) {
+			let start = tok.start;
 			tok = next2();
 			WhiteSpace();
 			let ns = NsPrefix();
@@ -771,7 +820,9 @@ var parse = (arg, options = {}) => {
 			}
 			let node = {
 				type: NodeTypes.AttributeSelector,
-				identifier: tok.value
+				identifier: tok.value,
+				start,
+				end: tok.end
 			};
 			if (ns !== void 0) {
 				node.namespace = ns;
@@ -793,13 +844,16 @@ var parse = (arg, options = {}) => {
 					if (tok.type === Tokens.String) {
 						node.quotes = true;
 					}
+					node.end = tok.end;
 					tok = next2();
 				} else {
 					throw new Error('Expected attribute value');
 				}
 				WhiteSpace();
+				let modifier_end = tok == null ? void 0 : tok.end;
 				let mod = AttrModifier();
 				if (mod) {
+					node.end = modifier_end;
 					node.modifier = mod;
 				}
 				WhiteSpace();
@@ -808,6 +862,7 @@ var parse = (arg, options = {}) => {
 				return node;
 			}
 			if (tok.type === Tokens.BracketClose) {
+				node.end = tok.end;
 				tok = next2();
 				return node;
 			}
@@ -850,10 +905,14 @@ var parse = (arg, options = {}) => {
 			(tok == null ? void 0 : tok.type) === Tokens.Colon &&
 			((_a = peek()) == null ? void 0 : _a.type) === Tokens.Colon
 		) {
+			let pseudo_element_start = tok.start;
 			tok = next2();
 			let node = PseudoClassSelector(true);
-			node.type = NodeTypes.PseudoElementSelector;
-			return node;
+			if (node) {
+				node.start = pseudo_element_start;
+				node.type = NodeTypes.PseudoElementSelector;
+				return node;
+			}
 		}
 		return void 0;
 	}
@@ -864,11 +923,12 @@ var parse = (arg, options = {}) => {
 				((_a = peek()) == null ? void 0 : _a.type) === Tokens.Ident ||
 				((_b = peek()) == null ? void 0 : _b.type) === Tokens.Function
 			) {
-				tok = next2();
 				let node = {
 					type: NodeTypes.PseudoClassSelector,
-					identifier: tok.value
+					start: tok.start
 				};
+				tok = next2();
+				node.identifier = tok.value;
 				if (tok.type === Tokens.Function) {
 					node.argument = [];
 					let fn_depth = 1;
@@ -895,6 +955,7 @@ var parse = (arg, options = {}) => {
 						throw new Error('Parentheses mismatch');
 					}
 				}
+				node.end = tok.end;
 				tok = next2();
 				return node;
 			}

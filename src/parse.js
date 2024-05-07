@@ -525,9 +525,11 @@ export const parse = (arg, options = {}) => {
 			let pseudo_element_start = tok.start;
 			tok = next(); // consume first colon
 			let node = PseudoClassSelector(true);
-			node.start = pseudo_element_start;
-			node.type = NodeTypes.PseudoElementSelector;
-			return node;
+			if (node) {
+				node.start = pseudo_element_start;
+				node.type = NodeTypes.PseudoElementSelector;
+				return node;
+			}
 		}
 		return undefined;
 	}
