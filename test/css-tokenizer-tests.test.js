@@ -13,26 +13,31 @@ function adaptActual(tokens) {
 }
 
 function adaptExpected(tokens) {
-	return tokens.map(tok => {
-		const res = {
-			type: tok.type.replace(/\-token$/, '').toLowerCase()
-			// start: tok.startIndex,
-			// end: tok.endIndex - 1
-		};
-		if (tok.structured) {
-			res.value = tok.structured.value ?? undefined;
-			if (tok.structured.unit) {
-				res.unit = tok.structured.unit;
+	return tokens
+		.map(tok => {
+			const res = {
+				type: tok.type.replace(/\-token$/, '').toLowerCase()
+				// start: tok.startIndex,
+				// end: tok.endIndex - 1
+			};
+			if (tok.structured) {
+				res.value = tok.structured.value ?? undefined;
+				if (tok.structured.unit) {
+					res.unit = tok.structured.unit;
+				}
+				if (tok.structured.type) {
+					res.valtype = tok.structured.type;
+				}
+				if (tok.structured.signCharacter) {
+					res.sign = tok.structured.signCharacter;
+				}
 			}
-			if (tok.structured.type) {
-				res.valtype = tok.structured.type;
-			}
-			if (tok.structured.signCharacter) {
-				res.sign = tok.structured.signCharacter;
-			}
-		}
-		return res;
-	});
+			return res;
+		})
+		.filter(tok => {
+			// Selery does not emit comments
+			return tok.type !== 'comment';
+		});
 }
 
 Object.entries(testCorpus).forEach(entry => {

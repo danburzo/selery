@@ -111,7 +111,8 @@ export function tokenize(str) {
 	*/
 	function esc() {
 		if (_i >= chars.length) {
-			throw new Error('Unexpected end of input, unterminated escape sequence');
+			// TODO: EOF, parser error
+			return '\uFFFD';
 		} else if (HexDigit.test(chars[_i] || '')) {
 			let hex = chars[_i++];
 			while (hex.length < 6 && HexDigit.test(chars[_i] || '')) {
@@ -369,7 +370,8 @@ export function tokenize(str) {
 				_i++;
 			}
 			if (_i === chars.length) {
-				throw new Error('Unexpected end of input, unterminated comment');
+				// TODO parse error
+				continue;
 			}
 			_i += 2; // consume end of comment
 			continue;
