@@ -261,6 +261,7 @@ You may also want to check out these other CSS parsing projects:
 - [csstree/csstree](https://github.com/csstree/csstree)
 - [tabatkins/parse-css](https://github.com/tabatkins/parse-css)
 - [asamuzaK/domSelector](https://github.com/asamuzaK/domSelector)
+- [dbushell/css](https://git.dbushell.com/dbushell/css)
 
 ## Acknowledgements
 
