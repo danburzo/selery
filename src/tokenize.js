@@ -159,7 +159,8 @@ export function tokenize(str) {
 	function num() {
 		let num_token = {
 			value: '',
-			start
+			start,
+			numtype: 'integer'
 		};
 		if (chars[_i] === '+' || chars[_i] === '-') {
 			num_token.sign = chars[_i];
@@ -168,6 +169,7 @@ export function tokenize(str) {
 		num_token.value += digits();
 		if (chars[_i] === '.' && /\d/.test(chars[_i + 1] || '')) {
 			num_token.value += chars[_i++] + digits();
+			num_token.numtype = 'number';
 		}
 		if (chars[_i] === 'e' || chars[_i] === 'E') {
 			if (
@@ -175,8 +177,10 @@ export function tokenize(str) {
 				/\d/.test(chars[_i + 2] || '')
 			) {
 				num_token.value += chars[_i++] + chars[_i++] + digits();
+				num_token.numtype = 'number';
 			} else if (/\d/.test(chars[_i + 1] || '')) {
 				num_token.value += chars[_i++] + digits();
+				num_token.numtype = 'number';
 			}
 		}
 		num_token.value = +num_token.value;
@@ -186,6 +190,9 @@ export function tokenize(str) {
 		} else if (chars[_i] === '%') {
 			_i++;
 			num_token.type = Tokens.Percentage;
+			// According to 4.3.3. Consume a numeric token,
+			// percentages don’t use the `type` flag from the number.
+			delete num_token.numtype;
 		} else {
 			num_token.type = Tokens.Number;
 		}

@@ -62,24 +62,17 @@ function adaptActual(tokens, css) {
 			if (tok.unit) {
 				ret.structured.unit = tok.unit;
 			}
+			if (tok.numtype) {
+				ret.structured.type = tok.numtype;
+			}
 		}
 		return ret;
-	});
-}
-
-function adaptExpected(tokens) {
-	return tokens.map(tok => {
-		delete tok.structured?.type;
-		return tok;
 	});
 }
 
 Object.entries(testCorpus).forEach(entry => {
 	const [name, def] = entry;
 	test(name, t => {
-		assert.deepStrictEqual(
-			adaptActual(tokenize(def.css), def.css),
-			adaptExpected(def.tokens)
-		);
+		assert.deepStrictEqual(adaptActual(tokenize(def.css), def.css), def.tokens);
 	});
 });
