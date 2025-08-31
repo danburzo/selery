@@ -44,7 +44,7 @@ export default [
 							unit: 'n',
 							start: 18,
 							end: 19,
-							numtype: 'integer'
+							valtype: 'integer'
 						},
 						{
 							type: 'number',
@@ -52,7 +52,7 @@ export default [
 							sign: '+',
 							start: 20,
 							end: 21,
-							numtype: 'integer'
+							valtype: 'integer'
 						}
 					],
 					start: 0,
@@ -78,7 +78,7 @@ export default [
 							value: 2,
 							start: 11,
 							end: 11,
-							numtype: 'integer'
+							valtype: 'integer'
 						},
 						{ type: 'whitespace', start: 12, end: 12 },
 						{ type: 'ident', value: 'of', start: 13, end: 14 },

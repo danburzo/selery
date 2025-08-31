@@ -6,7 +6,7 @@ export default [
 	{
 		selector: '1 -2 .3 0.4 -2.5e10 1e-5 1e+7',
 		tokenize: [
-			{ type: 'number', value: 1, start: 0, end: 0, numtype: 'integer' },
+			{ type: 'number', value: 1, start: 0, end: 0, valtype: 'integer' },
 			{ type: 'whitespace', start: 1, end: 1 },
 			{
 				type: 'number',
@@ -14,12 +14,12 @@ export default [
 				sign: '-',
 				start: 2,
 				end: 3,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'whitespace', start: 4, end: 4 },
-			{ type: 'number', value: 0.3, start: 5, end: 6, numtype: 'number' },
+			{ type: 'number', value: 0.3, start: 5, end: 6, valtype: 'number' },
 			{ type: 'whitespace', start: 7, end: 7 },
-			{ type: 'number', value: 0.4, start: 8, end: 10, numtype: 'number' },
+			{ type: 'number', value: 0.4, start: 8, end: 10, valtype: 'number' },
 			{ type: 'whitespace', start: 11, end: 11 },
 			{
 				type: 'number',
@@ -27,12 +27,12 @@ export default [
 				sign: '-',
 				start: 12,
 				end: 18,
-				numtype: 'number'
+				valtype: 'number'
 			},
 			{ type: 'whitespace', start: 19, end: 19 },
-			{ type: 'number', value: 1e-5, start: 20, end: 23, numtype: 'number' },
+			{ type: 'number', value: 1e-5, start: 20, end: 23, valtype: 'number' },
 			{ type: 'whitespace', start: 24, end: 24 },
-			{ type: 'number', value: 1e7, start: 25, end: 28, numtype: 'number' }
+			{ type: 'number', value: 1e7, start: 25, end: 28, valtype: 'number' }
 		]
 	},
 	{
@@ -44,7 +44,7 @@ export default [
 				unit: 'em',
 				start: 0,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'whitespace', start: 3, end: 3 },
 			{
@@ -53,7 +53,7 @@ export default [
 				unit: 'n-3',
 				start: 4,
 				end: 7,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'whitespace', start: 8, end: 8 },
 			{
@@ -62,7 +62,7 @@ export default [
 				unit: 'n',
 				start: 9,
 				end: 10,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -70,7 +70,7 @@ export default [
 				sign: '+',
 				start: 11,
 				end: 12,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	}

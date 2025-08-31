@@ -218,7 +218,7 @@ export default [
 		selector: '\r\n\f\t2',
 		tokenize: [
 			{ type: 'whitespace', start: 0, end: 2 },
-			{ type: 'number', value: 2, start: 3, end: 3, numtype: 'integer' }
+			{ type: 'number', value: 2, start: 3, end: 3, valtype: 'integer' }
 		]
 	},
 
@@ -462,7 +462,7 @@ export default [
 		selector: 'scale(2)',
 		tokenize: [
 			{ type: 'function', value: 'scale', start: 0, end: 5 },
-			{ type: 'number', value: 2, start: 6, end: 6, numtype: 'integer' },
+			{ type: 'number', value: 2, start: 6, end: 6, valtype: 'integer' },
 			{ type: ')', start: 7, end: 7 }
 		]
 	},
@@ -557,7 +557,7 @@ export default [
 		selector: '@2',
 		tokenize: [
 			{ type: 'delim', value: '@', start: 0, end: 0 },
-			{ type: 'number', value: 2, start: 1, end: 1, numtype: 'integer' }
+			{ type: 'number', value: 2, start: 1, end: 1, valtype: 'integer' }
 		]
 	},
 	{
@@ -570,7 +570,7 @@ export default [
 				sign: '-',
 				start: 1,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -786,20 +786,30 @@ export default [
 	{
 		selector: '#id-selector',
 		tokenize: [
-			{ type: 'hash', value: 'id-selector', id: true, start: 0, end: 11 }
+			{ type: 'hash', value: 'id-selector', valtype: 'id', start: 0, end: 11 }
 		]
 	},
 	{
 		selector: '#FF7700',
-		tokenize: [{ type: 'hash', value: 'FF7700', id: true, start: 0, end: 6 }]
+		tokenize: [
+			{ type: 'hash', value: 'FF7700', valtype: 'id', start: 0, end: 6 }
+		]
 	},
 	{
 		selector: '#3377FF',
-		tokenize: [{ type: 'hash', value: '3377FF', start: 0, end: 6 }]
+		tokenize: [
+			{
+				type: 'hash',
+				value: '3377FF',
+				valtype: 'unrestricted',
+				start: 0,
+				end: 6
+			}
+		]
 	},
 	{
 		selector: '#\\ ',
-		tokenize: [{ type: 'hash', value: ' ', id: true, start: 0, end: 2 }]
+		tokenize: [{ type: 'hash', value: ' ', valtype: 'id', start: 0, end: 2 }]
 	},
 	{
 		selector: '# ',
@@ -838,13 +848,13 @@ export default [
 	{
 		selector: '10',
 		tokenize: [
-			{ type: 'number', value: 10, start: 0, end: 1, numtype: 'integer' }
+			{ type: 'number', value: 10, start: 0, end: 1, valtype: 'integer' }
 		]
 	},
 	{
 		selector: '12.0',
 		tokenize: [
-			{ type: 'number', value: 12, start: 0, end: 3, numtype: 'number' }
+			{ type: 'number', value: 12, start: 0, end: 3, valtype: 'number' }
 		]
 	},
 	{
@@ -856,7 +866,7 @@ export default [
 				sign: '+',
 				start: 0,
 				end: 4,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -869,44 +879,44 @@ export default [
 				sign: '-',
 				start: 0,
 				end: 1,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
 	{
 		selector: '010',
 		tokenize: [
-			{ type: 'number', value: 10, start: 0, end: 2, numtype: 'integer' }
+			{ type: 'number', value: 10, start: 0, end: 2, valtype: 'integer' }
 		]
 	},
 	{
 		selector: '10e0',
 		tokenize: [
-			{ type: 'number', value: 10, start: 0, end: 3, numtype: 'number' }
+			{ type: 'number', value: 10, start: 0, end: 3, valtype: 'number' }
 		]
 	},
 	{
 		selector: '12e3',
 		tokenize: [
-			{ type: 'number', value: 12000, start: 0, end: 3, numtype: 'number' }
+			{ type: 'number', value: 12000, start: 0, end: 3, valtype: 'number' }
 		]
 	},
 	{
 		selector: '3e+1',
 		tokenize: [
-			{ type: 'number', value: 30, start: 0, end: 3, numtype: 'number' }
+			{ type: 'number', value: 30, start: 0, end: 3, valtype: 'number' }
 		]
 	},
 	{
 		selector: '12E-1',
 		tokenize: [
-			{ type: 'number', value: 1.2, start: 0, end: 4, numtype: 'number' }
+			{ type: 'number', value: 1.2, start: 0, end: 4, valtype: 'number' }
 		]
 	},
 	{
 		selector: '.7',
 		tokenize: [
-			{ type: 'number', value: 0.7, start: 0, end: 1, numtype: 'number' }
+			{ type: 'number', value: 0.7, start: 0, end: 1, valtype: 'number' }
 		]
 	},
 	{
@@ -918,7 +928,7 @@ export default [
 				sign: '-',
 				start: 0,
 				end: 2,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -931,7 +941,7 @@ export default [
 				sign: '+',
 				start: 0,
 				end: 9,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -944,7 +954,7 @@ export default [
 				sign: '-',
 				start: 0,
 				end: 8,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -953,7 +963,7 @@ export default [
 		tokenize: [
 			{ type: 'delim', value: '+', start: 0, end: 0 },
 			{ type: 'whitespace', start: 1, end: 1 },
-			{ type: 'number', value: 5, start: 2, end: 2, numtype: 'integer' }
+			{ type: 'number', value: 5, start: 2, end: 2, valtype: 'integer' }
 		]
 	},
 	{
@@ -966,7 +976,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 3,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -980,7 +990,7 @@ export default [
 				sign: '-',
 				start: 1,
 				end: 3,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -994,21 +1004,21 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 3,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
 	{
 		selector: '13.',
 		tokenize: [
-			{ type: 'number', value: 13, start: 0, end: 1, numtype: 'integer' },
+			{ type: 'number', value: 13, start: 0, end: 1, valtype: 'integer' },
 			{ type: 'delim', value: '.', start: 2, end: 2 }
 		]
 	},
 	{
 		selector: '1.e2',
 		tokenize: [
-			{ type: 'number', value: 1, start: 0, end: 0, numtype: 'integer' },
+			{ type: 'number', value: 1, start: 0, end: 0, valtype: 'integer' },
 			{ type: 'delim', value: '.', start: 1, end: 1 },
 			{ type: 'ident', value: 'e2', start: 2, end: 3 }
 		]
@@ -1016,21 +1026,21 @@ export default [
 	{
 		selector: '2e3.5',
 		tokenize: [
-			{ type: 'number', value: 2000, start: 0, end: 2, numtype: 'number' },
-			{ type: 'number', value: 0.5, start: 3, end: 4, numtype: 'number' }
+			{ type: 'number', value: 2000, start: 0, end: 2, valtype: 'number' },
+			{ type: 'number', value: 0.5, start: 3, end: 4, valtype: 'number' }
 		]
 	},
 	{
 		selector: '2e3.',
 		tokenize: [
-			{ type: 'number', value: 2000, start: 0, end: 2, numtype: 'number' },
+			{ type: 'number', value: 2000, start: 0, end: 2, valtype: 'number' },
 			{ type: 'delim', value: '.', start: 3, end: 3 }
 		]
 	},
 	{
 		selector: '1000000000000000000000000',
 		tokenize: [
-			{ type: 'number', value: 1e24, start: 0, end: 24, numtype: 'integer' }
+			{ type: 'number', value: 1e24, start: 0, end: 24, valtype: 'integer' }
 		]
 	},
 
@@ -1044,7 +1054,7 @@ export default [
 				unit: 'px',
 				start: 0,
 				end: 3,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1057,7 +1067,7 @@ export default [
 				unit: 'em',
 				start: 0,
 				end: 5,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -1071,7 +1081,7 @@ export default [
 				sign: '-',
 				start: 0,
 				end: 6,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -1085,7 +1095,7 @@ export default [
 				sign: '+',
 				start: 0,
 				end: 9,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -1098,7 +1108,7 @@ export default [
 				unit: 'e',
 				start: 0,
 				end: 1,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1111,7 +1121,7 @@ export default [
 				unit: 'px-2px',
 				start: 0,
 				end: 6,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1124,7 +1134,7 @@ export default [
 				unit: 'e-',
 				start: 0,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1137,7 +1147,7 @@ export default [
 				unit: ' ',
 				start: 0,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1150,7 +1160,7 @@ export default [
 				unit: 'px',
 				start: 0,
 				end: 7,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1163,7 +1173,7 @@ export default [
 				unit: 'e2',
 				start: 0,
 				end: 4,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -1176,7 +1186,7 @@ export default [
 				unit: 'x10px',
 				start: 0,
 				end: 5,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1189,7 +1199,7 @@ export default [
 				unit: 'unit',
 				start: 0,
 				end: 4,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'whitespace', start: 5, end: 5 }
 		]
@@ -1203,7 +1213,7 @@ export default [
 				unit: 'e',
 				start: 0,
 				end: 1,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'delim', value: '+', start: 2, end: 2 }
 		]
@@ -1217,9 +1227,9 @@ export default [
 				unit: 'e',
 				start: 0,
 				end: 1,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
-			{ type: 'number', value: 0.5, start: 2, end: 3, numtype: 'number' }
+			{ type: 'number', value: 0.5, start: 2, end: 3, valtype: 'number' }
 		]
 	},
 	{
@@ -1231,7 +1241,7 @@ export default [
 				unit: 'e',
 				start: 0,
 				end: 1,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1239,7 +1249,7 @@ export default [
 				sign: '+',
 				start: 2,
 				end: 4,
-				numtype: 'number'
+				valtype: 'number'
 			}
 		]
 	},
@@ -1282,7 +1292,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 7,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1290,7 +1300,7 @@ export default [
 				sign: '-',
 				start: 8,
 				end: 14,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1304,7 +1314,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 5,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1312,7 +1322,7 @@ export default [
 				sign: '-',
 				start: 6,
 				end: 10,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1326,7 +1336,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 4,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1334,7 +1344,7 @@ export default [
 				sign: '-',
 				start: 5,
 				end: 8,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1356,7 +1366,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'delim', value: '?', start: 3, end: 3 },
 			{ type: 'delim', value: '?', start: 4, end: 4 }
@@ -1404,7 +1414,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 4,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1412,7 +1422,7 @@ export default [
 				sign: '+',
 				start: 5,
 				end: 8,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1426,7 +1436,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 9,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1440,7 +1450,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 4,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{
 				type: 'number',
@@ -1448,7 +1458,7 @@ export default [
 				sign: '-',
 				start: 5,
 				end: 13,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1471,7 +1481,7 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 10,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1499,7 +1509,7 @@ export default [
 				sign: '-',
 				start: 5,
 				end: 8,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},
@@ -1513,11 +1523,11 @@ export default [
 				sign: '+',
 				start: 1,
 				end: 2,
-				numtype: 'integer'
+				valtype: 'integer'
 			},
 			{ type: 'delim', value: '?', start: 3, end: 3 },
 			{ type: 'delim', value: '?', start: 4, end: 4 },
-			{ type: 'number', value: 4, start: 5, end: 5, numtype: 'integer' }
+			{ type: 'number', value: 4, start: 5, end: 5, valtype: 'integer' }
 		]
 	},
 	{
@@ -1546,7 +1556,7 @@ export default [
 				sign: '-',
 				start: 2,
 				end: 5,
-				numtype: 'integer'
+				valtype: 'integer'
 			}
 		]
 	},

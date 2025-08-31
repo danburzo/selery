@@ -16,11 +16,15 @@ export default [
 	},
 	{
 		selector: '#hello',
-		tokenize: [{ type: 'hash', id: true, value: 'hello', start: 0, end: 5 }]
+		tokenize: [
+			{ type: 'hash', valtype: 'id', value: 'hello', start: 0, end: 5 }
+		]
 	},
 	{
 		selector: '#he\\#llo',
-		tokenize: [{ type: 'hash', id: true, value: 'he#llo', start: 0, end: 7 }]
+		tokenize: [
+			{ type: 'hash', valtype: 'id', value: 'he#llo', start: 0, end: 7 }
+		]
 	},
 	{
 		selector: '# hello',
