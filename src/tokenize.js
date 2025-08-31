@@ -558,9 +558,11 @@ export function tokenize(str) {
 			if (is_esc(-1)) {
 				_i--;
 				tokens.push(identlike());
-				continue;
+			} else {
+				// TODO: Parse error
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
-			throw new Error('Invalid escape');
+			continue;
 		}
 
 		if (ch === ']') {
