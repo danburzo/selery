@@ -30,8 +30,8 @@ export default [
 		serialize: 'a'
 	},
 	{
-		selector: '/* A comment \\',
-		tokenize: /unterminated comment/
+		selector: '/* Unterminated comment \\',
+		tokenize: []
 	},
 	{
 		selector: '/* A comment \\*/ a',

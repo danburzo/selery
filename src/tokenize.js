@@ -33,7 +33,7 @@ function nonascii(c) {
 		(c >= 0x3001 && c <= 0xd7ff) ||
 		(c >= 0xf900 && c <= 0xfdcf) ||
 		(c >= 0xfdf0 && c <= 0xfffd) ||
-		c > 0x10000
+		c >= 0x10000
 	);
 }
 
@@ -111,7 +111,8 @@ export function tokenize(str) {
 	*/
 	function esc() {
 		if (_i >= chars.length) {
-			throw new Error('Unexpected end of input, unterminated escape sequence');
+			// TODO: EOF, parser error
+			return '\uFFFD';
 		} else if (HexDigit.test(chars[_i] || '')) {
 			let hex = chars[_i++];
 			while (hex.length < 6 && HexDigit.test(chars[_i] || '')) {
@@ -159,7 +160,8 @@ export function tokenize(str) {
 	function num() {
 		let num_token = {
 			value: '',
-			start
+			start,
+			valtype: 'integer'
 		};
 		if (chars[_i] === '+' || chars[_i] === '-') {
 			num_token.sign = chars[_i];
@@ -168,6 +170,7 @@ export function tokenize(str) {
 		num_token.value += digits();
 		if (chars[_i] === '.' && /\d/.test(chars[_i + 1] || '')) {
 			num_token.value += chars[_i++] + digits();
+			num_token.valtype = 'number';
 		}
 		if (chars[_i] === 'e' || chars[_i] === 'E') {
 			if (
@@ -175,8 +178,10 @@ export function tokenize(str) {
 				/\d/.test(chars[_i + 2] || '')
 			) {
 				num_token.value += chars[_i++] + chars[_i++] + digits();
+				num_token.valtype = 'number';
 			} else if (/\d/.test(chars[_i + 1] || '')) {
 				num_token.value += chars[_i++] + digits();
+				num_token.valtype = 'number';
 			}
 		}
 		num_token.value = +num_token.value;
@@ -186,6 +191,9 @@ export function tokenize(str) {
 		} else if (chars[_i] === '%') {
 			_i++;
 			num_token.type = Tokens.Percentage;
+			// According to 4.3.3. Consume a numeric token,
+			// percentages don’t use the `type` flag from the number.
+			delete num_token.valtype;
 		} else {
 			num_token.type = Tokens.Number;
 		}
@@ -362,7 +370,8 @@ export function tokenize(str) {
 				_i++;
 			}
 			if (_i === chars.length) {
-				throw new Error('Unexpected end of input, unterminated comment');
+				// TODO parse error
+				continue;
 			}
 			_i += 2; // consume end of comment
 			continue;
@@ -433,10 +442,11 @@ export function tokenize(str) {
 			if (_i < chars.length && (isIdentCodePoint(chars[_i]) || is_esc())) {
 				token = {
 					type: Tokens.Hash,
-					start
+					start,
+					valtype: 'unrestricted'
 				};
 				if (is_ident()) {
-					token.id = true;
+					token.valtype = 'id';
 				}
 				token.value = ident();
 				token.end = _i - 1;
@@ -550,9 +560,11 @@ export function tokenize(str) {
 			if (is_esc(-1)) {
 				_i--;
 				tokens.push(identlike());
-				continue;
+			} else {
+				// TODO: Parse error
+				tokens.push({ type: Tokens.Delim, value: ch, start, end: start });
 			}
-			throw new Error('Invalid escape');
+			continue;
 		}
 
 		if (ch === ']') {

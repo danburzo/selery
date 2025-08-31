@@ -261,7 +261,9 @@ You may also want to check out these other CSS parsing projects:
 - [csstree/csstree](https://github.com/csstree/csstree)
 - [tabatkins/parse-css](https://github.com/tabatkins/parse-css)
 - [asamuzaK/domSelector](https://github.com/asamuzaK/domSelector)
+- [dbushell/css](https://git.dbushell.com/dbushell/css)
+- [romainmenke/css-tokenizer-tests](https://github.com/romainmenke/css-tokenizer-tests)
 
 ## Acknowledgements
 
-Selery’s tokenizer is much more robust thanks to the test suite imported from [parse-css](https://github.com/tabatkins/parse-css).
+Selery’s tokenizer is much more robust thanks to the test suite imported from [parse-css](https://github.com/tabatkins/parse-css) and the [`@rmenke/css-tokenizer-tests`](https://github.com/romainmenke/css-tokenizer-tests) corpus.

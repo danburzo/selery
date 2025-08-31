@@ -38,8 +38,22 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-last-of-type',
 					argument: [
-						{ type: 'dimension', value: 2, unit: 'n', start: 18, end: 19 },
-						{ type: 'number', value: 3, sign: '+', start: 20, end: 21 }
+						{
+							type: 'dimension',
+							value: 2,
+							unit: 'n',
+							start: 18,
+							end: 19,
+							valtype: 'integer'
+						},
+						{
+							type: 'number',
+							value: 3,
+							sign: '+',
+							start: 20,
+							end: 21,
+							valtype: 'integer'
+						}
 					],
 					start: 0,
 					end: 22
@@ -59,7 +73,13 @@ export default [
 					type: 'PseudoClassSelector',
 					identifier: 'nth-child',
 					argument: [
-						{ type: 'number', value: 2, start: 11, end: 11 },
+						{
+							type: 'number',
+							value: 2,
+							start: 11,
+							end: 11,
+							valtype: 'integer'
+						},
 						{ type: 'whitespace', start: 12, end: 12 },
 						{ type: 'ident', value: 'of', start: 13, end: 14 },
 						{ type: 'whitespace', start: 15, end: 15 },
