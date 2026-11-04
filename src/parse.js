@@ -8,6 +8,7 @@ export const NodeTypes = {
 	/*
 		Simple selectors.
 	*/
+	NestingSelector: 'NestingSelector',
 	TypeSelector: 'TypeSelector',
 	IdSelector: 'IdSelector',
 	ClassSelector: 'ClassSelector',
@@ -241,6 +242,7 @@ export const parse = (arg, options = {}) => {
 
 		while (
 			(sel =
+				NestingSelector() ||
 				IdSelector() ||
 				ClassSelector() ||
 				AttributeSelector() ||
@@ -347,6 +349,24 @@ export const parse = (arg, options = {}) => {
 		}
 		if (ns) {
 			throw new Error('Namespace prefix requires element name');
+		}
+		return undefined;
+	}
+
+	/*
+		Consume an ampersand selector, assuming any 
+		preceding whitespace has already been consumed.
+	*/
+	function NestingSelector() {
+		let start = tok?.start;
+		if (isDelim(tok, '&')) {
+			let node = {
+				type: NodeTypes.NestingSelector,
+				start,
+				end: tok.end
+			};
+			tok = next();
+			return node;
 		}
 		return undefined;
 	}

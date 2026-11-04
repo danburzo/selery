@@ -210,6 +210,10 @@ Represents a type selector, such as `article`.
 - `identifier` (String) — the element type to match; can be `*` in the case of the universal selector;
 - `namespace` (String) — the namespace, if provided with the `namespace|type` syntax; an empty string corresponds to the `|type` syntax.
 
+#### `NestingSelector`
+
+Represents the `&` selector.
+
 #### `IdSelector`
 
 Represents an ID selector, such as `#main`.

@@ -31,6 +31,8 @@ export const serialize = (node, extra) => {
 				(node.namespace === undefined ? '' : node.namespace + '|') +
 				node.identifier
 			);
+		case NodeTypes.NestingSelector:
+			return '&';
 		case NodeTypes.IdSelector:
 			return '#' + node.identifier;
 		case NodeTypes.ClassSelector:
