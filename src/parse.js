@@ -8,7 +8,7 @@ export const NodeTypes = {
 	/*
 		Simple selectors.
 	*/
-	AmpersandSelector: 'AmpersandSelector',
+	NestingSelector: 'NestingSelector',
 	TypeSelector: 'TypeSelector',
 	IdSelector: 'IdSelector',
 	ClassSelector: 'ClassSelector',
@@ -242,7 +242,7 @@ export const parse = (arg, options = {}) => {
 
 		while (
 			(sel =
-				AmpersandSelector() ||
+				NestingSelector() ||
 				IdSelector() ||
 				ClassSelector() ||
 				AttributeSelector() ||
@@ -357,11 +357,11 @@ export const parse = (arg, options = {}) => {
 		Consume an ampersand selector, assuming any 
 		preceding whitespace has already been consumed.
 	*/
-	function AmpersandSelector() {
+	function NestingSelector() {
 		let start = tok?.start;
 		if (isDelim(tok, '&')) {
 			let node = {
-				type: NodeTypes.AmpersandSelector,
+				type: NodeTypes.NestingSelector,
 				start,
 				end: tok.end
 			};

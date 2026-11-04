@@ -19,7 +19,7 @@ export default [
 							{
 								end: 4,
 								start: 4,
-								type: 'AmpersandSelector'
+								type: 'NestingSelector'
 							},
 							{
 								end: 8,
@@ -66,7 +66,7 @@ export default [
 							{
 								end: 8,
 								start: 8,
-								type: 'AmpersandSelector'
+								type: 'NestingSelector'
 							}
 						],
 						start: 4,
